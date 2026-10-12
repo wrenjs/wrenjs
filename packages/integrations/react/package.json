@@ -1,0 +1,82 @@
+{
+  "name": "@wrenjs/react",
+  "version": "0.1.0",
+  "description": "React rendering integration for wrenjs",
+  "keywords": [
+    "adapter",
+    "integration",
+    "react",
+    "vite",
+    "wren",
+    "wrenjs"
+  ],
+  "homepage": "https://wrenjs.org",
+  "bugs": {
+    "url": "https://github.com/wrenjs/wrenjs/issues",
+    "email": "maintainers@wrenjs.org"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "wrenjs Authors",
+    "email": "maintainers@wrenjs.org",
+    "url": "https://github.com/wrenjs/wrenjs/AUTHORS.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wrenjs/wrenjs.git",
+    "directory": "packages/adapters/node"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/wrenjs"
+  },
+  "files": [
+    "dist",
+    "tsconfigs"
+  ],
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./entry/client": "./dist/entry/client.mjs",
+    "./entry/prerender": "./dist/entry/prerender.mjs",
+    "./entry/react": "./dist/entry/react.mjs",
+    "./entry/ssr": "./dist/entry/ssr.mjs",
+    "./package.json": "./package.json",
+    "./tsconfig/*": "./dist/tsconfig/*.json",
+    "./tsconfig/*.json": "./tsconfig/*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "dev": "vp pack --watch",
+    "prepublishOnly": "vp run build",
+    "publish": "vp pm publish",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "catalog:integration-react",
+    "@vitejs/plugin-rsc": "catalog:integration-react",
+    "oxc-transform-react": "catalog:integration-react"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:integration-react",
+    "@types/react-dom": "catalog:integration-react",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "wrenjs": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "catalog:integration-peers-react",
+    "react-dom": "catalog:integration-peers-react",
+    "vite": "*",
+    "wrenjs": "*"
+  }
+}

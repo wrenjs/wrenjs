@@ -1,0 +1,3 @@
+{
+  "extends": "./integrations/preact/tsconfig.json"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "#tests/scratch--routing-react",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "wren build",
+    "dev": "wren dev",
+    "preview": "wren build && node ./dist/server.mjs"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:integration-react",
+    "@types/react-dom": "catalog:integration-react",
+    "@wrenjs/adapter-node": "workspace:*",
+    "@wrenjs/react": "workspace:*",
+    "react": "catalog:integration-react",
+    "react-dom": "catalog:integration-react",
+    "wrenjs": "workspace:*"
+  }
+}

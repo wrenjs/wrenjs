@@ -1,0 +1,67 @@
+/*
+ * Bento grid — layout + variant classes.
+ *
+ * The liquid-glass effects (drift, glint, rim, bevel, chromatic aberration,
+ * sandblasted noise) are composed from the shared primitives in
+ *   `#/components/liquid-glass/liquid-glass.module.css`.
+ *
+ * This file only contains the bento-specific layout (grid template, sizing,
+ * variant tile shapes, code/tree/directives content styling).
+ */
+
+:root {
+  --tile: calc(var(--spacing) * 16);
+  --gap: calc(var(--spacing) * 3);
+  --radius-sm: 2ch;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --tile: 8ch;
+    --gap: 1ch;
+  }
+}
+
+/* ----- Bento grid (iOS App Library style) ----- */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(2, var(--tile));
+  grid-template-rows: repeat(2, var(--tile));
+  gap: var(--gap);
+  border-radius: calc(var(--tile) / 4);
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-em);
+  border-radius: calc(var(--tile) / 5);
+}
+
+/* ----- Folder tile: 2x2 mini-icons inside one big square ----- */
+
+.tileFolder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 8px;
+  padding: 14px 14px 8px;
+  align-items: stretch;
+  justify-items: stretch;
+}
+
+.tileFolder .tileLabel {
+  grid-column: 1 / -1;
+  align-self: end;
+  text-align: center;
+  margin-top: 2px;
+  font-size: 0.7rem;
+}
+
+.mini {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

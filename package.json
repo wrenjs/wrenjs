@@ -1,0 +1,33 @@
+{
+  "name": "#monorepo/wrenjs",
+  "type": "module",
+  "scripts": {
+    "build": "vpr pkg",
+    "check": "vp check --fix",
+    "czg": "czg",
+    "pkg": "vpr --filter '...wrenjs' --filter '!#*/*' build",
+    "prepare": "vp config",
+    "publish": "vpr build && vpr --filter '...wrenjs' --filter '!#*/*' publish"
+  },
+  "devDependencies": {
+    "czg": "catalog:",
+    "eslint-plugin-perfectionist": "catalog:lint",
+    "eslint-plugin-sonarjs": "catalog:lint",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "wrenjs": "workspace:*"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.11.2",
+      "onFail": "download"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "^26.11.1",
+      "onFail": "download"
+    }
+  }
+}

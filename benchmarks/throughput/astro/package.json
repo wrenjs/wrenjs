@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@astrojs/node": "^11.1.0",
+    "astro": "^7.2.0"
+  },
+  "scripts": {
+    "astro": "astro",
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview",
+    "serve": "node ./dist/server/entry.mjs"
+  },
+  "type": "module"
+}

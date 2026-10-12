@@ -1,0 +1,3 @@
+{
+  "extends": "@wrenjs/preact/tsconfig/strict"
+}

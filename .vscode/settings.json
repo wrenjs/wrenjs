@@ -1,0 +1,15 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.addMissingImports.ts": "explicit",
+    "source.fixAll.oxc": "explicit",
+    "source.removeUnusedImports": "explicit"
+  },
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "eslint.enable": false,
+  "npm.scriptRunner": "vp",
+  "oxc.enable": true,
+  "prettier.enable": false,
+  "unocss.disable": false
+}

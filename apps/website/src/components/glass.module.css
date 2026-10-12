@@ -1,0 +1,79 @@
+:root {
+  --bg-blue: color-mix(
+    in srgb,
+    color-mix(in oklch, var(--colors-blue) 50%, oklch(88% 0.02 250)) 30%,
+    transparent
+  );
+  --bg-purple: color-mix(
+    in srgb,
+    color-mix(in oklch, var(--colors-purple) 50%, oklch(88% 0.02 250)) 19%,
+    transparent
+  );
+  --bg-pink: color-mix(
+    in srgb,
+    color-mix(in oklch, var(--colors-pink) 50%, oklch(88% 0.02 250)) 17%,
+    transparent
+  );
+}
+.glass {
+  --width: 50dvw;
+  --height: 50dvh;
+
+  --circle-offset-x: 40vw;
+  --circle-offset-y: 40vh;
+
+  background-attachment: fixed;
+  background-image:
+    radial-gradient(
+      ellipse var(--width) var(--height) at var(--pointer-x, 50%) var(--pointer-y, 50%),
+      var(--bg-blue),
+      transparent
+    ),
+    radial-gradient(
+      ellipse calc(var(--width) * 1.0833) calc(var(--height) * 1.0556) at
+        calc(var(--pointer-x, 50%) - var(--circle-offset-x))
+        calc(var(--pointer-y, 50%) - var(--circle-offset-y)),
+      var(--bg-purple),
+      transparent
+    ),
+    radial-gradient(
+      ellipse calc(var(--width) * 1.3833) calc(var(--height) * 1.9556) at
+        calc(var(--pointer-x, 50%) - var(--circle-offset-x))
+        calc(var(--pointer-y, 50%) + var(--circle-offset-y)),
+      var(--bg-purple),
+      transparent
+    ),
+    radial-gradient(
+      ellipse calc(var(--width) * 1) calc(var(--height) * 1) at
+        calc(var(--pointer-x, 50%) + var(--circle-offset-x))
+        calc(var(--pointer-y, 50%) - var(--circle-offset-y)),
+      var(--bg-purple),
+      transparent
+    ),
+    radial-gradient(
+      ellipse calc(var(--width) * 1.1667) calc(var(--height) * 1.1111) at
+        calc(var(--pointer-x, 50%) + var(--circle-offset-x))
+        calc(var(--pointer-y, 50%) + var(--circle-offset-y)),
+      var(--bg-pink),
+      transparent
+    ),
+    linear-gradient(
+      to bottom right,
+      color-mix(
+        in srgb,
+        color-mix(in oklch, var(--glass-tint, rgba(240, 255, 240, 40)) 30%, oklch(88% 0.02 250)) 12%,
+        transparent
+      ),
+      color-mix(
+        in srgb,
+        color-mix(in oklch, var(--glass-tint, rgba(239, 240, 242, 40)) 60%, oklch(88% 0.02 250)) 30%,
+        transparent
+      ),
+      color-mix(
+        in srgb,
+        color-mix(in oklch, var(--glass-tint, rgba(240, 255, 240, 40)) 70%, oklch(88% 0.02 250)) 16%,
+        transparent
+      )
+    );
+  background-size: 100dvw 100dvh;
+}

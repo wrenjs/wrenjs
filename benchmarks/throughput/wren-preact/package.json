@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@wrenjs/adapter-node": "workspace:*",
+    "@wrenjs/preact": "workspace:*",
+    "preact": "catalog:integration-preact",
+    "typescript": "catalog:",
+    "wrenjs": "workspace:*"
+  },
+  "name": "#benchmarks/throughput--wren-preact",
+  "private": true,
+  "scripts": {
+    "build": "wren build",
+    "dev": "wren dev",
+    "serve": "node ./dist/server.mjs"
+  },
+  "type": "module"
+}

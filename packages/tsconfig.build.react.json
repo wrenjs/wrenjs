@@ -1,0 +1,3 @@
+{
+  "extends": "./integrations/react/tsconfig.json"
+}

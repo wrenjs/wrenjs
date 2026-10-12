@@ -1,0 +1,17 @@
+{
+  "name": "#tests/scratch--routing-preact",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "wren build",
+    "dev": "wren dev",
+    "preview": "wren build && node ./dist/server.mjs",
+    "publish": "vp pm publish"
+  },
+  "devDependencies": {
+    "@wrenjs/adapter-node": "workspace:*",
+    "@wrenjs/preact": "workspace:*",
+    "preact": "catalog:integration-preact",
+    "wrenjs": "workspace:*"
+  }
+}
