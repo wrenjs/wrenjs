@@ -1,0 +1,44 @@
+import type { ServerResponse } from "node:http";
+import type { Plugin } from "vite";
+import { pipeline } from "node:stream/promises";
+import { isCSSRequest, isRunnableDevEnvironment } from "vite";
+import { toRequestInput } from "../../../entry/node/request.ts";
+
+type SsrEntryModule = Pick<typeof import("virtual:wrenjs-fetch"), "fetch">;
+
+const sendResponse = async (res: ServerResponse, response: Response): Promise<void> => {
+  res.writeHead(response.status, [...response.headers].flat());
+  if (!response.body) {
+    res.end();
+    return;
+  }
+  await pipeline(response.body, res);
+};
+
+export const pluginWrenDevServer = (entry: string): Plugin => ({
+  apply: "serve",
+  configureServer(server) {
+    const environment = server.environments.ssr;
+    if (!isRunnableDevEnvironment(environment)) {
+      throw new Error(`[wrenjs] The "ssr" environment must be runnable in dev.`);
+    }
+
+    return () => {
+      server.middlewares.use((req, res, next) => {
+        environment.runner
+          .import<SsrEntryModule>(entry)
+          .then(async ({ fetch }) =>
+            sendResponse(res, await fetch(toRequestInput(req, req.originalUrl ?? req.url))),
+          )
+          // oxlint-disable-next-line promise/no-callback-in-promise -- Connect expects errors via next().
+          .catch(next);
+      });
+    };
+  },
+  hotUpdate({ file, modules, server }) {
+    if (this.environment.name !== "ssr" || isCSSRequest(file) || modules.length === 0) return;
+    if (server.environments.client.moduleGraph.getModulesByFile(file)?.size) return;
+    server.environments.client.hot.send({ triggeredBy: file, type: "full-reload" });
+  },
+  name: "wrenjs-dev-server",
+});

@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "#/*": ["./src/*"]
+    }
+  },
+  "extends": "@wren-js/preact/tsconfig/strict"
+}

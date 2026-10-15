@@ -1,0 +1,133 @@
+export const config = {
+  tags: ["1", "2", "3"],
+};
+import { Icon } from "../../components/icon";
+import { Badge } from "../../components/docs/badge";
+import { Steps, Step } from "../../components/docs/steps";
+
+<header>
+# Installation
+
+Installing <span class=":uno: font-serif">wrenjs</span> is simple and straightforward. There are three options to get started:
+
+- [Using the `create` **command** <Badge tint="green"><Icon name="i-lucide:check" /> Recommended</Badge>](#create-cli)
+- [**Cloning** a starter template from GitHub](#clone-template)
+- [**Manually** setting up a project and installing the dependencies](#manual-setup)
+
+## Prerequisites
+
+- <Icon name="i-simple-icons:nodedotjs" /> Node.js - Version 22 or higher.
+
+- <Icon name="i-lucide:package" /> A preferred package manager, such as `npm`, `pnpm`, etc.
+
+## Browser Support
+
+<span class=":uno: font-serif">wrenjs</span> is built with
+<Icon name="i-simple-icons:vite" className=":uno: size-3" /> Vite, which supports modern browsers
+for development and builds &mdash; but does support legacy browsers with configuration. Check their
+[browser support page
+<Icon name="i-lucide:external-link" />
+](https://vite.dev/guide/build#browser-compatibility) for more details.
+
+</header>
+
+<section>
+<h2 id="create-cli">Install with the `create` command <Badge tint="green" size="md"><Icon name="i-lucide:check" /> Recommended</Badge></h2>
+
+It is commonplace for most frameworks to provide a small CLI tool to help developers quickly scaffold a new project. This will create a directory with the necessary files and install the required dependencies.
+
+> <Icon name="i-lucide:info" /> **Did you know?** `npm create <package>` is shorthand for `npx create-<package>`, and `npm create <@namespace>` is shorthand for `npx <@namespace>/create`, meaning a `create-<package>` exists in the NPM registry.
+
+<Steps>
+    <Step>
+      ### Create with CLI
+
+      Our `create-wrenjs` CLI tool will give you guided prompts to help set up your project.
+
+      {/* <Terminal contents="PKG_MANAGER create wrenjs@latest" /> */}
+
+    </Step>
+
+    <Step>
+      ### Start Development
+
+      Once the CLI tool completes, you're ready to start development.
+
+      {/* <Terminal contents={["cd <my-app>", "PKG_MANAGER run dev"]} /> */}
+    </Step>
+
+</Steps>
+</section>
+
+<section>
+  <h2 id="clone-template">Clone a starter template from GitHub</h2>
+
+If you prefer to start with a pre-configured project, you can clone one of the starter templates from GitHub. We have several pre-made templates for common scenarios that you can use to get started quickly.
+
+You can also feel free to mix-and-match the templates and their configurations to suit your needs.
+
+</section>
+
+<section>
+  <h2 id="manual-setup">Manual Install</h2>
+
+Installing <span class=":uno: font-serif">wrenjs</span> manually involves some simple file operations you're familiar with.
+
+This example will attempt to create the _minimum necessary files_ to get a project up and running. Optional ones will be noted.
+
+  <Steps>
+    <Step>
+      ### Create a new project directory
+      In your terminal, you want to create a new directory for your <span class=":uno: font-serif">wrenjs</span> project and create a new `package.json` file.
+
+      You can do this quickly with the following:
+
+      {/* <Terminal contents="mkdir wrenjs-app && cd wrenjs-app && echo '' >> package.json" /> */}
+
+    </Step>
+
+    <Step>
+      ### Modify package.json
+      Open the `package.json` file in your favorite text editor and add the following content.
+
+      This ensures your <span class=":uno: font-serif">wrenjs</span> project has the necessary scripts to run development, build, and preview commands.
+
+      {/* <Terminal noPkg contents={["\{", '  "scripts": \{', '    "dev": "wrenjs dev",', '    "build": "wrenjs build",', '    "preview": "wrenjs preview"', "  \}", '  "type": "module"', "\}"]} /> */}
+    </Step>
+
+    <Step>
+      ### Install dependencies
+      Now you can install the required dependencies for <span class=":uno: font-serif">wrenjs</span>.
+
+      {/* <Terminal contents="PKG_MANAGER i wrenjs" /> */}
+
+      You should also choose at least one [integration](#integrations-link) library.
+
+      {/* <Terminal contents={["# With React", "PKG_MANAGER i @wren-js/react react react-dom", "", "# With Preact", "PKG_MANAGER i @wren-js/preact preact"]} /> */}
+
+
+    </Step>
+
+    <Step>
+      ### Create supporting directories and files.
+      Now that you have dependencies installed, you're almost done!
+
+      Next, you need to create the necessary configuration and directories the application looks for.
+
+      You will also need to add the integration library you chose to the `wren.config.js` file.
+
+      {/* <Terminal noPkg contents={["mkdir -p src/pages"]} /> */}
+
+      {/* <Terminal noPkg contents={["import { defineConfig } from 'wrenjs';", "", "export default defineConfig(\{", "  // Other configuration goes here", "\})"]} /> */}
+    </Step>
+
+    <Step>
+      ### Enable TypeScript <Badge tint="#ff0000" size="md"><Icon name="i-lucide:info" /> Optional</Badge> <Badge tint="green" size="md"><Icon name="i-lucide:check" /> Recommended</Badge>
+      For TypeScript support to help with a better developer experience, you can install the TypeScript package and create a `tsconfig.json` file.
+
+      {/* <Terminal contents="PKG_MANAGER run dev" /> */}
+
+    </Step>
+
+  </Steps>
+</section>

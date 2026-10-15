@@ -1,0 +1,46 @@
+:root {
+  --bg-blue: oklch(from var(--colors-blue) l c h / 9%);
+  --bg-purple: oklch(from var(--colors-purple) l c h / 9%);
+  --bg-pink: oklch(from var(--colors-pink) l c h / 9%);
+}
+
+.glass {
+  --width: 50dvw;
+  --height: 50dvh;
+
+  --circle-offset-x: 40vw;
+  --circle-offset-y: 40vh;
+
+  background-attachment: fixed;
+  background-image:
+    radial-gradient(
+      ellipse var(--width) var(--height) at var(--pointer-x, 50%) var(--pointer-y, 50%),
+      var(--bg-blue),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 54.165dvw 52.78dvh at calc(var(--pointer-x, 50%) - var(--circle-offset-x))
+        calc(var(--pointer-y, 50%) - var(--circle-offset-y)),
+      var(--bg-purple),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 69.165dvw 97.78dvh at calc(var(--pointer-x, 50%) - var(--circle-offset-x))
+        calc(var(--pointer-y, 50%) + var(--circle-offset-y)),
+      var(--bg-purple),
+      transparent
+    ),
+    radial-gradient(
+      ellipse var(--width) var(--height) at calc(var(--pointer-x, 50%) + var(--circle-offset-x))
+        calc(var(--pointer-y, 50%) - var(--circle-offset-y)),
+      var(--bg-purple),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 58.335dvw 55.555dvh at calc(var(--pointer-x, 50%) + var(--circle-offset-x))
+        calc(var(--pointer-y, 50%) + var(--circle-offset-y)),
+      var(--bg-pink),
+      transparent
+    );
+  background-size: 100dvw 100dvh;
+}

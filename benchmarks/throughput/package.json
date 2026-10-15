@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "@types/autocannon": "catalog:benchmarks",
+    "autocannon": "catalog:benchmarks"
+  },
+  "name": "benchmarks/throughput",
+  "scripts": {
+    "bench": "vpr -w pkg && node bench.ts",
+    "bench:cold": "vpr -w pkg && node bench.ts --cold"
+  },
+  "type": "module"
+}

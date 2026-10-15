@@ -1,0 +1,16 @@
+{
+  "name": "#tests/scratch--routing-ssx",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "wren build",
+    "dev": "wren dev",
+    "preview": "wren build && node ./dist/server.mjs"
+  },
+  "devDependencies": {
+    "@lumeland/ssx": "catalog:integration-ssx",
+    "@wren-js/adapter-node": "workspace:*",
+    "@wren-js/core": "workspace:*",
+    "@wren-js/ssx": "workspace:*"
+  }
+}

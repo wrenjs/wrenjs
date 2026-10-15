@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@lumeland/ssx"
+  },
+  "extends": "@wren-js/core/tsconfig/base"
+}

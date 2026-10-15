@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmit": true,
+    "paths": {
+      "#/*": ["./src/*"],
+      "#shared/*": ["../../_shared/*"]
+    },
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext",
+    "types": ["vite/client", "@wren-js/core/types"],
+    "verbatimModuleSyntax": true
+  },
+  "include": ["src"]
+}

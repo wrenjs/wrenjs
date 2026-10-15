@@ -1,0 +1,3 @@
+{
+  "extends": "@wren-js/preact/tsconfig/strict"
+}

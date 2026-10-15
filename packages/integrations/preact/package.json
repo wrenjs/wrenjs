@@ -1,0 +1,76 @@
+{
+  "name": "@wren-js/preact",
+  "version": "0.2.0",
+  "description": "Preact rendering integration for wrenjs",
+  "keywords": [
+    "@wren-js/core",
+    "adapter",
+    "integration",
+    "preact",
+    "vite",
+    "wren"
+  ],
+  "homepage": "https://wrenjs.org",
+  "bugs": {
+    "url": "https://github.com/wrenjs/wrenjs/issues",
+    "email": "maintainers@wrenjs.org"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "wrenjs Authors",
+    "email": "maintainers@wrenjs.org",
+    "url": "https://github.com/wrenjs/wrenjs/AUTHORS.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wrenjs/wrenjs.git",
+    "directory": "packages/integrations/preact"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/wrenjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./entry/client": "./dist/entry/client.mjs",
+    "./entry/prerender": "./dist/entry/prerender.mjs",
+    "./entry/ssr": "./dist/entry/ssr.mjs",
+    "./runtime/island": "./dist/runtime/island.mjs",
+    "./package.json": "./package.json",
+    "./tsconfig/*": "./dist/tsconfig/*.json",
+    "./tsconfig/*.json": "./dist/tsconfig/*.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "dev": "vp pack --watch",
+    "prepublishOnly": "vp run build",
+    "publish": "vp pm publish",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@prefresh/vite": "catalog:integration-preact",
+    "preact-render-to-string": "catalog:integration-preact",
+    "vite": "catalog:runtime"
+  },
+  "devDependencies": {
+    "@wren-js/core": "workspace:*",
+    "preact": "catalog:integration-preact",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "@wren-js/core": "*",
+    "preact": "catalog:integration-peers-preact"
+  }
+}

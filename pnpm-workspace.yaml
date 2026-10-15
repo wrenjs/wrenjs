@@ -1,0 +1,84 @@
+allowBuilds:
+  esbuild: true
+  workerd: true
+
+catalog:
+  "@types/node": 26.6.5
+  czg: ^1.14.0
+  typescript: 7.0.2
+  vite: npm:@voidzero-dev/vite-plus-core@1.2.0
+  vite-plus: 1.2.0
+
+catalogs:
+  benchmarks:
+    "@types/autocannon": "7.12.7"
+    "autocannon": "8.0.0"
+
+  integration-preact:
+    preact: "11.0.1"
+    preact-render-to-string: "6.8.0"
+    "@prefresh/vite": "4.0.1"
+  integration-peers-preact:
+    "preact": "^11.0.1"
+
+  integration-ssx:
+    "@lumeland/ssx": "0.1.15"
+  integration-peers-ssx:
+    "@lumeland/ssx": "^0.1.15"
+
+  integration-react:
+    "@types/react-dom": 19.3.0
+    "@types/react": 19.3.0
+    "@vitejs/plugin-react": 6.1.2
+    "@vitejs/plugin-rsc": 0.5.37
+    react-dom: 19.3.0
+    react: 19.3.0
+    oxc-transform-react: 0.154.0
+  integration-peers-react:
+    "react": "^19.3.0"
+    "react-dom": "^19.3.0"
+
+  lint:
+    eslint-plugin-perfectionist: 5.12.1
+    eslint-plugin-sonarjs: 4.2.2
+
+  runtime:
+    vite: 8.3.4
+
+catalogMode: prefer
+
+overrides:
+  vite: "catalog:"
+  "react-dom@*": "catalog:integration-react"
+  "react@*": "catalog:integration-react"
+
+packages:
+  - apps/*
+  - benchmarks/*
+  - benchmarks/**/wren*
+  - packages/adapters/*
+  - packages/core
+  - packages/integrations/*
+  - tests/**/*
+
+peerDependencyRules:
+  allowAny:
+    - vite
+    - "@wren-js/core"
+  allowedVersions:
+    vite: "*"
+    "@wren-js/core": "*"
+
+publishBranch: trunk
+
+minimumReleaseAgeExclude:
+  - "@voidzero-dev/vite-plus-core@1.2.0"
+  - "@voidzero-dev/vite-plus-darwin-arm64@1.2.0"
+  - "@voidzero-dev/vite-plus-darwin-x64@1.2.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-gnu@1.2.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-musl@1.2.0"
+  - "@voidzero-dev/vite-plus-linux-x64-gnu@1.2.0"
+  - "@voidzero-dev/vite-plus-linux-x64-musl@1.2.0"
+  - "@voidzero-dev/vite-plus-win32-arm64-msvc@1.2.0"
+  - "@voidzero-dev/vite-plus-win32-x64-msvc@1.2.0"
+  - vite-plus@1.2.0

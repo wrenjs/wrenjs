@@ -1,0 +1,77 @@
+{
+  "name": "@wren-js/core",
+  "version": "0.2.0",
+  "description": "Framework agnostic utilities for the wrenjs meta-framework",
+  "keywords": [
+    "@wren-js/core",
+    "framework",
+    "meta-framework",
+    "vite",
+    "wren"
+  ],
+  "homepage": "https://wrenjs.org",
+  "bugs": {
+    "url": "https://github.com/wrenjs/wrenjs/issues",
+    "email": "maintainers@wrenjs.org"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "wrenjs Authors",
+    "email": "maintainers@wrenjs.org",
+    "url": "https://github.com/wrenjs/wrenjs/AUTHORS.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wrenjs/wrenjs.git",
+    "directory": "packages/core"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/wrenjs"
+  },
+  "bin": {
+    "wren": "./bin/cli.mjs"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "exports": {
+    "./cli": "./dist/cli.mjs",
+    "./components/Link/wren-link": "./dist/components/Link/wren-link.mjs",
+    "./config": "./dist/config.mjs",
+    "./constants": "./dist/constants.mjs",
+    "./link": "./dist/link.mjs",
+    "./runtime/prerender": "./dist/runtime/prerender.mjs",
+    "./runtime/router": "./dist/runtime/router.mjs",
+    "./package.json": "./package.json",
+    "./tsconfig/*": "./dist/tsconfig/*.json",
+    "./tsconfig/*.json": "./dist/tsconfig/*.json",
+    "./types": {
+      "types": "./dist/types.d.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "dev": "vp pack --watch",
+    "prepublishOnly": "vp run build",
+    "publish": "vp pm publish",
+    "test": "vp test",
+    "test:types": "vp run build && tsc --noEmit -p test-dts/tsconfig.json"
+  },
+  "dependencies": {
+    "vite": "catalog:runtime"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}
