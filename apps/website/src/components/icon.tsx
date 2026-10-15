@@ -14,7 +14,7 @@ export function Icon({ alt, class: className, name, role = "img", size, ...rest 
       class={cn(" inline-block ", name, className ?? undefined)}
       inert={alt ? undefined : "true"}
       role={alt ? role : undefined}
-      style={{ height: String(height), width: String(width) }}
+      style={{ height, width }}
       title={alt}
       {...rest}
     />

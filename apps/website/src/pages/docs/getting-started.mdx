@@ -4,6 +4,9 @@ export const config = {
 import { Icon } from "../../components/icon";
 import { Badge } from "../../components/docs/badge";
 import { Steps, Step } from "../../components/docs/steps";
+import { Terminal } from "../../components/docs/terminal";
+import { CTA } from "../../components/cta";
+import { LS_PKG_KEY } from "../../constants";
 
 <header>
 # Installation
@@ -24,9 +27,8 @@ Installing <span class=":uno: font-serif">wrenjs</span> is simple and straightfo
 
 <span class=":uno: font-serif">wrenjs</span> is built with
 <Icon name="i-simple-icons:vite" className=":uno: size-3" /> Vite, which supports modern browsers
-for development and builds &mdash; but does support legacy browsers with configuration. Check their
-[browser support page
-<Icon name="i-lucide:external-link" />
+for development and builds - but does support legacy browsers with configuration. Check their
+[browser support page <Icon name="i-lucide:external-link" />
 ](https://vite.dev/guide/build#browser-compatibility) for more details.
 
 </header>
@@ -44,7 +46,7 @@ It is commonplace for most frameworks to provide a small CLI tool to help develo
 
       Our `create-wrenjs` CLI tool will give you guided prompts to help set up your project.
 
-      {/* <Terminal contents="PKG_MANAGER create wrenjs@latest" /> */}
+      <Terminal contents={`${LS_PKG_KEY} create wrenjs@latest`} />
 
     </Step>
 
@@ -53,7 +55,7 @@ It is commonplace for most frameworks to provide a small CLI tool to help develo
 
       Once the CLI tool completes, you're ready to start development.
 
-      {/* <Terminal contents={["cd <my-app>", "PKG_MANAGER run dev"]} /> */}
+      <Terminal contents={["cd <my-app>", `${LS_PKG_KEY} run dev`]} />
     </Step>
 
 </Steps>
@@ -65,6 +67,11 @@ It is commonplace for most frameworks to provide a small CLI tool to help develo
 If you prefer to start with a pre-configured project, you can clone one of the starter templates from GitHub. We have several pre-made templates for common scenarios that you can use to get started quickly.
 
 You can also feel free to mix-and-match the templates and their configurations to suit your needs.
+
+<CTA href="https://github.com/wrenjs/wrenjs/tree/trunk/templates">
+  Get Started with a Template
+  <Icon name="i-lucide:external-link" />
+</CTA>
 
 </section>
 
@@ -82,8 +89,6 @@ This example will attempt to create the _minimum necessary files_ to get a proje
 
       You can do this quickly with the following:
 
-      {/* <Terminal contents="mkdir wrenjs-app && cd wrenjs-app && echo '' >> package.json" /> */}
-
     </Step>
 
     <Step>
@@ -92,18 +97,18 @@ This example will attempt to create the _minimum necessary files_ to get a proje
 
       This ensures your <span class=":uno: font-serif">wrenjs</span> project has the necessary scripts to run development, build, and preview commands.
 
-      {/* <Terminal noPkg contents={["\{", '  "scripts": \{', '    "dev": "wrenjs dev",', '    "build": "wrenjs build",', '    "preview": "wrenjs preview"', "  \}", '  "type": "module"', "\}"]} /> */}
+      <Terminal kind="file" contents={["\{", '  "scripts": \{', '    "dev": "wren dev",', '    "build": "wren build",', "  \}", '  "type": "module"', "\}"]} />
     </Step>
 
     <Step>
       ### Install dependencies
       Now you can install the required dependencies for <span class=":uno: font-serif">wrenjs</span>.
 
-      {/* <Terminal contents="PKG_MANAGER i wrenjs" /> */}
+      <Terminal contents={`${LS_PKG_KEY} i @wren-js/core`} />
 
       You should also choose at least one [integration](#integrations-link) library.
 
-      {/* <Terminal contents={["# With React", "PKG_MANAGER i @wren-js/react react react-dom", "", "# With Preact", "PKG_MANAGER i @wren-js/preact preact"]} /> */}
+      <Terminal contents={["# With React", `${LS_PKG_KEY} i @wren-js/react react react-dom`, "", "# With Preact", `${LS_PKG_KEY} i @wren-js/preact preact`]} />
 
 
     </Step>
@@ -116,18 +121,35 @@ This example will attempt to create the _minimum necessary files_ to get a proje
 
       You will also need to add the integration library you chose to the `wren.config.js` file.
 
-      {/* <Terminal noPkg contents={["mkdir -p src/pages"]} /> */}
+      > <Icon name="i-lucide:info" /> Note that `wren.config.js` can also be named with a `.js`, `.mjs`, `.ts`, or `.mts` extension.
 
-      {/* <Terminal noPkg contents={["import { defineConfig } from 'wrenjs';", "", "export default defineConfig(\{", "  // Other configuration goes here", "\})"]} /> */}
+      <Terminal kind="file" contents={["mkdir -p src/pages"]} icon="i-lucide:terminal" path="Terminal"  />
+
+      <Terminal class="mt-4" kind="file" contents={["import { defineConfig } from 'wrenjs';", "// Whichever you picked", "import react from '@wren-js/react';", "import preact from '@wren-js/preact';", "", "export default defineConfig(\{", "  // Whichever you picked","  integrations: [react()],", "  integrations: [preact()],", "  // ... Other configuration options ...", "\})"]} icon="i-lucide:file" path="wren.config.js" />
     </Step>
 
     <Step>
       ### Enable TypeScript <Badge tint="#ff0000" size="md"><Icon name="i-lucide:info" /> Optional</Badge> <Badge tint="green" size="md"><Icon name="i-lucide:check" /> Recommended</Badge>
       For TypeScript support to help with a better developer experience, you can install the TypeScript package and create a `tsconfig.json` file.
 
-      {/* <Terminal contents="PKG_MANAGER run dev" /> */}
+      <Terminal contents={`${LS_PKG_KEY} i -D typescript`} icon="i-lucide:terminal" path="Terminal"  />
 
+      > <Icon name="i-lucide:info" /> All integrations come with a `base.json`, `strict.json`, and `strictest.json`.
+
+      <Terminal kind="file" class="mt-4" contents={["{", "  // Whichever you picked", '  "extends": ["@wren-js/react/tsconfig/base.json"]', '  "extends": ["@wren-js/preact/tsconfig/base.json"]', "}"]} icon="i-lucide:file" path="tsconfig.json"  />
+    </Step>
+
+    <Step>
+      ### Run the development server
+      Now that you have everything set up, you can start the development server to see your application in action.
+
+      <Terminal contents={`${LS_PKG_KEY} run dev`} icon="i-lucide:terminal" path="Terminal"  />
     </Step>
 
   </Steps>
+
+That's it! You have successfully set up a new WrenJS project.
+
+From here, you may install additional integrations, adapters, and other necessary packages for your project.
+
 </section>

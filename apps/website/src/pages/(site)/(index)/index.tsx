@@ -1,7 +1,7 @@
 import Link from "@wren-js/core/link";
 import { WrenHero } from "#/components/brand/large-logo";
+import { CTA } from "#/components/cta";
 import { Em } from "#/components/em";
-import { Glass } from "#/components/glass";
 import { Icon } from "#/components/icon";
 import { PackageManagerSelect } from "#/components/package-selector";
 import { BentoFamiliarFeatures } from "./_components/bento-familiar-features";
@@ -26,16 +26,14 @@ export default function HomePage() {
             <div class="md:contents hidden">
               <PackageManagerSelect />
             </div>
-            <a class=":uno: rounded-full max-w-max" href="/docs">
-              <Glass class=":uno: rounded-full flex items-center px-4 py-2 font-semibold">
-                Get Started
-                <Icon class=":uno: ml-2" name="i-lucide:arrow-right" />
-              </Glass>
-            </a>
+            <CTA href="/docs">
+              Get Started
+              <Icon class=":uno: ml-2" name="i-lucide:arrow-right" />
+            </CTA>
           </div>
           <div
             class=":uno: absolute opacity-100 bottom-[45%] left-2/5 -rotate-3 w-[360px] max-w-full"
-            inert="true"
+            inert
           >
             <WrenHero />
           </div>

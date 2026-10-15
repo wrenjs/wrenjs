@@ -5,7 +5,7 @@ export function WrenLogo() {
   return (
     <svg
       aria-hidden="true"
-      className=" relative bottom-1.5 size-10 text-black"
+      className="relative bottom-1.5 size-12 text-black"
       stroke-linejoin="round"
       stroke-miterlimit="2"
       viewBox="0 0 3000 3000"

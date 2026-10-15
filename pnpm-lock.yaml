@@ -279,21 +279,24 @@ importers:
       '@iconify/utils':
         specifier: 3.1.7
         version: 3.1.7
-      '@lumeland/ssx':
-        specifier: catalog:integration-ssx
-        version: 0.1.15
       '@mdx-js/rollup':
         specifier: 3.1.1
         version: 3.1.1(rollup@4.64.6)(supports-color@10.2.2)
+      '@preact/signals':
+        specifier: 2.11.3
+        version: 2.11.3(preact@11.0.1)
       '@unocss/transformer-compile-class':
         specifier: 66.11.0
         version: 66.11.0
       '@wren-js/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@wren-js/ssx':
+      '@wren-js/preact':
         specifier: workspace:*
-        version: link:../../packages/integrations/ssx
+        version: link:../../packages/integrations/preact
+      preact:
+        specifier: catalog:integration-preact
+        version: 11.0.1(preact-render-to-string@6.8.1)
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -601,30 +604,6 @@ importers:
       '@wren-js/ssx':
         specifier: workspace:*
         version: link:../../../packages/integrations/ssx
-
-  tests/scratch/head-react:
-    devDependencies:
-      '@types/react':
-        specifier: catalog:integration-react
-        version: 19.3.0
-      '@types/react-dom':
-        specifier: catalog:integration-react
-        version: 19.3.0(@types/react@19.3.0)
-      '@wren-js/adapter-node':
-        specifier: workspace:*
-        version: link:../../../packages/adapters/node
-      '@wren-js/core':
-        specifier: workspace:*
-        version: link:../../../packages/core
-      '@wren-js/react':
-        specifier: workspace:*
-        version: link:../../../packages/integrations/react
-      react:
-        specifier: catalog:integration-react
-        version: 19.3.0
-      react-dom:
-        specifier: catalog:integration-react
-        version: 19.3.0(react@19.3.0)
 
 packages:
 
@@ -1684,6 +1663,14 @@ packages:
 
   '@poppinss/exception@1.2.3':
     resolution: {integrity: sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw==}
+
+  '@preact/signals-core@1.14.4':
+    resolution: {integrity: sha512-HNB6HYeYKhQbJ1aKl+YRjrS4+QWHLKX6qKoUsfS/m0vqzsVaEBiZiaKbG/e+NKk2ch5ALQr/ihWaMHxiCuuWHA==}
+
+  '@preact/signals@2.11.3':
+    resolution: {integrity: sha512-mttwFM98G/JiriTgMwU+UWygL6sfVmYEiNcPSKkUnv4PxPpZhmP2ugGC4qi360+ZIHyQ8NY05bfJT3b4RUIGlw==}
+    peerDependencies:
+      preact: '>= 10.25.0 || >=11.0.0-0'
 
   '@prefresh/core@1.5.11':
     resolution: {integrity: sha512-Ml00PP8jeHaADxfQqxUs4+M5JS+T5J26UnvPVfsrmlpGw2I3e9XtM0DMeuzkmvg+Tn7VdHSMpLBrDPG0iHoDqQ==}
@@ -4831,6 +4818,13 @@ snapshots:
       supports-color: 10.2.2
 
   '@poppinss/exception@1.2.3': {}
+
+  '@preact/signals-core@1.14.4': {}
+
+  '@preact/signals@2.11.3(preact@11.0.1)':
+    dependencies:
+      '@preact/signals-core': 1.14.4
+      preact: 11.0.1(preact-render-to-string@6.8.1)
 
   '@prefresh/core@1.5.11(preact@11.0.1)':
     dependencies:

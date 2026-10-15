@@ -1,5 +1,6 @@
 import { FileSystemIconLoader } from "@iconify/utils/lib/loader/node-loaders";
 import { defineConfig, presetIcons, presetWind4, transformerCompileClass } from "unocss";
+import { DOCS_NAV_LINKS, LS_PKG_KEY, MAIN_NAV_LINKS, PACKAGE_MANAGERS } from "./src/constants";
 
 export default defineConfig({
   outputToCssLayers: true,
@@ -8,13 +9,23 @@ export default defineConfig({
       collections: {
         wren: FileSystemIconLoader("./src/assets/icon"),
       },
+      scale: 1.2,
     }),
     presetWind4({
       variablePrefix: "",
     }),
   ],
 
-  safelist: ["colors:blue", "colors:pink", "colors:purple"],
+  safelist: [
+    "colors:blue",
+    "colors:pink",
+    "colors:purple",
+    ...[...MAIN_NAV_LINKS, ...DOCS_NAV_LINKS].map(({ icon }) => icon),
+    ...PACKAGE_MANAGERS.flatMap((item) => [
+      `[html[data-${LS_PKG_KEY.replaceAll(":", "\\:")}=${item}]_&]:block`,
+      `[html[data-${LS_PKG_KEY.replaceAll(":", "\\:")}=${item}]_&]:border-b-blue`,
+    ]),
+  ],
 
   theme: {
     colors: {

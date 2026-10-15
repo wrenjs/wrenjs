@@ -1,22 +1,16 @@
+import type { ComponentChildren, JSX } from "preact";
 import Link from "@wren-js/core/link";
 import { WrenLogo } from "#/components/brand/logo";
 import { Glass } from "#/components/glass";
 import { Icon } from "#/components/icon";
+import { DOCS_NAV_LINKS, MAIN_NAV_LINKS } from "#/constants";
 import { cn } from "#/utils/cn";
 import styles from "./__layout-nav.module.css";
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "wren-nav-menu": IntrinsicElements["div"];
-    }
-  }
-}
 
 const PANEL_ID = "wren-nav-menu-panel";
 
 export interface NavMenuProps {
-  children: JSX.Children;
+  children: ComponentChildren;
   class?: string;
 }
 
@@ -34,7 +28,7 @@ export function NavMenuPanel({ children, class: className }: NavMenuProps) {
     <Glass
       class={cn(
         styles.panel,
-        ":uno: lg:hidden absolute bottom-full left-0 mb-2 flex min-w-44 flex-col p-1.5 rounded-[1.375rem]",
+        ":uno: absolute bottom-full left-0 mb-2 flex min-w-60 flex-col p-1.5 rounded-[1.375rem]",
         className,
       )}
       data-nav-menu-panel
@@ -51,7 +45,7 @@ export function NavMenuToggle({ class: className }: Pick<NavMenuProps, "class">)
       aria-controls={PANEL_ID}
       aria-expanded="false"
       class={cn(
-        ":uno: lg:hidden inline-flex h-10 w-26 justify-end mr-2 shrink-0 items-center rounded-full px-2 text-gray-800 rounded-r-full touch-manipulation",
+        ":uno: inline-flex h-10 w-8 justify-end mr-2 shrink-0 items-center rounded-full px-2 text-gray-800 rounded-r-full touch-manipulation",
         className,
       )}
       data-nav-menu-toggle
@@ -66,84 +60,100 @@ export function NavMenuToggle({ class: className }: Pick<NavMenuProps, "class">)
 }
 
 const LINKS = (path: string) =>
-  [
-    {
-      children: "Docs",
-      href: "/docs",
-      icon: "i-lucide:book",
-    },
-    // {
-    //   children: "Examples",
-    //   href: "/examples",
-    //   icon: "i-lucide:code",
-    // },
-    // {
-    //   children: "Blog",
-    //   href: "/blog",
-    //   icon: "i-lucide:edit",
-    // },
-    // {
-    //   children: "Showcase",
-    //   href: "/showcase",
-    //   icon: "i-lucide:paintbrush",
-    // },
-  ].map((link) => (
+  MAIN_NAV_LINKS.map((link) => (
     <Link
       class={cn(
-        ":uno: inline-flex h-10 transition-height lg:h-8.5 px-2 lg:px-4 items-center rounded-full relative select-none touch-manipulation",
+        ":uno: inline-flex h-10 transition-height px-2 lg:px-4 items-center rounded-full relative select-none touch-manipulation",
         path === link.href ? "text-blue" : "text-gray-800",
       )}
       data-prefetch="hover"
       href={link.href}
     >
       <Icon class=":uno: mr-2 self-center text-gray-500" name={link.icon} />
-      {link.children}
+      {link.label}
+    </Link>
+  ));
+
+const DOCS_LINKS = (path: string) =>
+  DOCS_NAV_LINKS.map((link) => (
+    <Link
+      class={cn(
+        ":uno: inline-flex h-10 transition-height px-2 lg:px-4 items-center rounded-full relative select-none touch-manipulation",
+        path === link.href ? "text-blue" : "text-gray-800",
+      )}
+      data-prefetch="hover"
+      href={link.href}
+    >
+      <Icon class=":uno: mr-2 self-center text-gray-500" name={link.icon} />
+      {link.label}
     </Link>
   ));
 
 const EXTRA_LINKS = [
   {
-    children: "GitHub",
     href: "https://github.com/wrenjs/wrenjs",
     icon: "i-lucide:github",
+    label: "GitHub",
   },
 ].map((link) => (
   <Link
-    class=":uno: inline-flex h-10 transition-height lg:h-8.5 px-2 lg:px-4 items-center rounded-full text-gray-800 relative select-none"
+    class=":uno: inline-flex h-10 transition-height px-2 lg:px-4 items-center rounded-full text-gray-800 relative select-none"
     data-prefetch="hover"
     href={link.href}
   >
     <Icon class=":uno: mr-2 self-center text-gray-500" name={link.icon} />
-    {link.children}
+    {link.label}
     <Icon class=":uno: ml-2 text-gray-500" name="i-lucide:arrow-up-right" />
   </Link>
 ));
 
 export function Nav({ path }: { path: string }) {
-  console.log("Current path:", path);
+  const isDocs = path.startsWith("/docs");
+  let pageTitle: JSX.Element | undefined;
+  if (isDocs) {
+    const { icon, label } = DOCS_NAV_LINKS.find((link) => path === link.href) || {};
+    pageTitle = (
+      <div class=":uno: flex items-center gap-2">
+        {icon && <Icon class=":uno: text-gray-500" name={icon} />}
+        {label}
+      </div>
+    );
+  } else {
+    const { icon, label } = MAIN_NAV_LINKS.find((link) => path === link.href) || {};
+    pageTitle = (
+      <div class=":uno: flex items-center gap-2">
+        {icon && <Icon class=":uno: text-gray-500" name={icon} />}
+        {label}
+      </div>
+    );
+  }
   return (
     <nav class=":uno: fixed bottom-0 inset-x-0 z-10 mb-3 text-sm font-medium opacity-100 transition-opacity duration-500">
-      <div class=":uno: flex h-10 transition-height lg:h-8.5 items-center justify-center">
+      <div class=":uno: flex h-10 transition-height items-center justify-center">
         <NavMenu class=":uno: flex h-full items-center">
-          <Glass class=":uno: rounded-full relative flex items-center gap-2 lg:rounded-r-none">
-            <Link
-              class=":uno: inline-block h-10 pt-3 lg:pt-2 transition-height lg:h-8.5 p-2 -mr-2 leading-[0] text-gray-500 rounded-full overflow-clip"
-              data-prefetch="hover"
-              href="/"
-              title="Go Home"
-            >
-              <WrenLogo />
-            </Link>
+          <Glass class=":uno: rounded-full relative flex items-center gap-2">
+            <div class=":uno: flex items-center bg-white/75 rounded-full pr-4 border border-black/5">
+              <Link
+                class=":uno: inline-block h-10 pt-3 lg:pt-2 transition-height p-2 -mr-2 leading-[0] text-gray-500 rounded-full overflow-clip"
+                data-prefetch="hover"
+                href="/"
+                title="Go Home"
+              >
+                <WrenLogo />
+              </Link>
+              <span class=":uno: ml-2 text-3.5">{pageTitle}</span>
+            </div>
             <NavMenuToggle />
-            <div class=":uno: hidden h-full items-center rounded-full lg:flex">{LINKS(path)}</div>
           </Glass>
-          <Glass class=":uno: rounded-full relative hidden lg:flex items-center rounded-l-none rounded-r-full">
-            {EXTRA_LINKS}
-          </Glass>
-          {}
           <NavMenuPanel>
             {LINKS(path)}
             <hr className=":uno: my-2 border-t border-gray-200" />
+            {isDocs && (
+              <>
+                {DOCS_LINKS(path)}
+                <hr className=":uno: my-2 border-t border-gray-200" />
+              </>
+            )}
             {EXTRA_LINKS}
           </NavMenuPanel>
         </NavMenu>

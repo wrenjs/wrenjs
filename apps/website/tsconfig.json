@@ -4,5 +4,5 @@
       "#/*": ["./src/*"]
     }
   },
-  "extends": "@wren-js/ssx/tsconfig/strict"
+  "extends": "@wren-js/preact/tsconfig/strict"
 }

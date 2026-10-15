@@ -1,15 +1,6 @@
 import { Glass } from "#/components/glass";
 import { Icon } from "#/components/icon";
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "wren-package-selector": IntrinsicElements["div"];
-    }
-  }
-}
-
-const packageManagers = ["npm", "pnpm", "yarn", "bun", "aube"];
+import { PACKAGE_MANAGERS } from "#/constants";
 
 export function PackageManagerSelect() {
   return (
@@ -23,9 +14,9 @@ export function PackageManagerSelect() {
               id="package-manager-select"
             >
               <option disabled selected value="">
-                {packageManagers[0]} create wrenjs@latest
+                {PACKAGE_MANAGERS[0]} create wrenjs@latest
               </option>
-              {packageManagers.map((pkg) => (
+              {PACKAGE_MANAGERS.map((pkg) => (
                 <option value={pkg}>{pkg}</option>
               ))}
             </select>

@@ -73,10 +73,10 @@ export const createPageRenderer =
   ): PageRenderer<TStack> =>
   async (request, routeStack) => {
     const page = await preparePage(request, routeStack);
-    const element = loadRouteHead<TElement>(request, page);
+    const routeHead = loadRouteHead<TElement>(request, page);
     const [html, head, stylesheets, scripts] = await Promise.all([
       renderTree(request, page),
-      element === undefined ? "" : Promise.resolve(element).then(renderHead),
+      routeHead === undefined ? "" : Promise.resolve(routeHead).then(renderHead),
       renderStylesheets(page.modules),
       renderPageScripts(page.modules),
     ]);

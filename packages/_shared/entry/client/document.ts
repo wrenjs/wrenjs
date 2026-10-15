@@ -52,6 +52,11 @@ export const renderDocument = async (response: Response, signal: AbortSignal): P
   document.head.prepend(...next.head.querySelectorAll("meta"));
   syncAttributes(document.documentElement, next.documentElement);
   syncAttributes(document.body, next.body);
+  for (const script of document.head.querySelectorAll("script")) script.remove();
+  for (const script of next.head.querySelectorAll("script")) {
+    document.head.append(script);
+    reviveScript(script);
+  }
   document.body.replaceChildren(...next.body.childNodes);
   for (const script of document.body.querySelectorAll("script")) reviveScript(script);
 };

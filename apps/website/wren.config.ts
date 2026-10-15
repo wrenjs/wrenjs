@@ -1,14 +1,14 @@
 import mdx from "@mdx-js/rollup";
 import { defineConfig } from "@wren-js/core/config";
-import ssx from "@wren-js/ssx";
+import preact from "@wren-js/preact";
 import uno from "unocss/vite";
 
 export default defineConfig({
   build: { output: "static" },
-  integrations: [ssx()],
+  integrations: [preact()],
   vite: {
     plugins: [
-      mdx({ development: false, jsxImportSource: "@lumeland/ssx", jsxRuntime: "automatic" }),
+      mdx({ jsxImportSource: "preact" }),
       uno({
         mode: "dist-chunk",
       }),
