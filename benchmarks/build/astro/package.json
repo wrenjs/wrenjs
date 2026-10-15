@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@astrojs/node": "11.1.0",
+    "astro": "7.2.0"
+  },
+  "private": true,
+  "scripts": {
+    "build": "astro build"
+  },
+  "type": "module"
+}

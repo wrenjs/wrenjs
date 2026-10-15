@@ -1,0 +1,6 @@
+*/.astro/
+*/.next/
+*/.svelte-kit/
+*/build/
+*/next-env.d.ts
+*/src/

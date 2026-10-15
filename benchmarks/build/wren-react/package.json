@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@types/react": "catalog:integration-react",
+    "@types/react-dom": "catalog:integration-react",
+    "@wren-js/adapter-node": "workspace:*",
+    "@wren-js/core": "workspace:*",
+    "@wren-js/react": "workspace:*",
+    "react": "catalog:integration-react",
+    "typescript": "catalog:"
+  },
+  "name": "#benchmarks/build--wren-react",
+  "private": true,
+  "scripts": {
+    "build": "wren build"
+  },
+  "type": "module"
+}

@@ -304,6 +304,72 @@ importers:
         specifier: 4.150.0
         version: 4.150.0(@types/node@26.6.5)
 
+  benchmarks/build:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.5
+
+  benchmarks/build/wren-preact:
+    devDependencies:
+      '@wren-js/adapter-node':
+        specifier: workspace:*
+        version: link:../../../packages/adapters/node
+      '@wren-js/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      '@wren-js/preact':
+        specifier: workspace:*
+        version: link:../../../packages/integrations/preact
+      preact:
+        specifier: catalog:integration-preact
+        version: 11.0.1(preact-render-to-string@6.8.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+
+  benchmarks/build/wren-react:
+    devDependencies:
+      '@types/react':
+        specifier: catalog:integration-react
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: catalog:integration-react
+        version: 19.3.0(@types/react@19.3.0)
+      '@wren-js/adapter-node':
+        specifier: workspace:*
+        version: link:../../../packages/adapters/node
+      '@wren-js/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      '@wren-js/react':
+        specifier: workspace:*
+        version: link:../../../packages/integrations/react
+      react:
+        specifier: catalog:integration-react
+        version: 19.3.0
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+
+  benchmarks/build/wren-ssx:
+    devDependencies:
+      '@lumeland/ssx':
+        specifier: catalog:integration-ssx
+        version: 0.1.15
+      '@wren-js/adapter-node':
+        specifier: workspace:*
+        version: link:../../../packages/adapters/node
+      '@wren-js/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      '@wren-js/ssx':
+        specifier: workspace:*
+        version: link:../../../packages/integrations/ssx
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+
   benchmarks/throughput:
     devDependencies:
       '@types/autocannon':
