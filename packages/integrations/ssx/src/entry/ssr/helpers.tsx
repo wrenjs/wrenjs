@@ -7,7 +7,7 @@ import { createPageHandlers, createPageRenderer } from "#shared/entry/ssr/page.t
 const withRequestProps = (request: RequestInput, element: JSX.Component): JSX.Component =>
   Object.assign(element, { props: withRequest(request, element.props) });
 
-export const renderPage = createPageRenderer<SSXRouteStack>(
+export const renderPage = createPageRenderer<SSXRouteStack, JSX.Children>(
   (request, { data, layouts, module: { default: Page }, params }) =>
     renderComponent(
       layouts.reduce(
@@ -16,6 +16,7 @@ export const renderPage = createPageRenderer<SSXRouteStack>(
         withRequestProps(request, <Page data={data} params={params} />),
       ),
     ),
+  renderComponent,
 );
 
 export const HANDLERS = createPageHandlers(renderPage);

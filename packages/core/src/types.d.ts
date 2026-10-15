@@ -79,6 +79,16 @@ export interface RouteEntry {
   stack: () => Promise<RouteStackModules> | RouteStackModules;
 }
 
+export type RouteHead<TElement = unknown> = ({
+  data,
+  params,
+  request,
+}: RouteHeadParams) => Promise<TElement> | TElement;
+
+export interface RouteHeadParams extends RouteLoaderParams {
+  data?: ReturnType<RouteLoader>;
+}
+
 export type RouteLoader<TDefault = unknown> = ({
   params,
   request,
@@ -89,7 +99,7 @@ export interface RouteLoaderParams {
   request: Request;
 }
 
-export interface RouteModule<TDefault = unknown, THandler = unknown> {
+export interface RouteModule<TDefault = unknown, THandler = unknown, THead = unknown> {
   config?: RouteConfig;
   default: TDefault;
   DELETE?: THandler;
@@ -97,6 +107,7 @@ export interface RouteModule<TDefault = unknown, THandler = unknown> {
 
   getStaticPaths?: () => Promise<string[]> | string[];
   HEAD?: THandler;
+  head?: RouteHead<THead>;
   loader?: RouteLoader<TDefault>;
   OPTIONS?: THandler;
   PATCH?: THandler;

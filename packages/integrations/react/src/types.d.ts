@@ -5,5 +5,6 @@ import type { IntegrationRouteStack, LayoutProps, PageProps } from "#shared/type
 
 export type ReactRouteStack = IntegrationRouteStack<
   ComponentType<PageProps>,
-  ComponentType<LayoutProps<ReactNode>>
+  ComponentType<LayoutProps<ReactNode>>,
+  Awaited<ReactNode>
 >;

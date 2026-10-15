@@ -2,9 +2,9 @@ import type { RouteModule, RouteStack } from "@wren-js/core/runtime/router";
 import type { RouteLoader } from "@wren-js/core/types";
 import type { EXPORT_CSS, EXPORT_REQUIRES_CLIENT, EXPORT_SCRIPTS } from "./constants.ts";
 
-export type IntegrationRouteStack<TPage = unknown, TLayout = unknown> = RouteStack<
-  RouteMeta & RouteModule<TPage, ApiHandler>,
-  RouteMeta & RouteModule<TLayout, ApiHandler>,
+export type IntegrationRouteStack<TPage = unknown, TLayout = unknown, THead = unknown> = RouteStack<
+  RouteMeta & RouteModule<TPage, ApiHandler, THead>,
+  RouteMeta & RouteModule<TLayout, ApiHandler, THead>,
   RouteModule<ProxyHandler>
 >;
 

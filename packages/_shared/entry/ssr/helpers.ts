@@ -19,7 +19,7 @@ export const loadRouteData = (
   request: RequestInput,
   params: Record<string, string>,
   modules: readonly { loader?: RouteLoader }[],
-) => Promise.all(modules.map(({ loader }) => loader?.(withRequest(request, { params }))));
+) => Promise.all(modules.map(async ({ loader }) => loader?.(withRequest(request, { params }))));
 
 type UrlExport<K extends string> = { [P in K]?: () => Promise<string[]> | string[] };
 
@@ -72,15 +72,16 @@ export const collectPageScripts = (
   modules: UrlExport<typeof EXPORT_SCRIPTS>[],
 ): Promise<string[]> | string[] => collectUrls(modules, EXPORT_SCRIPTS);
 
+const DOCTYPE = "<!DOCTYPE html>";
 export const injectIntoHead = (html: string, markup: string): string => {
   if (import.meta.env.DEV) {
     markup = `<script type="module" src="${import.meta.env.BASE_URL}@vite/client"></script>${markup}`;
   }
   const doctype = html.match(/^\s*<!doctype\s+html\s*>/i)?.[0];
-  const documentHtml = doctype ? html : `<!DOCTYPE html>${html}`;
+  const documentHtml = doctype ? html : `${DOCTYPE}${html}`;
   if (!markup) return documentHtml;
   const headIndex = documentHtml.indexOf("</head>");
-  const index = headIndex === -1 ? (doctype?.length ?? "<!DOCTYPE html>".length) : headIndex;
+  const index = headIndex === -1 ? (doctype?.length ?? DOCTYPE.length) : headIndex;
   return documentHtml.slice(0, index) + markup + documentHtml.slice(index);
 };
 
@@ -96,6 +97,8 @@ export const executeProxies = async (
   proxies: readonly { default: (request: Request) => unknown }[] | undefined,
 ): Promise<void> => {
   for (const proxy of proxies ?? []) {
+    // NOTE: Each proxy should be executed sequentially.
+    // oxlint-disable-next-line no-await-in-loop
     await proxy.default(getRequest(request));
   }
 };

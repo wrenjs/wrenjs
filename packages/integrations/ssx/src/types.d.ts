@@ -3,7 +3,8 @@ import type { IntegrationRouteStack, LayoutProps, PageProps } from "#shared/type
 
 export type SSXRouteStack = IntegrationRouteStack<
   SSXComponent<PageProps>,
-  SSXComponent<LayoutProps<JSX.Children>>
+  SSXComponent<LayoutProps<JSX.Children>>,
+  JSX.Children
 >;
 
 type SSXComponent<TProps> = (props: TProps) => JSX.Children | Promise<JSX.Children>;

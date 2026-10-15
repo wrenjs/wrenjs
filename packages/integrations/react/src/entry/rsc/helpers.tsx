@@ -5,7 +5,7 @@ import {
   renderToReadableStream,
 } from "@vitejs/plugin-rsc/rsc/server";
 import { ENTRY_KIND_API, ENTRY_KIND_NOT_FOUND, ENTRY_KIND_PAGE } from "@wren-js/core/constants";
-import { type ReactNode } from "react";
+import { createElement, Fragment, type ReactNode } from "react";
 import { jsx } from "react/jsx-runtime";
 import type { ReactRouteStack } from "#/types.ts";
 import type { RequestToStackMap } from "#shared/entry/ssr/request-to-stack.ts";
@@ -27,7 +27,7 @@ import {
   renderPageScripts,
   withRequest,
 } from "#shared/entry/ssr/helpers.ts";
-import { pageStatus, preparePage } from "#shared/entry/ssr/page.ts";
+import { loadRouteHead, pageStatus, preparePage } from "#shared/entry/ssr/page.ts";
 import { WrenResponse } from "#shared/entry/ssr/response.ts";
 
 export const needsHydration = ({ layouts, module }: ReactRouteStack): boolean =>
@@ -62,13 +62,16 @@ export const renderFlight = async (
   matchedEntry: ReactRouteStack,
   options?: Parameters<typeof renderToReadableStream>[1],
 ) => {
-  const { data, layouts, module, params } = await preparePage(request, matchedEntry);
+  const page = await preparePage(request, matchedEntry);
+  const { data, layouts, module, params } = page;
+  const tree = layouts.reduce(
+    (children: ReactNode, { default: Layout }) =>
+      jsx(Layout, withRequest(request, { children, data })),
+    jsx(module.default, withRequest(request, { data, params })),
+  );
+  const head = loadRouteHead(request, page);
   return renderToReadableStream(
-    layouts.reduce(
-      (children: ReactNode, { default: Layout }) =>
-        jsx(Layout, withRequest(request, { children, data })),
-      jsx(module.default, withRequest(request, { data, params })),
-    ),
+    head === undefined ? tree : createElement(Fragment, null, tree, head),
     options,
   );
 };

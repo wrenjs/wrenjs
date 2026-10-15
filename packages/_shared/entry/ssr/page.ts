@@ -10,6 +10,7 @@ import {
   loadRouteData,
   renderPageScripts,
   renderStylesheets,
+  withRequest,
 } from "./helpers.ts";
 import { WrenResponse } from "./response.ts";
 
@@ -39,18 +40,31 @@ export const preparePage = async <TStack extends IntegrationRouteStack>(
   return { data: loadRouteData(request, params, modules), layouts, module, modules, params };
 };
 
+export const loadRouteHead = <TElement>(
+  request: RequestInput,
+  { data, modules, params }: PreparedPage<IntegrationRouteStack<unknown, unknown, TElement>>,
+): Promise<TElement> | TElement | undefined => {
+  for (const { head } of modules) {
+    if (head) return head(withRequest(request, { data, params }));
+  }
+  return undefined;
+};
+
 export const createPageRenderer =
-  <TStack extends IntegrationRouteStack>(
+  <TStack extends IntegrationRouteStack<unknown, unknown, TElement>, TElement>(
     renderTree: (request: RequestInput, page: PreparedPage<TStack>) => Promise<string> | string,
+    renderHead: (element: TElement) => Promise<string> | string,
   ): PageRenderer<TStack> =>
   async (request, routeStack) => {
     const page = await preparePage(request, routeStack);
-    const [html, stylesheets, scripts] = await Promise.all([
+    const element = loadRouteHead<TElement>(request, page);
+    const [html, head, stylesheets, scripts] = await Promise.all([
       renderTree(request, page),
+      element === undefined ? "" : Promise.resolve(element).then(renderHead),
       renderStylesheets(page.modules),
       renderPageScripts(page.modules),
     ]);
-    return [html, stylesheets + scripts] as const;
+    return [html, head + stylesheets + scripts] as const;
   };
 
 export const createPageHandlers = <TStack extends IntegrationRouteStack>(

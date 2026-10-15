@@ -40,7 +40,7 @@ export function Glass({
         class={cn(
           styles.glass,
           variant === "primary" &&
-            ":uno: bg-white border-t-gray/20 border-l-black/10 border border-b-gray/30 border-r-gray/40 ring-1 ring-white/90 backdrop-blur-sm backdrop-brightness-150",
+            ":uno: bg-white bg-gradient-to-br from-white/30 via-white/10 to-black/3 border border-t-white/60 border-l-white/40 border-b-gray/20 border-r-gray/25 ring-1 ring-white/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-1px_2px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.08)]",
           className,
         )}
         style={{ "--glass-tint": tintValue, ...style }}
