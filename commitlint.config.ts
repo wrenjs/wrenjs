@@ -30,7 +30,7 @@ export default {
     minSubjectLength: 0,
     skipQuestions: ["scope", "breaking", "footerPrefix"],
     types: [
-      { emoji: "✨", name: "✨ new:     New feature or other additions", value: "new" },
+      { emoji: "✨", name: "✨ new:      New feature or other additions", value: "new" },
       { emoji: "🐛", name: "🐛 fix:      Bug fix", value: "fix" },
       { emoji: "📝", name: "📝 docs:     Documentation", value: "docs" },
       {
