@@ -23,19 +23,19 @@ const ENHANCEMENTS = [
     title: "Vanilla JS scripts",
   },
   {
-    class: "col-span-2",
+    class: "col-span-2 lg:row-span-2",
     description: "Our packages make an effort to use the least amount of dependencies possible.",
     icon: "i-lucide:package-minus",
     title: "Minimal Dependencies",
   },
   {
-    class: "col-span-2 lg:col-span-1 row-span-2 lg:row-span-1",
+    class: "col-span-2 lg:col-span-2 row-span-2 lg:row-span-1",
     description: "Navigate without full page reloads when you need it.",
     icon: "i-lucide:route",
     title: "Client routing",
   },
   {
-    class: "col-span-2 lg:col-span-1 row-span-2 lg:row-span-1",
+    class: "col-span-2 lg:col-span-2 row-span-2 lg:row-span-1",
     description: "Tune revalidation for each route (planned!).",
     icon: "i-lucide:refresh-cw",
     title: "Custom ISR",
@@ -57,8 +57,8 @@ export function BentoLightBundle() {
 
 function Tile({ class: className, description, icon, title }: (typeof ENHANCEMENTS)[number]) {
   return (
-    <Glass class={`${className} rounded-4 flex flex-col justify-center gap-1 p-4`}>
-      <h3 class=":uno: flex items-center gap-2 font-medium">
+    <Glass class={`${className} :uno: rounded-4 flex flex-col justify-center gap-1 p-4`}>
+      <h3 class=":uno: flex items-center gap-2 font-semibold text-sm">
         <Icon class=":uno: size-6 shrink-0" name={icon} />
         {title}
       </h3>

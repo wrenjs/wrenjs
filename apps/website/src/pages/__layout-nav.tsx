@@ -72,21 +72,21 @@ const LINKS = (path: string) =>
       href: "/docs",
       icon: "i-lucide:book",
     },
-    {
-      children: "Examples",
-      href: "/examples",
-      icon: "i-lucide:code",
-    },
-    {
-      children: "Blog",
-      href: "/blog",
-      icon: "i-lucide:edit",
-    },
-    {
-      children: "Showcase",
-      href: "/showcase",
-      icon: "i-lucide:paintbrush",
-    },
+    // {
+    //   children: "Examples",
+    //   href: "/examples",
+    //   icon: "i-lucide:code",
+    // },
+    // {
+    //   children: "Blog",
+    //   href: "/blog",
+    //   icon: "i-lucide:edit",
+    // },
+    // {
+    //   children: "Showcase",
+    //   href: "/showcase",
+    //   icon: "i-lucide:paintbrush",
+    // },
   ].map((link) => (
     <Link
       class={cn(

@@ -1,3 +1,4 @@
+import Link from "@wren-js/core/link";
 import { WrenHero } from "#/components/brand/large-logo";
 import { Em } from "#/components/em";
 import { Glass } from "#/components/glass";
@@ -13,7 +14,7 @@ import { BentoLightSSR } from "./_components/bento-light-ssr";
 export default function HomePage() {
   return (
     <>
-      <header class=":uno: overflow-x-clip overflow-y-visible min-h-[500px] h-[calc(100dvh-42px)] relative mx-auto flex max-w-[1180px] snap-start flex-col items-center justify-center px-4 pt-[7.5%] text-gray-800">
+      <header class=":uno: overflow-x-clip overflow-y-visible min-h-[500px] h-[calc(100dvh-42px)] relative mx-auto flex max-w-[768px] snap-start flex-col items-center justify-center px-4 pt-[7.5%] text-gray-800">
         <div class=":uno: relative">
           <h1 class=":uno: text-18 font-accent leading-none tracking-tight">wren</h1>
           <h2 class=":uno: text-4">
@@ -40,7 +41,7 @@ export default function HomePage() {
           </div>
         </div>
       </header>
-      <main class=":uno: mx-auto flex max-w-[1180px] flex-col items-center justify-center gap-16 px-4 py-12 text-gray-800">
+      <main class=":uno: mx-auto flex max-w-[1024px] flex-col items-center justify-center gap-16 px-4 md:px-12 py-12 text-gray-800">
         <section class=":uno: flex flex-col gap-8">
           <div class=":uno: space-y-1">
             <h2 class=":uno: text-15 font-accent leading-none">Familiar</h2>
@@ -66,8 +67,16 @@ export default function HomePage() {
             <h2 class=":uno: text-15 font-accent leading-none">Feather-light</h2>
             <div class=":uno: text-gray-700">
               <p>
-                Built on <Icon class=":uno: h-[1ch]" name="i-simple-icons:vite" /> vite for swift
-                developments and builds.
+                Built on{" "}
+                <Link
+                  className="text-blue! underline"
+                  href="https://vitejs.dev/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <Icon class=":uno: h-[1ch]" name="i-simple-icons:vite" /> vite
+                </Link>{" "}
+                for swift developments and builds.
               </p>
               <p>Configurable route-based caching. Competitive SSR performance.</p>
             </div>
