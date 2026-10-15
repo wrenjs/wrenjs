@@ -1,16 +1,20 @@
+import type { UserConfig } from "vite";
 import type { CopyEntry, PackUserConfig } from "vite-plus/pack";
+import { defineConfig } from "vite-plus";
+
+interface PackOptions {
+  copy?: CopyEntry[];
+  entry: Record<string, string>;
+  exports?: Record<string, unknown>;
+  tsconfig: string;
+}
 
 export const definePackConfig = ({
   copy = [],
   entry,
   exports = {},
   tsconfig,
-}: {
-  copy?: CopyEntry[];
-  entry: Record<string, string>;
-  exports?: Record<string, unknown>;
-  tsconfig: string;
-}): PackUserConfig => ({
+}: PackOptions): PackUserConfig => ({
   copy: [{ from: "./src/tsconfig/*.json", to: "./dist/tsconfig" }, ...copy],
   deps: { neverBundle: [/^virtual:wrenjs-/], resolveDepSubpath: true },
   dts: { generator: "tsgo", tsconfig },
@@ -25,3 +29,14 @@ export const definePackConfig = ({
   },
   minify: true,
 });
+
+export const defineIntegrationConfig = (pack: PackOptions, lint?: UserConfig["lint"]) =>
+  defineConfig({
+    fmt: {},
+    lint: {
+      categories: { correctness: "deny", perf: "warn", suspicious: "warn" },
+      options: { typeAware: true, typeCheck: true },
+      ...lint,
+    },
+    pack: definePackConfig(pack),
+  });

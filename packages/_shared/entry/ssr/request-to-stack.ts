@@ -21,7 +21,7 @@ export interface RequestToStackMap<TRouteStack extends RouteStack> {
 export const createFetch =
   <TRouteStack extends RouteStack>(handlers: RequestToStackMap<TRouteStack>) =>
   (request: RequestInput): Promise<Response> => {
-    const isFlight = request.headers?.get("accept") === FLIGHT_MIME_TYPE;
+    const isFlight = request.headers.get("accept") === FLIGHT_MIME_TYPE;
 
     let pathname = extractPathname(request.url) ?? "/";
     if (isFlight && pathname.endsWith(FLIGHT_URL_POSTFIX)) {

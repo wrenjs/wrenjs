@@ -12,18 +12,13 @@ export const rscStream = new ReadableStream({
     if (typeof window === "undefined") {
       return;
     }
-    const handleChunk = (chunk: string | Uint8Array) => {
-      if (typeof chunk === "string") {
-        controller.enqueue(encoder.encode(chunk));
-      } else {
-        controller.enqueue(chunk);
-      }
-    };
-    window[WINDOW_KEY_FLIGHT_DATA] ||= [];
-    window[WINDOW_KEY_FLIGHT_DATA].forEach(handleChunk);
-    window[WINDOW_KEY_FLIGHT_DATA].length = 0;
-    window[WINDOW_KEY_FLIGHT_DATA].push = (chunk) => {
-      handleChunk(chunk);
+    const enqueue = (chunk: string | Uint8Array) =>
+      controller.enqueue(typeof chunk === "string" ? encoder.encode(chunk) : chunk);
+    const data = (window[WINDOW_KEY_FLIGHT_DATA] ||= []);
+    data.forEach(enqueue);
+    data.length = 0;
+    data.push = (chunk) => {
+      enqueue(chunk);
       return 0;
     };
     streamController = controller;

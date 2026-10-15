@@ -4,6 +4,7 @@ import {
   LINK_SCRIPT_MODULE,
   PAGE_SCRIPT_URL_PREFIX,
 } from "../../../constants.ts";
+import { preloadModule } from "../../utils.ts";
 
 const SCRIPT_IMPORT = "@wren-js/core/components/Link/wren-link";
 const CLIENT_ID = `\0${LINK_CLIENT_MODULE}`;
@@ -14,9 +15,7 @@ export const pluginWrenLink = (options: {
 }): Plugin => ({
   async buildStart() {
     if (this.environment.config.consumer !== "server") return;
-
-    const resolved = await this.resolve(LINK_SCRIPT_MODULE, undefined, { skipSelf: false });
-    if (resolved) await this.load({ id: resolved.id });
+    await preloadModule(this, LINK_SCRIPT_MODULE);
   },
   config: () => ({ optimizeDeps: { exclude: [SCRIPT_IMPORT] } }),
   enforce: "pre",

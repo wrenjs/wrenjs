@@ -1,3 +1,5 @@
+import { isRecord } from "../../utils.ts";
+
 const STATE_KEY = "__wrenNavigation";
 
 interface ScrollState {
@@ -6,12 +8,8 @@ interface ScrollState {
 }
 
 const readScroll = (state: unknown): ScrollState | undefined => {
-  if (typeof state !== "object" || state === null || !(STATE_KEY in state)) return undefined;
-  const saved: unknown = state[STATE_KEY];
-  if (typeof saved !== "object" || saved === null || !("x" in saved) || !("y" in saved)) {
-    return undefined;
-  }
-  return typeof saved.x === "number" && typeof saved.y === "number"
+  const saved = isRecord(state) ? state[STATE_KEY] : undefined;
+  return isRecord(saved) && typeof saved.x === "number" && typeof saved.y === "number"
     ? { x: saved.x, y: saved.y }
     : undefined;
 };
@@ -91,7 +89,7 @@ export const listenLinks = (navigate?: (url: URL) => void) => {
 
 const saveScroll = () => {
   const state: unknown = history.state;
-  const previous = typeof state === "object" && state !== null ? state : {};
+  const previous = isRecord(state) ? state : {};
   history.replaceState({ ...previous, [STATE_KEY]: { x: scrollX, y: scrollY } }, "");
 };
 

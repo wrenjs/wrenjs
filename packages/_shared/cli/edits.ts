@@ -4,7 +4,11 @@ export interface Edit {
   text: string;
 }
 
-export const countLines = (text: string): number => text.split("\n").length - 1;
+export const countLines = (text: string): number => {
+  let count = 0;
+  for (let i = text.indexOf("\n"); i !== -1; i = text.indexOf("\n", i + 1)) count++;
+  return count;
+};
 
 export const replaceLines = (code: string, start: number, end: number, text: string): Edit => {
   const padding = countLines(code.slice(start, end)) - countLines(text);

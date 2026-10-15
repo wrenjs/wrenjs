@@ -1,3 +1,5 @@
+import { isRecord } from "../../utils.ts";
+
 export type IslandHydrate = (
   element: HTMLElement,
   Component: unknown,
@@ -27,9 +29,6 @@ const whenVisible = (element: Element, callback: () => void): (() => void) => {
   observer.observe(element.firstElementChild ?? element);
   return () => observer.disconnect();
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
 
 export const defineIslands = (hydrate: IslandHydrate): void => {
   if (customElements.get("wren-island")) return;

@@ -25,9 +25,8 @@ import {
   handlerApi,
   isTrustedOrigin,
   renderPageScripts,
-  withRequest,
 } from "#shared/entry/ssr/helpers.ts";
-import { loadRouteHead, pageStatus, preparePage } from "#shared/entry/ssr/page.ts";
+import { composeTree, loadRouteHead, pageStatus, preparePage } from "#shared/entry/ssr/page.ts";
 import { WrenResponse } from "#shared/entry/ssr/response.ts";
 
 export const needsHydration = ({ layouts, module }: ReactRouteStack): boolean =>
@@ -63,12 +62,7 @@ export const renderFlight = async (
   options?: Parameters<typeof renderToReadableStream>[1],
 ) => {
   const page = await preparePage(request, matchedEntry);
-  const { data, layouts, module, params } = page;
-  const tree = layouts.reduce(
-    (children: ReactNode, { default: Layout }) =>
-      jsx(Layout, withRequest(request, { children, data })),
-    jsx(module.default, withRequest(request, { data, params })),
-  );
+  const tree = composeTree<ReactRouteStack, ReactNode>(request, page, jsx);
   const head = loadRouteHead(request, page);
   return renderToReadableStream(
     head === undefined ? tree : createElement(Fragment, null, tree, head),
@@ -97,7 +91,7 @@ export const handlerFlight = async (
   request: RequestInput,
   matchedEntry: ReactRouteStack,
 ): Promise<Response> => {
-  const actionId = request.headers?.get(FLIGHT_SERVER_ACTION_HEADER);
+  const actionId = request.headers.get(FLIGHT_SERVER_ACTION_HEADER);
   if (request.method !== "POST" || !actionId) return textResponse("Method Not Allowed", 405);
   if (!isTrustedOrigin(request)) return textResponse("Forbidden", 403);
 
@@ -108,7 +102,7 @@ export const handlerFlight = async (
     const actionPromise = loadServerAction(actionId);
     void actionPromise.catch(() => {});
     const body = getRequest(request);
-    const isMultipart = request.headers?.get(CONTENT_TYPE)?.startsWith("multipart/form-data");
+    const isMultipart = request.headers.get(CONTENT_TYPE)?.startsWith("multipart/form-data");
     decoded = await Promise.all([
       actionPromise,
       decodeReply(isMultipart ? await body.formData() : await body.text()),

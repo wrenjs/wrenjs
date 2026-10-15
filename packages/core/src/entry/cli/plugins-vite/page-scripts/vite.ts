@@ -1,9 +1,10 @@
 import type { DevEnvironment, Plugin, Rolldown } from "vite";
 import { readFile, writeFile } from "node:fs/promises";
-import { basename, dirname, extname, isAbsolute, relative, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { isCSSRequest, normalizePath } from "vite";
 import { WREN_NAME } from "#/constants.ts";
 import { applyEdits, countLines, replaceLines } from "#shared/cli/edits.ts";
+import { sortedRecord, stem } from "#shared/cli/utils.ts";
 import {
   EXPORT_SCRIPTS,
   PAGE_SCRIPT_HOIST_PREFIX,
@@ -39,11 +40,6 @@ const toKey = (root: string, id: string) => {
     ? `@fs/${normalizePath(id).replace(/^\//, "")}`
     : path;
 };
-
-const sortedRecord = <T>(entries: [string, T][]) =>
-  Object.fromEntries(entries.toSorted(([a], [b]) => (a < b ? -1 : 1)));
-
-const stem = (file: string) => basename(file, extname(file));
 
 const resolveTarget = async (
   context: Rolldown.TransformPluginContext,

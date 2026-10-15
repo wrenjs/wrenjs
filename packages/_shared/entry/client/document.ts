@@ -25,7 +25,7 @@ export const renderDocument = async (response: Response, signal: AbortSignal): P
   signal.throwIfAborted();
 
   const current = new Map<string, Element>(
-    [...document.head.querySelectorAll<HTMLLinkElement>(STYLESHEETS)].map((link) => [
+    Array.from(document.head.querySelectorAll<HTMLLinkElement>(STYLESHEETS), (link) => [
       link.href,
       link,
     ]),

@@ -1,5 +1,6 @@
 import { readdir, stat, writeFile } from "node:fs/promises";
 import { extname, relative, resolve, sep } from "node:path";
+import { sortedRecord } from "#shared/cli/utils.ts";
 import {
   ASSET_CACHE_CONTROL,
   EXT_FLT,
@@ -61,6 +62,5 @@ export const writeStaticAssets = async (clientDir: string, outFile: string): Pro
       }
     }),
   );
-  const sorted = Object.fromEntries([...assets].toSorted(([a], [b]) => (a < b ? -1 : 1)));
-  await writeFile(outFile, `export default ${JSON.stringify(sorted)};\n`);
+  await writeFile(outFile, `export default ${JSON.stringify(sortedRecord([...assets]))};\n`);
 };

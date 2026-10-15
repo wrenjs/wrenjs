@@ -86,9 +86,9 @@ export const injectIntoHead = (html: string, markup: string): string => {
 };
 
 export const isTrustedOrigin = (request: RequestInput): boolean => {
-  const origin = request.headers?.get("origin");
+  const origin = request.headers.get("origin");
   if (!origin) return true;
-  const host = request.headers?.get("x-forwarded-host") ?? request.headers?.get("host");
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
   return URL.parse(origin)?.host === host;
 };
 
@@ -118,10 +118,10 @@ export const handlerApi = async (
 ): Promise<Response> => {
   const { module, proxies = [] } = matchedEntry;
   if (proxies.length > 0) await executeProxies(request, proxies);
-  const method = request.method?.toUpperCase();
-  const handler = method && isApiMethod(method) ? module[method] : undefined;
+  const method = request.method.toUpperCase();
+  const handler = isApiMethod(method) ? module[method] : undefined;
   if (!handler) {
     return new WrenResponse("Method Not Allowed", { status: 405 });
   }
-  return await handler(getRequest(request));
+  return handler(getRequest(request));
 };

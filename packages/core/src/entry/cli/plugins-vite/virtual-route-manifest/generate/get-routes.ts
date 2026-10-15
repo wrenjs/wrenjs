@@ -1,6 +1,6 @@
 import type { Dirent } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { normalizePath, parseSync } from "vite";
 import type { WrenConfig } from "#/entry/config/types.js";
 import type { Entry, EntryKind, RoutableEntry } from "#/types.js";
@@ -18,6 +18,9 @@ import {
   ENTRY_KIND_ROOT,
   ROUTE_MODULE_RE,
 } from "#/constants.ts";
+import { staticExportNames, stem } from "#shared/cli/utils.ts";
+
+type Wrappers = Pick<Required<Entry>, "layouts" | "proxies">;
 
 const SPECIAL_KINDS = new Map<string, EntryKind>([
   [ENTRY_FILEROUTE_LAYOUT, ENTRY_KIND_LAYOUT],
@@ -25,13 +28,8 @@ const SPECIAL_KINDS = new Map<string, EntryKind>([
   [ENTRY_FILEROUTE_PROXY, ENTRY_KIND_PROXY],
   [ENTRY_FILEROUTE_ROOT, ENTRY_KIND_ROOT],
 ]);
-const WRAPPER_STEMS = new Set([
-  ENTRY_FILEROUTE_LAYOUT,
-  ENTRY_FILEROUTE_PROXY,
-  ENTRY_FILEROUTE_ROOT,
-]);
-
-const stem = (fileName: string) => fileName.replace(/\.[^/.]+$/, "");
+const EMPTY_WRAPPERS: Wrappers = { layouts: [], proxies: [] };
+const ROUTE_GROUP_RE = /\/\([^/]+\)(?=\/|$)/g;
 
 const classifyModule = (fileName: string, exportNames: string[]): EntryKind | undefined => {
   const hasDefault = exportNames.includes("default");
@@ -49,80 +47,18 @@ const classifyModule = (fileName: string, exportNames: string[]): EntryKind | un
 
 const isRouteModule = (file: Dirent) => file.isFile() && ROUTE_MODULE_RE.test(file.name);
 
-const getExportNames = async (fullPath: string): Promise<string[]> => {
+const classifyFile = async (file: Dirent): Promise<Entry | undefined> => {
+  const fullPath = normalizePath(`${file.parentPath}/${file.name}`);
   const { errors, module } = parseSync(fullPath, await readFile(fullPath, "utf8"));
   if (errors.length > 0) {
     throw new SyntaxError(
       `Cannot parse ${fullPath}: ${errors.map((error) => error.message).join("\n")}`,
     );
   }
-
-  return module.staticExports.reduce<string[]>((names, declaration) => {
-    for (const entry of declaration.entries) {
-      if (entry.isType) continue;
-      const name = entry.exportName.kind === "Default" ? "default" : entry.exportName.name;
-      if (name !== null) names.push(name);
-    }
-    return names;
-  }, []);
+  const kind = classifyModule(file.name, staticExportNames(module.staticExports));
+  return kind && { file: fullPath, kind };
 };
 
-type RouteWrappers = { layouts: Entry[]; proxies: Entry[] };
-const EMPTY_WRAPPERS: RouteWrappers = { layouts: [], proxies: [] };
-
-const loadWrappers = async (directory: string): Promise<RouteWrappers> => {
-  const files = await readdir(directory, { withFileTypes: true });
-  const layouts: Entry[] = [];
-  const proxies: Entry[] = [];
-  const roots: Entry[] = [];
-
-  await Promise.all(
-    files
-      .filter((file) => isRouteModule(file) && WRAPPER_STEMS.has(stem(file.name)))
-      .map(async (file) => {
-        const filePath = resolve(directory, file.name);
-        const kind = classifyModule(file.name, await getExportNames(filePath));
-        if (kind === ENTRY_KIND_LAYOUT) layouts.push({ file: filePath, kind });
-        else if (kind === ENTRY_KIND_PROXY) proxies.push({ file: filePath, kind });
-        else if (kind === ENTRY_KIND_ROOT) roots.push({ file: filePath, kind });
-      }),
-  );
-
-  return { layouts: [...layouts, ...roots], proxies };
-};
-
-const createGetWrappers = (pagesRoot: string) => {
-  const cache = new Map<string, Promise<RouteWrappers>>();
-  const rootDirectory = resolve(pagesRoot);
-  const rootPrefix = rootDirectory.endsWith("/") ? rootDirectory : `${rootDirectory}/`;
-
-  const getDirectoryWrappers = (directory: string): Promise<RouteWrappers> => {
-    if (directory !== rootDirectory && !directory.startsWith(rootPrefix)) {
-      return Promise.resolve(EMPTY_WRAPPERS);
-    }
-
-    const cached = cache.get(directory);
-    if (cached) return cached;
-
-    const pending = Promise.all([
-      loadWrappers(directory),
-      directory === rootDirectory
-        ? Promise.resolve(EMPTY_WRAPPERS)
-        : getDirectoryWrappers(resolve(directory, "..")),
-    ]).then(([wrappers, parentWrappers]) => ({
-      layouts: [...wrappers.layouts, ...parentWrappers.layouts],
-      proxies: [...wrappers.proxies, ...parentWrappers.proxies],
-    }));
-
-    cache.set(directory, pending);
-    return pending;
-  };
-
-  return (fullPath: string): Promise<RouteWrappers> =>
-    getDirectoryWrappers(resolve(fullPath, ".."));
-};
-
-const ROUTE_GROUP_RE = /\/\([^/]+\)(?=\/|$)/g;
 const toRoutePattern = (pagesDir: string, file: string) => {
   const params: string[] = [];
   const pattern = file
@@ -137,36 +73,53 @@ const toRoutePattern = (pagesDir: string, file: string) => {
   return { params, pattern: pattern || "/" };
 };
 
-const toEntry = async (
-  getWrappers: ReturnType<typeof createGetWrappers>,
-  pagesDir: string,
-  file: Dirent,
-): Promise<Entry | undefined> => {
-  const fullPath = normalizePath(`${file.parentPath}/${file.name}`);
-  const kind = classifyModule(file.name, await getExportNames(fullPath));
-  if (kind !== ENTRY_KIND_API && kind !== ENTRY_KIND_NOT_FOUND && kind !== ENTRY_KIND_PAGE) {
-    return undefined;
+export const getRoutes = async (config: WrenConfig, root: string): Promise<RoutableEntry> => {
+  const pagesDir = normalizePath(resolve(root, config.router!));
+  const files = await readdir(pagesDir, { recursive: true, withFileTypes: true });
+  const classified = await Promise.all(files.filter(isRouteModule).map(classifyFile));
+  const entries = classified.filter((entry) => entry !== undefined);
+
+  const wrappers = new Map<string, Wrappers & { roots: Entry[] }>();
+  for (const entry of entries) {
+    const { kind } = entry;
+    if (kind !== ENTRY_KIND_LAYOUT && kind !== ENTRY_KIND_PROXY && kind !== ENTRY_KIND_ROOT) {
+      continue;
+    }
+    const directory = dirname(entry.file);
+    const own = wrappers.get(directory) ?? { layouts: [], proxies: [], roots: [] };
+    wrappers.set(directory, own);
+    if (kind === ENTRY_KIND_LAYOUT) own.layouts.push(entry);
+    else if (kind === ENTRY_KIND_PROXY) own.proxies.push(entry);
+    else own.roots.push(entry);
   }
 
-  const { params, pattern } = toRoutePattern(pagesDir, fullPath);
-  if (kind !== ENTRY_KIND_PAGE) return { file: fullPath, kind, params, pattern };
-  const { layouts, proxies } = await getWrappers(fullPath);
-  return { file: fullPath, kind, layouts, params, pattern, proxies };
-};
-
-export const getRoutes = async (config: WrenConfig, root: string): Promise<RoutableEntry> => {
-  const pagesDir = resolve(root, config.router!);
-  const files = await readdir(pagesDir, { recursive: true, withFileTypes: true });
-  const getWrappers = createGetWrappers(pagesDir);
-  const entries = await Promise.all(
-    files.filter(isRouteModule).map(async (file) => toEntry(getWrappers, pagesDir, file)),
-  );
+  const chains = new Map<string, Wrappers>();
+  const chainFor = (directory: string): Wrappers => {
+    let chain = chains.get(directory);
+    if (!chain) {
+      const parent = directory === pagesDir ? EMPTY_WRAPPERS : chainFor(dirname(directory));
+      const { layouts = [], proxies = [], roots = [] } = wrappers.get(directory) ?? {};
+      chain = {
+        layouts: [...layouts, ...roots, ...parent.layouts],
+        proxies: [...proxies, ...parent.proxies],
+      };
+      chains.set(directory, chain);
+    }
+    return chain;
+  };
 
   const notFounds: Entry[] = [];
   const routes: Entry[] = [];
-  for (const entry of entries) {
-    if (entry) (entry.kind === ENTRY_KIND_NOT_FOUND ? notFounds : routes).push(entry);
+  for (const { file, kind } of entries) {
+    if (kind === ENTRY_KIND_PAGE) {
+      routes.push({ file, kind, ...toRoutePattern(pagesDir, file), ...chainFor(dirname(file)) });
+    } else if (kind === ENTRY_KIND_API || kind === ENTRY_KIND_NOT_FOUND) {
+      (kind === ENTRY_KIND_API ? routes : notFounds).push({
+        file,
+        kind,
+        ...toRoutePattern(pagesDir, file),
+      });
+    }
   }
-
   return { notFounds, routes };
 };

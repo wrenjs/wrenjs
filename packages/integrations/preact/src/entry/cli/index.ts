@@ -1,6 +1,6 @@
 import type { WrenIntegration } from "@wren-js/core/config";
 import prefresh from "@prefresh/vite";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import { clientEnvironment, serverEnvironment } from "#shared/cli/environments.ts";
 import { pluginWrenCss } from "#shared/cli/plugins-vite/css/vite.ts";
 import { pluginWrenDevServer } from "#shared/cli/plugins-vite/dev-server/vite.ts";
@@ -9,14 +9,15 @@ import { pluginWrenLink } from "#shared/cli/plugins-vite/link/vite.ts";
 import { PACKAGE_NAME } from "../../constants.ts";
 import { pluginWrenPreactJsx } from "./plugins-vite/preact-jsx/vite.ts";
 
+const entry = (name: string) => resolve(import.meta.dirname, "entry", `${name}.mjs`);
+
 const wrenIntegrationPreact = (): WrenIntegration => {
-  const ssrEntry = fileURLToPath(new URL("./entry/ssr.mjs", import.meta.url));
-  const prerenderEntry = fileURLToPath(new URL("./entry/prerender.mjs", import.meta.url));
-  const clientEntry = fileURLToPath(new URL("./entry/client.mjs", import.meta.url));
+  const ssrEntry = entry("ssr");
+  const clientEntry = entry("client");
 
   return {
     name: PACKAGE_NAME,
-    prerender: { entry: prerenderEntry, environment: "ssr" },
+    prerender: { entry: entry("prerender"), environment: "ssr" },
     viteConfig: async (config, env) => ({
       environments: {
         client: clientEnvironment(clientEntry, "dist/client"),

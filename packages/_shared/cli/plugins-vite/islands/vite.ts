@@ -8,6 +8,7 @@ import {
   PAGE_SCRIPT_URL_PREFIX,
   SOURCE_RE,
 } from "../../../constants.ts";
+import { hasNamespaceExport, preloadModule, staticExportNames } from "../../utils.ts";
 
 type ParseResult = ReturnType<typeof parseSync>;
 
@@ -21,21 +22,6 @@ const hasDirective = ({ program }: ParseResult) =>
     (statement) => statement.type === "ExpressionStatement" && statement.directive === DIRECTIVE,
   );
 
-const exportNames = ({ module }: ParseResult, id: string) => {
-  const names: string[] = [];
-  for (const { entries } of module.staticExports) {
-    for (const { exportName, importName, isType } of entries) {
-      if (importName.kind === "All" || importName.kind === "AllButDefault") {
-        throw new Error(`[wrenjs] "${DIRECTIVE}" modules cannot use "export *" (${id}).`);
-      }
-      if (isType) continue;
-      const name = exportName.kind === "Default" ? "default" : exportName.name;
-      if (name !== null) names.push(name);
-    }
-  }
-  return names;
-};
-
 export const pluginWrenIslands = (options: {
   runtimeEntry: string;
 
@@ -45,9 +31,7 @@ export const pluginWrenIslands = (options: {
   return {
     async buildStart() {
       if (this.environment.config.consumer !== "server") return;
-
-      const resolved = await this.resolve(ISLAND_SCRIPT_MODULE, undefined, { skipSelf: false });
-      if (resolved) await this.load({ id: resolved.id });
+      await preloadModule(this, ISLAND_SCRIPT_MODULE);
     },
     enforce: "pre",
     load: {
@@ -76,10 +60,13 @@ export const pluginWrenIslands = (options: {
         if (this.environment.config.consumer !== "server") return null;
         const parsed = parseSync(id, code);
         if (parsed.errors.length > 0 || !hasDirective(parsed)) return null;
+        if (hasNamespaceExport(parsed.module.staticExports)) {
+          throw new Error(`[wrenjs] "${DIRECTIVE}" modules cannot use "export *" (${id}).`);
+        }
 
         const impl = `${id}${IMPL_QUERY}${extname(id)}`;
         implIds.add(impl);
-        const exports = exportNames(parsed, id).map((name) => {
+        const exports = staticExportNames(parsed.module.staticExports).map((name) => {
           const value = `island(impl[${JSON.stringify(name)}], url, ${JSON.stringify(name)})`;
           return name === "default"
             ? `export default ${value};`

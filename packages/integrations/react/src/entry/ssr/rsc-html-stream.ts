@@ -18,10 +18,7 @@ const withoutTrailer = (chunk: Uint8Array): Uint8Array => {
 };
 
 export const injectRSCPayload = (rscStream: AsyncIterable<Uint8Array>) => {
-  let resolveFlightDataPromise!: () => void;
-  const flightDataPromise = new Promise<void>((resolve) => {
-    resolveFlightDataPromise = resolve;
-  });
+  const flightData = Promise.withResolvers<void>();
   let startedRSC = false;
 
   const buffered: Uint8Array[] = [];
@@ -38,7 +35,7 @@ export const injectRSCPayload = (rscStream: AsyncIterable<Uint8Array>) => {
 
   return new TransformStream({
     async flush(controller) {
-      await flightDataPromise;
+      await flightData.promise;
 
       if (scheduled) flushBufferedChunks(controller);
       controller.enqueue(encoder.encode(trailer));
@@ -56,18 +53,15 @@ export const injectRSCPayload = (rscStream: AsyncIterable<Uint8Array>) => {
           flushBufferedChunks(controller);
         } catch (e) {
           controller.error(e);
-          resolveFlightDataPromise();
+          flightData.resolve();
           return;
         }
         if (!startedRSC) {
           startedRSC = true;
-          void writeRSCStream(rscStream, controller).then(
-            resolveFlightDataPromise,
-            (err: unknown) => {
-              controller.error(err);
-              resolveFlightDataPromise();
-            },
-          );
+          void writeRSCStream(rscStream, controller).then(flightData.resolve, (err: unknown) => {
+            controller.error(err);
+            flightData.resolve();
+          });
         }
       });
     },
@@ -75,7 +69,7 @@ export const injectRSCPayload = (rscStream: AsyncIterable<Uint8Array>) => {
 };
 
 function escapeScript(script: string) {
-  return script.replace(/<!--/g, "<\\!--").replace(/<\/(script)/gi, "</\\$1");
+  return script.replaceAll("<!--", "<\\!--").replaceAll(/<\/(script)/gi, "</\\$1");
 }
 
 function toBinaryString(bytes: Uint8Array) {

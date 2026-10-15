@@ -1,6 +1,6 @@
 import type { RequestInput } from "virtual:wrenjs-fetch";
 import { ENTRY_KIND_API, ENTRY_KIND_NOT_FOUND, ENTRY_KIND_PAGE } from "@wren-js/core/constants";
-import type { IntegrationRouteStack } from "../../types.ts";
+import type { IntegrationRouteStack, LayoutProps, PageProps } from "../../types.ts";
 import type { RequestToStackMap } from "./request-to-stack.ts";
 import { HEADERS_FLIGHT, HEADERS_HTML_RESPONSE } from "../../constants.ts";
 import {
@@ -14,6 +14,11 @@ import {
 } from "./helpers.ts";
 import { WrenResponse } from "./response.ts";
 
+export interface CreateElement<TStack extends IntegrationRouteStack, TElement> {
+  (type: TStack["module"]["default"], props: PageProps): TElement;
+  (type: NonNullable<TStack["layouts"]>[number]["default"], props: LayoutProps<TElement>): TElement;
+}
+
 export type PageRenderer<TStack> = (
   request: RequestInput,
   routeStack: TStack,
@@ -26,6 +31,17 @@ export interface PreparedPage<TStack extends IntegrationRouteStack> {
   modules: (NonNullable<TStack["layouts"]>[number] | TStack["module"])[];
   params: TStack["params"];
 }
+
+export const composeTree = <TStack extends IntegrationRouteStack, TElement>(
+  request: RequestInput,
+  { data, layouts, module, params }: PreparedPage<TStack>,
+  h: CreateElement<TStack, TElement>,
+): TElement =>
+  layouts.reduce(
+    (children: TElement, { default: Layout }) =>
+      h(Layout, withRequest(request, { children, data })),
+    h(module.default, withRequest(request, { data, params })),
+  );
 
 export const pageStatus = ({ kind }: { kind: string }): number =>
   kind === ENTRY_KIND_NOT_FOUND ? 404 : 200;

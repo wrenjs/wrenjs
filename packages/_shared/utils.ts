@@ -1,3 +1,6 @@
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
 export const extractPathname = (path?: string) => {
   if (!path) return undefined;
   let start = 0;

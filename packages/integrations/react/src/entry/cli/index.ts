@@ -1,7 +1,7 @@
 import type { WrenIntegration } from "@wren-js/core/config";
 import reactPlugin from "@vitejs/plugin-react";
 import rscPlugin from "@vitejs/plugin-rsc";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import { clientEnvironment, serverEnvironment } from "#shared/cli/environments.ts";
 import { pluginWrenLink } from "#shared/cli/plugins-vite/link/vite.ts";
 import { PACKAGE_NAME } from "../../constants.ts";
@@ -13,15 +13,17 @@ import { pluginWrenServerOnlyRoutes } from "./plugins-vite/server-only-routes/vi
 export interface WrenIntegrationReactOptions {
   compiler?: boolean;
 }
+
+const entry = (name: string) => resolve(import.meta.dirname, "entry", `${name}.mjs`);
+
 const wrenIntegrationReact = (options: WrenIntegrationReactOptions = {}): WrenIntegration => {
-  const clientEntry = fileURLToPath(new URL("./entry/client.mjs", import.meta.url));
-  const rscEntry = fileURLToPath(new URL("./entry/rsc.mjs", import.meta.url));
-  const ssrEntry = fileURLToPath(new URL("./entry/ssr.mjs", import.meta.url));
-  const prerenderEntry = fileURLToPath(new URL("./entry/prerender.mjs", import.meta.url));
+  const clientEntry = entry("client");
+  const rscEntry = entry("rsc");
+  const ssrEntry = entry("ssr");
 
   return {
     name: PACKAGE_NAME,
-    prerender: { entry: prerenderEntry, environment: "rsc" },
+    prerender: { entry: entry("prerender"), environment: "rsc" },
     viteConfig: (_config, env) => ({
       environments: {
         client: clientEnvironment(clientEntry),
