@@ -1,7 +1,8 @@
 import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import process from "node:process";
 import { parseArgs } from "node:util";
+import { loadEnv } from "vite";
 import {
   type ConfigEnv,
   createBuilder,
@@ -16,8 +17,11 @@ import { WREN_NAME, WREN_VERSION } from "#/constants.ts";
 import { CONFIG_VALID_EXTENSIONS, DEFAULTS } from "#/entry/config/index.ts";
 import { getViteConfig } from "./vite.ts";
 
+// Matches vite's API.
+const PUBLIC_EXPORTS = "VITE_";
 const loadConfig = async (env: ConfigEnv) => {
   const root = process.cwd();
+  Object.assign(process.env, loadEnv(env.mode, root, ["", PUBLIC_EXPORTS]));
   const configFiles = CONFIG_VALID_EXTENSIONS.map((ext) =>
     normalizePath(resolve(root, `wren.config.${ext}`)),
   );
@@ -31,9 +35,14 @@ const loadConfig = async (env: ConfigEnv) => {
     ? (mergeConfig(DEFAULTS, loadedConfig.config) as WrenConfig)
     : DEFAULTS;
   const viteConfig = mergeConfig(await getViteConfig(env, config), config.vite ?? {});
+
   return {
     ...viteConfig,
+    clearScreen: false,
     configFile: false,
+    envDir: root,
+    envPrefix: PUBLIC_EXPORTS,
+
     mode: env.mode,
     plugins: [
       ...(viteConfig.plugins ?? []),
@@ -60,6 +69,20 @@ const loadConfig = async (env: ConfigEnv) => {
             });
             return restartPromise;
           };
+
+          server.watcher.on("change", (file) => {
+            const filename = basename(file);
+            if (
+              /\.config\.[^/]*$/.test(normalizePath(file)) ||
+              (filename.startsWith(".env") && !filename.startsWith(".env.example"))
+            ) {
+              void server.restart().catch((error) => {
+                server.config.logger.error(
+                  error instanceof Error ? (error.stack ?? error.message) : String(error),
+                );
+              });
+            }
+          });
         },
         name: `${WREN_NAME}-config-reload`,
       },

@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/core",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Framework agnostic utilities for the wrenjs meta-framework",
   "keywords": [
     "@wren-js/core",
@@ -46,9 +46,9 @@
     "./config": "./dist/config.mjs",
     "./constants": "./dist/constants.mjs",
     "./link": "./dist/link.mjs",
-    "./package.json": "./package.json",
     "./runtime/prerender": "./dist/runtime/prerender.mjs",
     "./runtime/router": "./dist/runtime/router.mjs",
+    "./package.json": "./package.json",
     "./tsconfig/*": "./dist/tsconfig/*.json",
     "./tsconfig/*.json": "./dist/tsconfig/*.json",
     "./types": {
