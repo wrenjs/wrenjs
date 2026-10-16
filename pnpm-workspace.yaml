@@ -31,12 +31,12 @@ catalogs:
     "@types/react": 19.3.0
     "@vitejs/plugin-react": 6.1.2
     "@vitejs/plugin-rsc": 0.5.37
-    react-dom: 19.3.0
-    react: 19.3.0
+    react-dom: 19.3.1
+    react: 19.3.1
     oxc-transform-react: 0.154.0
   integration-peers-react:
-    "react": "^19.3.0"
-    "react-dom": "^19.3.0"
+    "react": "^19.3.1"
+    "react-dom": "^19.3.1"
 
   lint:
     eslint-plugin-perfectionist: 5.12.1

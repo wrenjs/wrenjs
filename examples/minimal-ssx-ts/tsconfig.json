@@ -1,0 +1,5 @@
+{
+  "extends": [
+    "@wren-js/ssx/tsconfig/strict"
+  ]
+}

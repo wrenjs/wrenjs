@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "@lumeland/ssx": "0.1.15",
+    "@wren-js/core": "0.3.2",
+    "@wren-js/ssx": "0.3.2",
+    "typescript": "7.0.2"
+  },
+  "scripts": {
+    "build": "wren build",
+    "dev": "wren dev"
+  },
+  "type": "module"
+}

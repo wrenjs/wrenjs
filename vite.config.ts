@@ -2,7 +2,7 @@ import perfectionist from "eslint-plugin-perfectionist";
 import sonarjs from "eslint-plugin-sonarjs";
 import { defineConfig } from "vite-plus";
 
-const ignorePatterns = ["node_modules", "dist", "**/benchmarks/**/*"];
+const ignorePatterns = ["node_modules", "dist", "**/benchmarks/**/*", "**/examples/**/*"];
 export default defineConfig({
   fmt: {
     endOfLine: "lf",

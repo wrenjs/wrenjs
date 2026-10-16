@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "allowImportingTsExtensions": true,
-    "esModuleInterop": true
+    "noEmit": true
   }
 }

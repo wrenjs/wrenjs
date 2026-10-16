@@ -185,11 +185,11 @@ catalogs:
       version: 1.2.0
   integration-peers-react:
     react:
-      specifier: ^19.3.0
-      version: 19.3.0
+      specifier: ^19.3.1
+      version: 19.3.1
     react-dom:
-      specifier: ^19.3.0
-      version: 19.3.0
+      specifier: ^19.3.1
+      version: 19.3.1
   integration-preact:
     '@prefresh/vite':
       specifier: 4.0.1
@@ -217,11 +217,11 @@ catalogs:
       specifier: 0.154.0
       version: 0.154.0
     react:
-      specifier: 19.3.0
-      version: 19.3.0
+      specifier: 19.3.1
+      version: 19.3.1
     react-dom:
-      specifier: 19.3.0
-      version: 19.3.0
+      specifier: 19.3.1
+      version: 19.3.1
   integration-ssx:
     '@lumeland/ssx':
       specifier: 0.1.15
@@ -236,8 +236,8 @@ catalogs:
 
 overrides:
   vite: npm:@voidzero-dev/vite-plus-core@1.2.0
-  react-dom@*: 19.3.0
-  react@*: 19.3.0
+  react-dom@*: 19.3.1
+  react@*: 19.3.1
 
 importers:
 
@@ -350,7 +350,7 @@ importers:
         version: link:../../../packages/integrations/react
       react:
         specifier: catalog:integration-react
-        version: 19.3.0
+        version: 19.3.1
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -419,7 +419,7 @@ importers:
         version: link:../../../packages/integrations/react
       react:
         specifier: catalog:integration-react
-        version: 19.3.0
+        version: 19.3.1
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -499,16 +499,16 @@ importers:
         version: 6.1.2(@voidzero-dev/vite-plus-core@1.2.0(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(oxc-transform-react@0.154.0)
       '@vitejs/plugin-rsc':
         specifier: catalog:integration-react
-        version: 0.5.37(@voidzero-dev/vite-plus-core@1.2.0(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 0.5.37(@voidzero-dev/vite-plus-core@1.2.0(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       oxc-transform-react:
         specifier: catalog:integration-react
         version: 0.154.0
       react:
         specifier: catalog:integration-peers-react
-        version: 19.3.0
+        version: 19.3.1
       react-dom:
         specifier: catalog:integration-peers-react
-        version: 19.3.0(react@19.3.0)
+        version: 19.3.1(react@19.3.1)
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@1.2.0
         version: '@voidzero-dev/vite-plus-core@1.2.0(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)'
@@ -585,10 +585,10 @@ importers:
         version: link:../../../packages/integrations/react
       react:
         specifier: catalog:integration-react
-        version: 19.3.0
+        version: 19.3.1
       react-dom:
         specifier: catalog:integration-react
-        version: 19.3.0(react@19.3.0)
+        version: 19.3.1(react@19.3.1)
 
   tests/manual/routing-ssx:
     devDependencies:
@@ -2294,8 +2294,8 @@ packages:
   '@vitejs/plugin-rsc@0.5.37':
     resolution: {integrity: sha512-4BUmLYKjDDJXEonK8QL034IsqXHFjtaKVUBs9syJsTOoKKUad8JkaYwQdyaCyplVccjuAQOLC86e9sE4fwP+NQ==}
     peerDependencies:
-      react: 19.3.0
-      react-dom: 19.3.0
+      react: 19.3.1
+      react-dom: 19.3.1
       react-server-dom-webpack: '*'
       vite: '*'
     peerDependenciesMeta:
@@ -3488,28 +3488,6 @@ packages:
           targets:
             - cpu: x64
               os: win32
-        - resolution:
-            archive: tarball
-            bin:
-              node: bin/node
-            integrity: sha256-LnC21a266UVGxNfgHee2TFC/jT2/qtK7B3SULp2pArg=
-            type: binary
-            url: https://unofficial-builds.nodejs.org/download/release/v26.12.0/node-v26.12.0-linux-arm64-musl.tar.gz
-          targets:
-            - cpu: arm64
-              os: linux
-              libc: musl
-        - resolution:
-            archive: tarball
-            bin:
-              node: bin/node
-            integrity: sha256-SLoc3yHmhPE/OLYpX0O/6pUfH/0Ai0z5M2HJZrM/aTg=
-            type: binary
-            url: https://unofficial-builds.nodejs.org/download/release/v26.12.0/node-v26.12.0-linux-x64-musl.tar.gz
-          targets:
-            - cpu: x64
-              os: linux
-              libc: musl
     version: 26.12.0
     hasBin: true
 
@@ -3699,16 +3677,16 @@ packages:
   quansync@1.0.0:
     resolution: {integrity: sha512-5xZacEEufv3HSTPQuchrvV6soaiACMFnq1H8wkVioctoH3TRha9Sz66lOxRwPK/qZj7HPiSveih9yAyh98gvqA==}
 
-  react-dom@19.3.0:
-    resolution: {integrity: sha512-JDk8dgif51OjFoDE70+OT9ICyYr+69HlmihNwp1+Nsfbna3t5sIiCa9ZJktDmQ4/1b/rn26hIAR2uYXDMr5r0Q==}
+  react-dom@19.3.1:
+    resolution: {integrity: sha512-Y0bARz53lhEC1NMCASs0/j+faB/zqt3R8hpvg1e8+61ZVJ4UL0UdC4cBbXfZMcIuhrfgeILTLe+ZeBCavQPtKQ==}
     peerDependencies:
-      react: 19.3.0
+      react: 19.3.1
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
 
-  react@19.3.0:
-    resolution: {integrity: sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog==}
+  react@19.3.1:
+    resolution: {integrity: sha512-QNhWdt7nrgVWWQG58QuGsAR3jv3Hbe4mb4vz7w2csnHavciZJgda1CPNaldF6eVxv90ud3jUXpKlHL69gO38yw==}
     engines: {node: '>=0.10.0'}
 
   readdirp@5.1.1:
@@ -5365,15 +5343,15 @@ snapshots:
     optionalDependencies:
       oxc-transform-react: 0.154.0
 
-  '@vitejs/plugin-rsc@0.5.37(@voidzero-dev/vite-plus-core@1.2.0(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@vitejs/plugin-rsc@0.5.37(@voidzero-dev/vite-plus-core@1.2.0(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       es-module-lexer: 3.0.3
       estree-walker: 3.0.3
       magic-string: 1.4.3
       obug: 3.0.0
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
       srvx: 1.0.5
       strip-literal: 4.0.0
       turbo-stream: 3.2.1
@@ -6810,14 +6788,14 @@ snapshots:
 
   quansync@1.0.0: {}
 
-  react-dom@19.3.0(react@19.3.0):
+  react-dom@19.3.1(react@19.3.1):
     dependencies:
-      react: 19.3.0
+      react: 19.3.1
       scheduler: 0.28.0
 
   react-is@17.0.2: {}
 
-  react@19.3.0: {}
+  react@19.3.1: {}
 
   readdirp@5.1.1: {}
 

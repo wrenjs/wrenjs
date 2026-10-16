@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "@wren-js/core": "0.3.2",
+    "@wren-js/preact": "0.3.2",
+    "preact": "11.0.1",
+    "typescript": "7.0.2"
+  },
+  "scripts": {
+    "build": "wren build",
+    "dev": "wren dev"
+  },
+  "type": "module"
+}
