@@ -54,7 +54,6 @@
     "check": "vp check",
     "dev": "vp pack --watch",
     "prepublishOnly": "vp run build",
-    "publish": "vp pm publish",
     "test": "vp test"
   },
   "dependencies": {

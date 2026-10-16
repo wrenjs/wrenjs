@@ -5,8 +5,7 @@
   "scripts": {
     "build": "wren build",
     "dev": "wren dev",
-    "preview": "wren build && node ./dist/server.mjs",
-    "publish": "vp pm publish"
+    "preview": "wren build && node ./dist/server.mjs"
   },
   "devDependencies": {
     "@wren-js/adapter-node": "workspace:*",

@@ -46,9 +46,9 @@
     "./config": "./dist/config.mjs",
     "./constants": "./dist/constants.mjs",
     "./link": "./dist/link.mjs",
+    "./package.json": "./package.json",
     "./runtime/prerender": "./dist/runtime/prerender.mjs",
     "./runtime/router": "./dist/runtime/router.mjs",
-    "./package.json": "./package.json",
     "./tsconfig/*": "./dist/tsconfig/*.json",
     "./tsconfig/*.json": "./dist/tsconfig/*.json",
     "./types": {
@@ -63,7 +63,6 @@
     "check": "vp check",
     "dev": "vp pack --watch",
     "prepublishOnly": "vp run build",
-    "publish": "vp pm publish",
     "test": "vp test",
     "test:types": "vp run build && tsc --noEmit -p test-dts/tsconfig.json"
   },

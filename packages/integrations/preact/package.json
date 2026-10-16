@@ -42,8 +42,8 @@
     "./entry/client": "./dist/entry/client.mjs",
     "./entry/prerender": "./dist/entry/prerender.mjs",
     "./entry/ssr": "./dist/entry/ssr.mjs",
-    "./runtime/island": "./dist/runtime/island.mjs",
     "./package.json": "./package.json",
+    "./runtime/island": "./dist/runtime/island.mjs",
     "./tsconfig/*": "./dist/tsconfig/*.json",
     "./tsconfig/*.json": "./dist/tsconfig/*.json"
   },
@@ -55,7 +55,6 @@
     "check": "vp check",
     "dev": "vp pack --watch",
     "prepublishOnly": "vp run build",
-    "publish": "vp pm publish",
     "test": "vp test"
   },
   "dependencies": {
