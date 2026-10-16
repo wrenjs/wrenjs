@@ -3,6 +3,13 @@
   "categories": {
     "correctness": "deny"
   },
-  "ignorePatterns": ["dist", "node_modules"],
-  "plugins": ["typescript", "unicorn", "oxc"]
+  "ignorePatterns": [
+    "dist",
+    "node_modules"
+  ],
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc"
+  ]
 }
