@@ -1,4 +1,5 @@
 import type { ComponentChildren } from "preact";
+import { getPagePath } from "#/utils/path";
 import { LayoutFooter } from "./__layout-footer";
 import { Nav } from "./__layout-nav";
 
@@ -9,10 +10,9 @@ export default function IndexLayout({
   children: ComponentChildren;
   request: Request;
 }) {
-  const pathname = new URL(request.url).pathname.split("_.flt")[0];
   return (
     <div class=":uno:">
-      <Nav path={pathname} />
+      <Nav path={getPagePath(request.url)} />
       {children}
       <LayoutFooter />
     </div>

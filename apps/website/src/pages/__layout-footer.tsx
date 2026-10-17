@@ -29,15 +29,18 @@ export function LayoutFooter() {
         </a>
         <section class=":uno: mt-3 flex gap-6">
           {FOOTER_LINKS.map((group) => (
-            <nav class=":uno: flex flex-col gap-1">
+            <nav
+              aria-labelledby={group.group.toLowerCase()}
+              class=":uno: flex flex-col gap-1"
+              key={group.group}
+            >
               <h4 class=":uno: font-semibold" id={group.group.toLowerCase()}>
                 {group.group}
               </h4>
               <ul>
                 {group.links.map((link) => (
-                  <li key={link.href}>
+                  <li key={link.name}>
                     <a
-                      aria-labelledby={group.group.toLowerCase()}
                       class=":uno: hover:underline text-gray-500 py-0.5 inline-block"
                       href={link.href}
                     >

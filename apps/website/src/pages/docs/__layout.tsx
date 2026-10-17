@@ -1,13 +1,10 @@
 import type { ComponentChildren } from "preact";
-import { DocsNavigation } from "./__layout-nav";
+import { getPagePath } from "#/utils/path";
+import { DocsNavigation, type Heading } from "./__layout-nav";
 
-export const head = () => {
-  return (
-    <>
-      <title>WrenJS Docs</title>
-    </>
-  );
-};
+const outlines = import.meta.glob<Heading[]>("./**/*.mdx", { eager: true, import: "headings" });
+
+export const head = () => <title>WrenJS Docs</title>;
 
 export default function DocsLayout({
   children,
@@ -16,8 +13,12 @@ export default function DocsLayout({
   children: ComponentChildren;
   request: Request;
 }) {
-  const pathname = new URL(request.url).pathname.split("_.flt")[0];
-  const path = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const path = getPagePath(request.url);
+  const headings = outlines[`./${path.slice("/docs/".length)}.mdx`] ?? [];
 
-  return <DocsNavigation path={path}>{children}</DocsNavigation>;
+  return (
+    <DocsNavigation headings={headings} path={path}>
+      {children}
+    </DocsNavigation>
+  );
 }

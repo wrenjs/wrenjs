@@ -1,6 +1,4 @@
 .root {
-  position: relative;
-
   --nav-spring: cubic-bezier(0.34, 1.26, 0.64, 1);
 }
 
@@ -68,12 +66,29 @@
     visibility 0s;
 }
 
-.root .panel > a:active {
-  background-color: rgb(0 0 0 / 0.05);
+.docsChevron {
+  transition: transform 220ms ease;
+}
+
+.docsGroup[open] .docsChevron {
+  transform: rotate(180deg);
+}
+
+@supports selector(details::details-content) {
+  .docsGroup::details-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition:
+      grid-template-rows 220ms ease,
+      content-visibility 220ms allow-discrete;
+  }
+
+  .docsGroup[open]::details-content {
+    grid-template-rows: 1fr;
+  }
 }
 
 .root .icon {
-  position: absolute;
   transition:
     opacity 160ms ease-out,
     transform 460ms var(--nav-spring);
@@ -95,6 +110,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .docsGroup::details-content,
+  .docsChevron {
+    transition: none;
+  }
+
   .root .panel,
   .root[open] .panel,
   .root .icon,

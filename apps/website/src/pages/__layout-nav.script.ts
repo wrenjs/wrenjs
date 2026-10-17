@@ -84,7 +84,7 @@ class WrenNavMenu extends HTMLElement {
   };
 
   #handlePanelClick = (event: MouseEvent) => {
-    if (event.target instanceof Element && event.target.closest("a")) {
+    if (event.target instanceof Element && event.target.closest("a[href], wren-link[href]")) {
       this.open = false;
     }
   };
@@ -99,7 +99,7 @@ class WrenNavMenu extends HTMLElement {
     this.#syncOrigin();
     this.open = true;
     if (viaKeyboard) {
-      this.#panel?.querySelector<HTMLElement>("a, button")?.focus();
+      this.#panel?.querySelector<HTMLElement>("a[href], wren-link[href], button, summary")?.focus();
     }
   };
 

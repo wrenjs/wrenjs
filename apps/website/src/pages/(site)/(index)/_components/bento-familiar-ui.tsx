@@ -1,14 +1,12 @@
 import { Glass } from "#/components/glass";
 import { Icon } from "#/components/icon";
-import { cn } from "#/utils/cn";
-import styles from "./bento.module.css";
 
 export function BentoFamiliarUI() {
   return (
     <div class=":uno: flex flex-col gap-2">
       <h3 class=":uno: text-4 font-semibold">UI</h3>
-      <div class={styles.bento}>
-        <Glass class={styles.tile}>
+      <div class=":uno: bento-grid">
+        <Glass class=":uno: bento-tile">
           <a
             class="grid place-items-center size-full"
             href="https://react.dev"
@@ -19,7 +17,7 @@ export function BentoFamiliarUI() {
           </a>
         </Glass>
 
-        <Glass class={styles.tile}>
+        <Glass class=":uno: bento-tile">
           <a
             class="grid place-items-center size-full"
             href="https://preactjs.com"
@@ -30,7 +28,7 @@ export function BentoFamiliarUI() {
           </a>
         </Glass>
 
-        <Glass class={cn(styles.tile, ":uno: font-mono text-5")}>
+        <Glass class=":uno: bento-tile font-mono text-5">
           <a
             class="grid place-items-center size-full"
             href="https://github.com/oscarotero/ssx"
@@ -42,7 +40,7 @@ export function BentoFamiliarUI() {
           </a>
         </Glass>
 
-        <Glass class={styles.tile}>
+        <Glass class=":uno: bento-tile">
           <span class="text-center text-3 m-1 select-none">More to come!</span>
         </Glass>
       </div>

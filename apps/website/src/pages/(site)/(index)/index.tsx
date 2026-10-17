@@ -5,8 +5,7 @@ import { Em } from "#/components/em";
 import { Icon } from "#/components/icon";
 import { PackageManagerSelect } from "#/components/package-selector";
 import { BentoFamiliarFeatures } from "./_components/bento-familiar-features";
-import { BentoFamiliarHosts } from "./_components/bento-familiar-hosts";
-import { BentoFamiliarTools } from "./_components/bento-familiar-tools";
+import { BentoFamiliarLinks } from "./_components/bento-familiar-links";
 import { BentoFamiliarUI } from "./_components/bento-familiar-ui";
 import { BentoLightBundle } from "./_components/bento-light-bundle";
 import { BentoLightSSR } from "./_components/bento-light-ssr";
@@ -50,8 +49,7 @@ export default function HomePage() {
           </div>
           <div class=":uno: flex md:flex-row flex-col gap-8">
             <div class=":uno: flex md:flex-col flex-wrap gap-5 md:gap-8">
-              <BentoFamiliarHosts />
-              <BentoFamiliarTools />
+              <BentoFamiliarLinks />
               <BentoFamiliarUI />
             </div>
             <div class=":uno: flex">

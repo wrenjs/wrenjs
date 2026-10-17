@@ -2,13 +2,14 @@ import mdx from "@mdx-js/rollup";
 import { defineConfig } from "@wren-js/core/config";
 import preact from "@wren-js/preact";
 import uno from "unocss/vite";
+import { remarkHeadings } from "./remark-headings";
 
 export default defineConfig({
   build: { output: "static" },
   integrations: [preact()],
   vite: {
     plugins: [
-      mdx({ jsxImportSource: "preact" }),
+      mdx({ jsxImportSource: "preact", remarkPlugins: [remarkHeadings] }),
       uno({
         mode: "dist-chunk",
       }),

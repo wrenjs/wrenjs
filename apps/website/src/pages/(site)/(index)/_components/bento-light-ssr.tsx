@@ -2,62 +2,17 @@ import { Glass } from "#/components/glass";
 import { Icon } from "#/components/icon";
 
 const latencyData = [
-  {
-    app: (
-      <span class=":uno: inline-flex items-center gap-1">
-        <Icon class=":uno: size-6" name="i-simple-icons:preact" />
-        Wren (Preact)
-      </span>
-    ),
-    latency: 3,
-  },
-  {
-    app: (
-      <span class=":uno: inline-flex items-center gap-1">
-        <Icon class=":uno: size-6" name="i-lucide:server" />
-        Wren (SSX)
-      </span>
-    ),
-    latency: 4,
-  },
-  {
-    app: (
-      <span class=":uno: inline-flex items-center gap-1">
-        <Icon class=":uno: size-6" name="i-simple-icons:react" /> Wren (React)
-      </span>
-    ),
-    latency: 8,
-  },
-  {
-    app: (
-      <span class=":uno: inline-flex items-center gap-1">
-        <Icon class=":uno: size-6" name="i-simple-icons:svelte" /> SvelteKit
-      </span>
-    ),
-    latency: 17,
-  },
-
-  {
-    app: (
-      <span class=":uno: inline-flex items-center gap-1">
-        <Icon class=":uno: size-6" name="i-simple-icons:astro" /> Astro
-      </span>
-    ),
-    latency: 25,
-  },
-  {
-    app: (
-      <span class=":uno: inline-flex items-center gap-1">
-        <Icon class=":uno: size-6" name="i-simple-icons:nextdotjs" /> NextJS
-      </span>
-    ),
-    latency: 148,
-  },
+  { app: "Wren (Preact)", icon: "i-simple-icons:preact", latency: 3 },
+  { app: "Wren (SSX)", icon: "i-lucide:server", latency: 4 },
+  { app: "Wren (React)", icon: "i-simple-icons:react", latency: 8 },
+  { app: "SvelteKit", icon: "i-simple-icons:svelte", latency: 17 },
+  { app: "Astro", icon: "i-simple-icons:astro", latency: 25 },
+  { app: "NextJS", icon: "i-simple-icons:nextdotjs", latency: 148 },
 ];
 
-export function BentoLightSSR() {
-  const maxLatency = Math.max(...latencyData.map((d) => d.latency));
+const maxLatency = Math.max(...latencyData.map(({ latency }) => latency));
 
+export function BentoLightSSR() {
   return (
     <div class=":uno: flex flex-col gap-2">
       <h3 class=":uno: text-4 font-semibold">Competitive Performance</h3>
@@ -68,10 +23,13 @@ export function BentoLightSSR() {
           </h4>
           <p class=":uno: mt-1 text-sm text-gray-700">p50 response latency</p>
         </div>
-        {latencyData.map(({ app, latency }) => (
+        {latencyData.map(({ app, icon, latency }) => (
           <div class=":uno: flex flex-col gap-1" key={app}>
             <div class=":uno: flex items-center justify-between text-sm">
-              <span class=":uno: font-medium text-gray-700">{app}</span>
+              <span class=":uno: inline-flex items-center gap-1 font-medium text-gray-700">
+                <Icon class=":uno: size-6" name={icon} />
+                {app}
+              </span>
               <span class=":uno: text-gray-600 tabular-nums">~{latency.toFixed(2)} ms</span>
             </div>
             <div class=":uno: h-2 w-full overflow-hidden rounded-full bg-white/75">

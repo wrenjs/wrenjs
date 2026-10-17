@@ -1,18 +1,14 @@
-interface DocModule {
-  config?: Record<string, unknown>;
-  default: () => JSX.Component;
-}
+import type { ComponentType } from "preact";
 
-const docs = import.meta.glob<DocModule>("./**/*.mdx", { eager: true });
+const docs = import.meta.glob<ComponentType>("./**/*.mdx", { eager: true, import: "default" });
 
 const toSlug = (path: string) => path.slice("./".length, -".mdx".length);
 
 export default function DocsPage({ params }: { params: { slug: string } }) {
-  const doc = docs[`./${params.slug}.mdx`];
-  if (!doc || !doc.default) {
+  const Content = docs[`./${params.slug}.mdx`];
+  if (!Content) {
     return <h1>Not Found</h1>;
   }
-  const Content = doc.default;
   return <Content />;
 }
 

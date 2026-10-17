@@ -2,6 +2,17 @@ export const LS_PKG_KEY = "wren:pkg";
 export const LS_THEME_KEY = "wren:theme";
 export const PACKAGE_MANAGERS = ["npm", "pnpm", "yarn", "bun", "aube", "ni"];
 
+export const DOCS_NAV_LINKS = [
+  {
+    label: "Get started",
+    links: [
+      { href: "/docs", icon: "i-lucide:compass", label: "Overview" },
+      { href: "/docs/getting-started", icon: "i-lucide:rocket", label: "Getting started" },
+      { href: "/docs/project-structure", icon: "i-lucide:folder", label: "Project Structure" },
+    ],
+  },
+];
+
 export const MAIN_NAV_LINKS = [
   {
     href: "/",
@@ -28,9 +39,4 @@ export const MAIN_NAV_LINKS = [
   //   href: "/showcase",
   //   icon: "i-lucide--paintbrush",
   // },
-];
-
-export const DOCS_NAV_LINKS = [
-  { href: "/docs", icon: "i-lucide:compass", label: "Overview" },
-  { href: "/docs/getting-started", icon: "i-lucide:rocket", label: "Getting started" },
 ];

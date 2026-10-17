@@ -1,13 +1,15 @@
+import type { ComponentChildren } from "preact";
+import { cloneElement, isValidElement, toChildArray } from "preact";
 import { cn } from "#/utils/cn";
 import { Glass } from "../glass";
 
 export interface StepProps {
-  children: JSX.Children;
+  children: ComponentChildren;
   className?: string;
 }
 
 export interface StepsProps {
-  children: JSX.Children[];
+  children: ComponentChildren;
   className?: string;
 }
 
@@ -19,9 +21,7 @@ interface NumberedStepProps extends StepProps {
 export function Step({ children, className, isLast = false, stepNumber = 1 }: NumberedStepProps) {
   return (
     <li
-      class={["relative grid grid-cols-[2rem_minmax(0,1fr)] gap-x-4 pb-10 last:pb-0", className]
-        .filter(Boolean)
-        .join(" ")}
+      class={cn("relative grid grid-cols-[2rem_minmax(0,1fr)] gap-x-4 pb-10 last:pb-0", className)}
     >
       <Glass
         aria-hidden="true"
@@ -40,13 +40,11 @@ export function Step({ children, className, isLast = false, stepNumber = 1 }: Nu
 export function Steps({ children, className }: StepsProps) {
   return (
     <ol class={cn("my-6 list-none p-0", className)}>
-      {children?.map((child, index: number, arr: JSX.Children[]) => {
-        // @ts-expect-error
-        child.props.stepNumber = index + 1;
-        // @ts-expect-error
-        child.props.isLast = index === arr.length - 1;
-        return child;
-      })}
+      {toChildArray(children).map((child, index, steps) =>
+        isValidElement(child)
+          ? cloneElement(child, { isLast: index === steps.length - 1, stepNumber: index + 1 })
+          : child,
+      )}
     </ol>
   );
 }
