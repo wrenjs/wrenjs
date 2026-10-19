@@ -1,6 +1,11 @@
 import type { IncomingMessage } from "node:http";
 import type { RequestInput } from "virtual:wrenjs-fetch";
 
+export const isRequestAbortError = (req: IncomingMessage, error: unknown): boolean => {
+  if (!req.signal?.aborted) return false;
+  return error === req.signal.reason || (req.errored !== null && error === req.errored);
+};
+
 export const toRequestInput = (req: IncomingMessage, url = req.url ?? "/"): RequestInput => {
   const method = req.method ?? "GET";
   let request: Request | undefined;
@@ -15,6 +20,7 @@ export const toRequestInput = (req: IncomingMessage, url = req.url ?? "/"): Requ
     method,
     toRequest() {
       if (request) return request;
+      req.signal?.throwIfAborted();
 
       const headers: [string, string][] = [];
       for (let i = 0; i < req.rawHeaders.length; i += 2) {

@@ -5,7 +5,7 @@ import { fetch } from "virtual:wrenjs-fetch";
 import STATIC_ASSETS from "virtual:wrenjs-static-assets";
 import type { WrenResponseParts } from "#shared/entry/ssr/response.ts";
 import { WREN_RESPONSE } from "#shared/constants.ts";
-import { toRequestInput } from "#shared/entry/node/request.ts";
+import { isRequestAbortError, toRequestInput } from "#shared/entry/node/request.ts";
 
 const CLIENT_DIR = `${import.meta.dirname}/client`;
 const { createServer } = process.getBuiltinModule("node:http");
@@ -18,6 +18,7 @@ const logStreamError = (error: NodeJS.ErrnoException | null) => {
 
 const nodeServer = createServer((req, res) => {
   requestHandler(req, res).catch((err) => {
+    if (isRequestAbortError(req, err)) return;
     console.error(err);
 
     if (res.destroyed) return;

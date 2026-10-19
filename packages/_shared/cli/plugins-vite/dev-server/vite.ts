@@ -2,7 +2,7 @@ import type { ServerResponse } from "node:http";
 import type { Plugin } from "vite";
 import { pipeline } from "node:stream/promises";
 import { isCSSRequest, isRunnableDevEnvironment } from "vite";
-import { toRequestInput } from "../../../entry/node/request.ts";
+import { isRequestAbortError, toRequestInput } from "../../../entry/node/request.ts";
 
 type SsrEntryModule = Pick<typeof import("virtual:wrenjs-fetch"), "fetch">;
 
@@ -30,8 +30,10 @@ export const pluginWrenDevServer = (entry: string): Plugin => ({
           .then(async ({ fetch }) =>
             sendResponse(res, await fetch(toRequestInput(req, req.originalUrl ?? req.url))),
           )
-          // oxlint-disable-next-line promise/no-callback-in-promise -- Connect expects errors via next().
-          .catch(next);
+          .catch((error: unknown) => {
+            // oxlint-disable-next-line promise/no-callback-in-promise -- Connect expects errors via next().
+            if (!isRequestAbortError(req, error)) next(error);
+          });
       });
     };
   },

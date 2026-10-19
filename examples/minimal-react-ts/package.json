@@ -2,8 +2,8 @@
   "devDependencies": {
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@wren-js/core": "0.3.2",
-    "@wren-js/react": "0.3.2",
+    "@wren-js/core": "0.5.0",
+    "@wren-js/react": "0.5.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "typescript": "7.0.2"

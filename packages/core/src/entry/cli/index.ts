@@ -1,8 +1,7 @@
 import { existsSync } from "node:fs";
-import { basename, resolve } from "node:path";
+import { resolve } from "node:path";
 import process from "node:process";
 import { parseArgs } from "node:util";
-import { loadEnv } from "vite";
 import {
   type ConfigEnv,
   createBuilder,
@@ -15,13 +14,15 @@ import {
 import type { WrenConfig } from "#/entry/config/types.js";
 import { WREN_NAME, WREN_VERSION } from "#/constants.ts";
 import { CONFIG_VALID_EXTENSIONS, DEFAULTS } from "#/entry/config/index.ts";
+import { createEnvLoader } from "./env.ts";
 import { getViteConfig } from "./vite.ts";
 
 // Matches vite's API.
 const PUBLIC_EXPORTS = "VITE_";
+const loadServerEnv = createEnvLoader();
 const loadConfig = async (env: ConfigEnv) => {
   const root = process.cwd();
-  Object.assign(process.env, loadEnv(env.mode, root, ["", PUBLIC_EXPORTS]));
+  loadServerEnv(env.mode, root);
   const configFiles = CONFIG_VALID_EXTENSIONS.map((ext) =>
     normalizePath(resolve(root, `wren.config.${ext}`)),
   );
@@ -52,6 +53,11 @@ const loadConfig = async (env: ConfigEnv) => {
           resolvedConfig.configFileDependencies.push(...dependencies);
         },
         configureServer(server) {
+          const envFiles = new Set(
+            [".env", ".env.local", `.env.${env.mode}`, `.env.${env.mode}.local`].map((file) =>
+              normalizePath(resolve(root, file)),
+            ),
+          );
           const restart = server.restart.bind(server);
           let restartPromise: Promise<void> | undefined;
           server.restart = (forceOptimize) => {
@@ -70,12 +76,13 @@ const loadConfig = async (env: ConfigEnv) => {
             return restartPromise;
           };
 
-          server.watcher.on("change", (file) => {
-            const filename = basename(file);
-            if (
-              /\.config\.[^/]*$/.test(normalizePath(file)) ||
-              (filename.startsWith(".env") && !filename.startsWith(".env.example"))
-            ) {
+          server.watcher.on("all", (event, file) => {
+            const path = normalizePath(file);
+            const isEnvChange =
+              server.config.server.hmr === false &&
+              (event === "add" || event === "change" || event === "unlink") &&
+              envFiles.has(path);
+            if ((event === "change" && /\.config\.[^/]*$/.test(path)) || isEnvChange) {
               void server.restart().catch((error) => {
                 server.config.logger.error(
                   error instanceof Error ? (error.stack ?? error.message) : String(error),

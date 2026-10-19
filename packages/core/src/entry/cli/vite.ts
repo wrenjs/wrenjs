@@ -1,6 +1,7 @@
 import { type ConfigEnv, defineConfig, mergeConfig, type UserConfig } from "vite";
 import type { WrenConfig } from "#/entry/config/types.js";
 import { WREN_NAME } from "#/constants.ts";
+import { pluginServerEnv } from "./plugins-vite/env/vite.ts";
 import { pluginPageScripts } from "./plugins-vite/page-scripts/vite.ts";
 import { pluginPrerenderRoutes } from "./plugins-vite/prerender/vite.ts";
 import { pluginRouteManifest } from "./plugins-vite/virtual-route-manifest/vite.ts";
@@ -52,6 +53,7 @@ export const getViteConfig = async (env: ConfigEnv, config: WrenConfig) => {
       { api: { wrenConfig: config }, name: `${WREN_NAME}-config` },
       pluginRouteManifest(env, config),
       pluginPageScripts(config.router!),
+      pluginServerEnv(),
       pluginPrerenderRoutes(config),
     ],
     resolve: {

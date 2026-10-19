@@ -22,9 +22,9 @@ catalogs:
     "preact": "^11.0.1"
 
   integration-ssx:
-    "@lumeland/ssx": "0.1.15"
+    "@lumeland/ssx": "0.1.16"
   integration-peers-ssx:
-    "@lumeland/ssx": "^0.1.15"
+    "@lumeland/ssx": "^0.1.16"
 
   integration-react:
     "@types/react-dom": 19.3.0
