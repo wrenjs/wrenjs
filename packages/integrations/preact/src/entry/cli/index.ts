@@ -6,6 +6,7 @@ import { pluginWrenCss } from "#shared/cli/plugins-vite/css/vite.ts";
 import { pluginWrenDevServer } from "#shared/cli/plugins-vite/dev-server/vite.ts";
 import { pluginWrenIslands } from "#shared/cli/plugins-vite/islands/vite.ts";
 import { pluginWrenLink } from "#shared/cli/plugins-vite/link/vite.ts";
+import { pluginWrenServerOnly } from "#shared/cli/plugins-vite/server-only/vite.ts";
 import { PACKAGE_NAME } from "../../constants.ts";
 import { pluginWrenPreactJsx } from "./plugins-vite/preact-jsx/vite.ts";
 
@@ -30,6 +31,7 @@ const wrenIntegrationPreact = (): WrenIntegration => {
           wrapperImport: `${PACKAGE_NAME}/runtime/island`,
         }),
         pluginWrenDevServer(ssrEntry),
+        pluginWrenServerOnly(),
         ...pluginWrenCss(config.router!),
         pluginWrenPreactJsx(),
         await prefresh(),

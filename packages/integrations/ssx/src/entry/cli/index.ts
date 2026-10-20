@@ -4,6 +4,7 @@ import { clientEnvironment, serverEnvironment } from "#shared/cli/environments.t
 import { pluginWrenCss } from "#shared/cli/plugins-vite/css/vite.ts";
 import { pluginWrenDevServer } from "#shared/cli/plugins-vite/dev-server/vite.ts";
 import { pluginWrenLink } from "#shared/cli/plugins-vite/link/vite.ts";
+import { pluginWrenServerOnly } from "#shared/cli/plugins-vite/server-only/vite.ts";
 import { PACKAGE_NAME } from "../../constants.ts";
 
 const entry = (name: string) => resolve(import.meta.dirname, "entry", `${name}.mjs`);
@@ -24,6 +25,7 @@ const wrenIntegrationSSX = (): WrenIntegration => {
       plugins: [
         pluginWrenLink({ clientEntry, kind: "document" }),
         pluginWrenDevServer(ssrEntry),
+        pluginWrenServerOnly(),
         ...pluginWrenCss(config.router!),
       ],
     }),

@@ -4,8 +4,8 @@ import { performance } from "node:perf_hooks";
 import { setTimeout as sleep } from "node:timers/promises";
 import { COLD_SAMPLES, PATHS, RUNNERS } from "./config.ts";
 
-const DURATION = 30;
-const WARMUP = 5;
+const DURATION = 15;
+const WARMUP = 3;
 const CONNECTIONS = 50;
 const PIPELINING = 10;
 const COLD = process.argv.includes("--cold");

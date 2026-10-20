@@ -24,13 +24,21 @@ export const RUNNERS = [
   //   serve: "pnpm run serve",
   // },
 
-  // {
-  //   build: THIRD_PARTY.BUILD,
-  //   cwd: "./sveltekit",
-  //   install: THIRD_PARTY.INSTALL,
-  //   name: "SvelteKit",
-  //   serve: "pnpm run serve",
-  // },
+  {
+    build: THIRD_PARTY.BUILD,
+    cwd: "./sveltekit",
+    install: THIRD_PARTY.INSTALL,
+    name: "SvelteKit",
+    serve: "pnpm run serve",
+  },
+
+  {
+    build: THIRD_PARTY.BUILD,
+    cwd: "./waku",
+    install: THIRD_PARTY.INSTALL,
+    name: "Waku",
+    serve: "pnpm run serve",
+  },
 
   // {
   //   cwd: "./pracht",
@@ -40,13 +48,13 @@ export const RUNNERS = [
   //   serve: "pnpm run serve",
   // },
 
-  // {
-  //   cwd: "./tanstack-start",
-  //   name: "Tanstack Start (React)",
-  //   install: THIRD_PARTY.INSTALL,
-  //   build: THIRD_PARTY.BUILD,
-  //   serve: "pnpm run serve",
-  // },
+  {
+    cwd: "./tanstack-start",
+    name: "Tanstack Start (React)",
+    install: THIRD_PARTY.INSTALL,
+    build: THIRD_PARTY.BUILD,
+    serve: "pnpm run serve",
+  },
 
   {
     build: "pnpm run build",

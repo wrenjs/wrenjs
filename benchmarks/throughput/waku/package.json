@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "hono": "^4.13.13",
+    "react": "~19.3.1",
+    "react-dom": "~19.3.1",
+    "react-server-dom-webpack": "~19.3.1",
+    "waku": "1.0.0-rc.3"
+  },
+  "devDependencies": {
+    "@rolldown/plugin-babel": "^0.2.4",
+    "@tailwindcss/vite": "4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3"
+  },
+  "name": "waku-test",
+  "private": true,
+  "scripts": {
+    "build": "waku build",
+    "dev": "waku dev",
+    "serve": "pnpm run build && pnpm run start",
+    "start": "waku start",
+    "typegen": "waku router typegen"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}
