@@ -1,5 +1,5 @@
 import type { RouteStack } from "@wren-js/core/runtime/router";
-import type { RouteProxyContext } from "@wren-js/core/types";
+import type { RedirectStatus, RouteProxyContext } from "@wren-js/core/types";
 import type { RequestInput } from "virtual:wrenjs-fetch";
 import { ENTRY_KIND_API, ENTRY_KIND_NOT_FOUND, ENTRY_KIND_PAGE } from "@wren-js/core/constants";
 import { matchRouteToStack } from "@wren-js/core/runtime/router";
@@ -25,7 +25,6 @@ const toPagePath = (path: string) =>
 
 class ProxyContext implements RouteProxyContext {
   readonly params: Record<string, string>;
-  readonly redirect = redirect;
 
   get request(): Request {
     return getRequest(this.#input);
@@ -48,6 +47,16 @@ class ProxyContext implements RouteProxyContext {
     this.#isFlight = isFlight;
     this.params = params;
   }
+
+  redirect(this: void, location: string | URL, status?: RedirectStatus): Response {
+    return redirect(location, status);
+  }
+
+  // // The getters live on the prototype, which `console.log` doesn't show.
+  // [Symbol.for("nodejs.util.inspect.custom")]() {
+  //   const { params, request, url } = this;
+  //   return { params, redirect: this.redirect, request, url };
+  // }
 }
 
 export const runProxies = <TRouteStack extends RouteStack>(
