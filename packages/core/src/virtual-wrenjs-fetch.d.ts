@@ -8,5 +8,5 @@ declare module "virtual:wrenjs-fetch" {
         url: string;
       };
 
-  export const fetch: (request: RequestInput) => Promise<Response>;
+  export const fetch: (request: RequestInput, context?: Wren.Context) => Promise<Response>;
 }

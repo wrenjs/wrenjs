@@ -64,7 +64,7 @@ export const getViteConfig = async (env: ConfigEnv, config: WrenConfig) => {
   });
 
   const viteConfigs = await Promise.all(
-    [config.adapter, ...(config.integrations ?? [])].map(async (provider) =>
+    [...(config.integrations ?? []), config.adapter].map(async (provider) =>
       provider?.viteConfig(config, env),
     ),
   );

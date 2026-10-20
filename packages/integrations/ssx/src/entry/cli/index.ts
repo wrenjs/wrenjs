@@ -16,6 +16,7 @@ const wrenIntegrationSSX = (): WrenIntegration => {
   return {
     name: PACKAGE_NAME,
     prerender: { entry: entry("prerender"), environment: "ssr" },
+    server: { entry: ssrEntry, environment: "ssr" },
     viteConfig: (config, env) => ({
       environments: {
         client: clientEnvironment(clientEntry, "dist/client"),

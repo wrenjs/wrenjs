@@ -15,8 +15,6 @@ import {
   FLIGHT_HANDLER,
   FLIGHT_SERVER_ACTION_HEADER,
   HEADERS_ACTION,
-  HEADERS_FLIGHT,
-  HEADERS_HTML_RESPONSE,
   RESPONSE_DIGEST,
 } from "#shared/constants.ts";
 import {
@@ -26,7 +24,13 @@ import {
   isTrustedOrigin,
   renderPageScripts,
 } from "#shared/entry/ssr/helpers.ts";
-import { composeTree, loadRouteHead, pageStatus, preparePage } from "#shared/entry/ssr/page.ts";
+import {
+  composeTree,
+  loadRouteHead,
+  pageHeaders,
+  pageStatus,
+  preparePage,
+} from "#shared/entry/ssr/page.ts";
 import { WrenResponse } from "#shared/entry/ssr/response.ts";
 import { isResponseDigest } from "#shared/utils.ts";
 
@@ -94,7 +98,8 @@ const handlerPage = async (
   };
   const stream = renderFlight(request, matchedEntry, { onError });
   const status = pageStatus(matchedEntry);
-  if (isFlight) return new WrenResponse(stream, { headers: HEADERS_FLIGHT, status });
+  const headers = pageHeaders(matchedEntry, isFlight);
+  if (isFlight) return new WrenResponse(stream, { headers, status });
   const ssr = await getSsrEntry();
   const html = await ssr.renderToHtml(stream, htmlOptions(matchedEntry, onError));
   if (thrown) {
@@ -102,7 +107,7 @@ const handlerPage = async (
     return thrown;
   }
   streaming = true;
-  return new WrenResponse(html, { headers: HEADERS_HTML_RESPONSE, status });
+  return new WrenResponse(html, { headers, status });
 };
 
 const textResponse = (body: string, status: number) => new WrenResponse(body, { status });

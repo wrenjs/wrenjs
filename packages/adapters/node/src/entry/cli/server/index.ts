@@ -4,8 +4,8 @@ import { pipeline } from "node:stream";
 import { fetch } from "virtual:wrenjs-fetch";
 import STATIC_ASSETS from "virtual:wrenjs-static-assets";
 import type { WrenResponseParts } from "#shared/entry/ssr/response.ts";
-import { WREN_RESPONSE } from "#shared/constants.ts";
 import { isRequestAbortError, toRequestInput } from "#shared/entry/node/request.ts";
+import { responseParts } from "#shared/utils.ts";
 
 const CLIENT_DIR = `${import.meta.dirname}/client`;
 const { createServer } = process.getBuiltinModule("node:http");
@@ -53,11 +53,6 @@ const PORT = process.env.PORT ?? "4173";
 nodeServer.listen(PORT, () => {
   console.info(`Server is listening on port ${PORT}`);
 });
-
-const responseParts = (response: Response): undefined | WrenResponseParts => {
-  const take = WREN_RESPONSE in response ? response[WREN_RESPONSE] : undefined;
-  return typeof take === "function" ? take.call(response) : undefined;
-};
 
 const writeParts = (res: ServerResponse, { body, headers, status }: WrenResponseParts) => {
   const raw: string[] = [];

@@ -100,5 +100,6 @@ export interface WrenIntegration {
   name: string;
   /** Server entry exporting the framework-neutral PrerenderRuntime contract. */
   prerender?: { entry: string; environment: string };
+  server?: { entry: string; environment: string };
   viteConfig(config: WrenConfig, env: ConfigEnv): Promise<ViteUserConfig> | ViteUserConfig;
 }

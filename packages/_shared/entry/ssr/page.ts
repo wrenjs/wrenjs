@@ -24,6 +24,7 @@ export type PageRenderer<TStack> = (
 ) => Promise<readonly [html: string, head: string]>;
 
 export interface PreparedPage<TStack extends IntegrationRouteStack> {
+  context: TStack["context"];
   data: ReturnType<typeof loadRouteData>;
   layouts: NonNullable<TStack["layouts"]>;
   module: TStack["module"];
@@ -33,33 +34,67 @@ export interface PreparedPage<TStack extends IntegrationRouteStack> {
 
 export const composeTree = <TStack extends IntegrationRouteStack, TElement>(
   request: RequestInput,
-  { data, layouts, module, params }: PreparedPage<TStack>,
+  { context, data, layouts, module, params }: PreparedPage<TStack>,
   h: CreateElement<TStack, TElement>,
 ): TElement =>
   layouts.reduce(
     (children: TElement, { default: Layout }) =>
-      h(Layout, withRequest(request, { children, data })),
-    h(module.default, withRequest(request, { data, params })),
+      h(Layout, withRequest(request, context, { children, data })),
+    h(module.default, withRequest(request, context, { data, params })),
   );
 
 export const pageStatus = ({ kind }: { kind: string }): number =>
   kind === ENTRY_KIND_NOT_FOUND ? 404 : 200;
 
+type HeaderRecord = Readonly<Record<string, string>>;
+
+const pageHeadersCache = new WeakMap<object, readonly [HeaderRecord, HeaderRecord]>();
+const hasHeaders = ({ config }: IntegrationRouteStack["module"]) => config?.headers !== undefined;
+
+export const pageHeaders = (
+  { layouts = [], module }: Pick<IntegrationRouteStack, "layouts" | "module">,
+  isFlight: boolean,
+): HeaderRecord => {
+  if (!hasHeaders(module) && !layouts.some(hasHeaders)) {
+    return isFlight ? HEADERS_FLIGHT : HEADERS_HTML_RESPONSE;
+  }
+  let headers = import.meta.env.DEV ? undefined : pageHeadersCache.get(module);
+  if (!headers) {
+    const custom: Record<string, string> = Object.assign(
+      {},
+      ...layouts.toReversed().map((layout) => layout.config?.headers),
+      module.config?.headers,
+    );
+    headers = [
+      { ...HEADERS_HTML_RESPONSE, ...custom },
+      { ...HEADERS_FLIGHT, ...custom },
+    ];
+    pageHeadersCache.set(module, headers);
+  }
+  return headers[isFlight ? 1 : 0];
+};
+
 export const preparePage = <TStack extends IntegrationRouteStack>(
   request: RequestInput,
   routeStack: TStack,
 ): PreparedPage<TStack> => {
-  const { layouts = [], module, params } = routeStack;
+  const { context, layouts = [], module, params } = routeStack;
   const modules = [module, ...layouts];
-  return { data: loadRouteData(request, params, modules), layouts, module, modules, params };
+  const data = loadRouteData(request, context, params, modules);
+  return { context, data, layouts, module, modules, params };
 };
 
 export const loadRouteHead = <TElement>(
   request: RequestInput,
-  { data, modules, params }: PreparedPage<IntegrationRouteStack<unknown, unknown, TElement>>,
+  {
+    context,
+    data,
+    modules,
+    params,
+  }: PreparedPage<IntegrationRouteStack<unknown, unknown, TElement>>,
 ): Promise<TElement> | TElement | undefined => {
   for (const { head } of modules) {
-    if (head) return head(withRequest(request, { data, params }));
+    if (head) return head(withRequest(request, context, { data, params }));
   }
   return undefined;
 };
@@ -92,7 +127,7 @@ export const createPageHandlers = <TStack extends IntegrationRouteStack>(
     try {
       const [html, head] = await renderPage(request, routeStack);
       return new WrenResponse(injectIntoHead(html, head), {
-        headers: isFlight ? HEADERS_FLIGHT : HEADERS_HTML_RESPONSE,
+        headers: pageHeaders(routeStack, isFlight),
         status: pageStatus(routeStack),
       });
     } catch (error) {

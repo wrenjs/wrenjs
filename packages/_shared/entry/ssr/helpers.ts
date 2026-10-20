@@ -1,5 +1,5 @@
 import type { RouteModule } from "@wren-js/core/runtime/router";
-import type { RouteLoader } from "@wren-js/core/types";
+import type { RouteApiParams, RouteLoader, WrenContext } from "@wren-js/core/types";
 import type { RequestInput } from "virtual:wrenjs-fetch";
 import { ENTRY_API_EXPORTS } from "@wren-js/core/constants";
 import { EXPORT_CSS, EXPORT_SCRIPTS } from "../../constants.ts";
@@ -8,18 +8,35 @@ import { WrenResponse } from "./response.ts";
 export const getRequest = (request: RequestInput): Request =>
   "toRequest" in request ? request.toRequest() : request;
 
-export const withRequest = <T extends object>(request: RequestInput, props: T) => ({
-  ...props,
-  get request() {
-    return getRequest(request);
-  },
-});
+export const withRequest = <T extends object>(
+  request: RequestInput,
+  context: WrenContext,
+  props: T,
+) =>
+  "toRequest" in request
+    ? {
+        ...props,
+        context,
+        get request() {
+          return request.toRequest();
+        },
+      }
+    : { ...props, context, request };
+
+const hasLoader = ({ loader }: { loader?: RouteLoader }) => loader !== undefined;
+const noData = () => undefined;
 
 export const loadRouteData = (
   request: RequestInput,
+  context: WrenContext,
   params: Record<string, string>,
   modules: readonly { loader?: RouteLoader }[],
-) => Promise.all(modules.map(async ({ loader }) => loader?.(withRequest(request, { params }))));
+) =>
+  modules.some(hasLoader)
+    ? Promise.all(
+        modules.map(async ({ loader }) => loader?.(withRequest(request, context, { params }))),
+      )
+    : Promise.resolve(modules.map(noData));
 
 type UrlExport<K extends string> = { [P in K]?: () => Promise<string[]> | string[] };
 
@@ -96,18 +113,21 @@ type ApiMethod = (typeof ENTRY_API_EXPORTS)[number];
 const API_METHODS: ReadonlySet<string> = new Set(ENTRY_API_EXPORTS);
 const isApiMethod = (method: string): method is ApiMethod => API_METHODS.has(method);
 
-type ApiRouteStack = {
-  module: RouteModule<unknown, (request: Request) => Promise<Response> | Response>;
+type ApiRouteStack = RouteApiParams & {
+  module: RouteModule<
+    unknown,
+    (request: Request, route: RouteApiParams) => Promise<Response> | Response
+  >;
 };
 
 export const handlerApi = async (
   request: RequestInput,
-  { module }: ApiRouteStack,
+  routeStack: ApiRouteStack,
 ): Promise<Response> => {
   const method = request.method.toUpperCase();
-  const handler = isApiMethod(method) ? module[method] : undefined;
+  const handler = isApiMethod(method) ? routeStack.module[method] : undefined;
   if (!handler) {
     return new WrenResponse("Method Not Allowed", { status: 405 });
   }
-  return handler(getRequest(request));
+  return handler(getRequest(request), routeStack);
 };

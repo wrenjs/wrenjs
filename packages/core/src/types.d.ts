@@ -6,6 +6,12 @@ import "./virtual-wrenjs-link-client.d.ts";
 import "./virtual-wrenjs-page-scripts.d.ts";
 import "./virtual-wrenjs-routes.d.ts";
 
+declare global {
+  namespace Wren {
+    interface Context {}
+  }
+}
+
 export interface Entry {
   file: string;
 
@@ -66,7 +72,10 @@ export interface RoutableEntry {
   routes: Entry[];
 }
 
+export type RouteApiParams = Pick<RouteStack, "context" | "params">;
+
 export interface RouteConfig {
+  headers?: Readonly<Record<string, string>>;
   prerender?: boolean;
 }
 
@@ -97,6 +106,7 @@ export type RouteLoader<TDefault = unknown> = ({
 }: RouteLoaderParams) => Promise<TDefault>;
 
 export interface RouteLoaderParams {
+  context: WrenContext;
   params?: Record<string, string>;
   request: Request;
 }
@@ -124,6 +134,7 @@ export type RouteProxy = (
 ) => Promise<Response | void> | Response | void;
 
 export interface RouteProxyContext {
+  context: WrenContext;
   params: Record<string, string>;
   redirect: (location: string | URL, status?: RedirectStatus) => Response;
   request: Request;
@@ -139,6 +150,7 @@ export interface RouteStack<
   TLayout extends RouteModule = RouteModule,
   TProxy extends RouteModule = RouteModule<RouteProxy>,
 > {
+  context: WrenContext;
   kind: "API" | "NOT_FOUND" | "PAGE";
   layouts?: TLayout[];
   module: TModule;
@@ -147,5 +159,7 @@ export interface RouteStack<
 }
 
 export type RouteStackModules = Pick<Required<RouteStack>, "layouts" | "module" | "proxies">;
+
+export type WrenContext = Wren.Context;
 
 export type { fetch } from "virtual:wrenjs-fetch";

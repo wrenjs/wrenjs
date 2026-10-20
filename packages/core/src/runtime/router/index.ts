@@ -4,7 +4,7 @@ import {
   staticNotFounds,
   staticRoutes,
 } from "virtual:wrenjs-routes";
-import type { RouteStack, RouteStackModules } from "#/types.js";
+import type { RouteStack, RouteStackModules, WrenContext } from "#/types.js";
 import { extractPathname } from "#shared/utils.ts";
 import { trieLookup } from "./trie-lookup.ts";
 
@@ -12,9 +12,11 @@ export type { RouteModule, RouteStack } from "#/types.js";
 
 export function matchRouteToStack<T extends RouteStack = RouteStack>(
   path?: string,
+  context?: WrenContext,
 ): Promise<T | undefined> | T | undefined;
 export function matchRouteToStack(
   path?: string,
+  context = {} as WrenContext,
 ): Promise<RouteStack | undefined> | RouteStack | undefined {
   const pathname = extractPathname(path);
   if (!pathname) return undefined;
@@ -29,6 +31,7 @@ export function matchRouteToStack(
 
   const params = Object.fromEntries(matchedEntry.params?.map((name, i) => [name, values[i]]) ?? []);
   const toStack = ({ layouts, module, proxies }: RouteStackModules): RouteStack => ({
+    context,
     kind: matchedEntry.kind,
     layouts,
     module,

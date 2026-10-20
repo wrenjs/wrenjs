@@ -1,10 +1,16 @@
-import { RESPONSE_DIGEST } from "./constants.ts";
+import type { WrenResponseParts } from "./entry/ssr/response.ts";
+import { RESPONSE_DIGEST, WREN_RESPONSE } from "./constants.ts";
 
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
 export const isResponseDigest = (error: unknown): boolean =>
   isRecord(error) && error.digest === RESPONSE_DIGEST;
+
+export const responseParts = (response: Response): undefined | WrenResponseParts => {
+  const take = WREN_RESPONSE in response ? response[WREN_RESPONSE] : undefined;
+  return typeof take === "function" ? take.call(response) : undefined;
+};
 
 export const extractPathname = (path?: string) => {
   if (!path) return undefined;

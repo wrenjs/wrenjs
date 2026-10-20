@@ -1,0 +1,70 @@
+{
+  "name": "@wren-js/adapter-cloudflare",
+  "version": "0.12.0",
+  "description": "Cloudflare Workers adapter for wrenjs",
+  "keywords": [
+    "@wren-js/core",
+    "adapter",
+    "cloudflare",
+    "integration",
+    "server",
+    "vite",
+    "workers",
+    "wrangler",
+    "wren"
+  ],
+  "homepage": "https://wrenjs.org",
+  "bugs": {
+    "url": "https://github.com/wrenjs/wrenjs/issues",
+    "email": "maintainers@wrenjs.org"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "wrenjs Authors",
+    "email": "maintainers@wrenjs.org",
+    "url": "https://github.com/wrenjs/wrenjs/AUTHORS.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wrenjs/wrenjs.git",
+    "directory": "packages/adapters/cloudflare"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/wrenjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./entry/server": "./dist/entry/server.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "dev": "vp pack --watch",
+    "prepublishOnly": "vp run build",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@cloudflare/vite-plugin": "catalog:adapter-cloudflare",
+    "vite": "catalog:runtime"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@wren-js/core": "workspace:*",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "@wren-js/core": "*"
+  }
+}

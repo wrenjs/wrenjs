@@ -1,5 +1,5 @@
 import type { RouteStack } from "@wren-js/core/runtime/router";
-import type { RedirectStatus, RouteProxyContext } from "@wren-js/core/types";
+import type { RedirectStatus, RouteProxyContext, WrenContext } from "@wren-js/core/types";
 import type { RequestInput } from "virtual:wrenjs-fetch";
 import { ENTRY_KIND_API, ENTRY_KIND_NOT_FOUND, ENTRY_KIND_PAGE } from "@wren-js/core/constants";
 import { matchRouteToStack } from "@wren-js/core/runtime/router";
@@ -24,6 +24,8 @@ const toPagePath = (path: string) =>
   path.endsWith(FLIGHT_URL_POSTFIX) ? path.slice(0, -FLIGHT_URL_POSTFIX.length) || "/" : path;
 
 class ProxyContext implements RouteProxyContext {
+  readonly context: WrenContext;
+
   readonly params: Record<string, string>;
 
   get request(): Request {
@@ -42,9 +44,10 @@ class ProxyContext implements RouteProxyContext {
   readonly #isFlight: boolean;
   #url: undefined | URL;
 
-  constructor(input: RequestInput, params: Record<string, string>, isFlight: boolean) {
+  constructor(input: RequestInput, { context, params }: RouteStack, isFlight: boolean) {
     this.#input = input;
     this.#isFlight = isFlight;
+    this.context = context;
     this.params = params;
   }
 
@@ -65,8 +68,8 @@ export const runProxies = <TRouteStack extends RouteStack>(
   handler: RequestToStackHandler<TRouteStack>,
   isFlight = false,
 ): Promise<Response> => {
-  const { params, proxies = [] } = routeStack;
-  const context = new ProxyContext(request, params, isFlight);
+  const { proxies = [] } = routeStack;
+  const context = new ProxyContext(request, routeStack, isFlight);
   const dispatch = async (i: number): Promise<Response> => {
     let pending: Promise<Response> | undefined;
     const next = () => {
@@ -84,7 +87,7 @@ export const runProxies = <TRouteStack extends RouteStack>(
 
 export const createFetch =
   <TRouteStack extends RouteStack>(handlers: RequestToStackMap<TRouteStack>) =>
-  (request: RequestInput): Promise<Response> => {
+  (request: RequestInput, context?: WrenContext): Promise<Response> => {
     const isFlight = request.headers.get("accept") === FLIGHT_MIME_TYPE;
 
     let pathname = extractPathname(request.url) ?? "/";
@@ -98,6 +101,6 @@ export const createFetch =
         ? runProxies(request, matchedEntry, handler, isFlight)
         : handler(request, matchedEntry, isFlight);
     };
-    const matched = matchRouteToStack<TRouteStack>(pathname);
+    const matched = matchRouteToStack<TRouteStack>(pathname, context);
     return matched instanceof Promise ? matched.then(dispatch) : dispatch(matched);
   };

@@ -24,6 +24,7 @@ const wrenIntegrationReact = (options: WrenIntegrationReactOptions = {}): WrenIn
   return {
     name: PACKAGE_NAME,
     prerender: { entry: entry("prerender"), environment: "rsc" },
+    server: { entry: rscEntry, environment: "rsc" },
     viteConfig: (_config, env) => ({
       environments: {
         client: clientEnvironment(clientEntry),

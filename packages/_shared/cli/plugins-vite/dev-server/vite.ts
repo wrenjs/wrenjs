@@ -19,9 +19,7 @@ export const pluginWrenDevServer = (entry: string): Plugin => ({
   apply: "serve",
   configureServer(server) {
     const environment = server.environments.ssr;
-    if (!isRunnableDevEnvironment(environment)) {
-      throw new Error(`[wrenjs] The "ssr" environment must be runnable in dev.`);
-    }
+    if (!isRunnableDevEnvironment(environment)) return undefined;
 
     return () => {
       server.middlewares.use((req, res, next) => {

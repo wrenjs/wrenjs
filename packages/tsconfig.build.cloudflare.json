@@ -1,0 +1,3 @@
+{
+  "extends": "./adapters/cloudflare/tsconfig.json"
+}

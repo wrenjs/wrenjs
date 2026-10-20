@@ -10,6 +10,9 @@ catalog:
   vite-plus: 1.3.0
 
 catalogs:
+  adapter-cloudflare:
+    "@cloudflare/vite-plugin": 1.64.0
+
   benchmarks:
     "@types/autocannon": "7.12.7"
     "autocannon": "8.0.0"
@@ -33,7 +36,7 @@ catalogs:
     "@vitejs/plugin-rsc": 0.5.38
     react-dom: 19.3.1
     react: 19.3.1
-    oxc-transform-react: 0.154.0
+    oxc-transform-react: 0.155.0
   integration-peers-react:
     "react": "^19.3.1"
     "react-dom": "^19.3.1"
