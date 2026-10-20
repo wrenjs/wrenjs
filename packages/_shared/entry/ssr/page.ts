@@ -4,7 +4,6 @@ import type { IntegrationRouteStack, LayoutProps, PageProps } from "../../types.
 import type { RequestToStackMap } from "./request-to-stack.ts";
 import { HEADERS_FLIGHT, HEADERS_HTML_RESPONSE } from "../../constants.ts";
 import {
-  executeProxies,
   handlerApi,
   injectIntoHead,
   loadRouteData,
@@ -46,12 +45,11 @@ export const composeTree = <TStack extends IntegrationRouteStack, TElement>(
 export const pageStatus = ({ kind }: { kind: string }): number =>
   kind === ENTRY_KIND_NOT_FOUND ? 404 : 200;
 
-export const preparePage = async <TStack extends IntegrationRouteStack>(
+export const preparePage = <TStack extends IntegrationRouteStack>(
   request: RequestInput,
   routeStack: TStack,
-): Promise<PreparedPage<TStack>> => {
-  const { layouts = [], module, params, proxies = [] } = routeStack;
-  if (proxies.length > 0) await executeProxies(request, proxies);
+): PreparedPage<TStack> => {
+  const { layouts = [], module, params } = routeStack;
   const modules = [module, ...layouts];
   return { data: loadRouteData(request, params, modules), layouts, module, modules, params };
 };
@@ -72,7 +70,7 @@ export const createPageRenderer =
     renderHead: (element: TElement) => Promise<string> | string,
   ): PageRenderer<TStack> =>
   async (request, routeStack) => {
-    const page = await preparePage(request, routeStack);
+    const page = preparePage(request, routeStack);
     const routeHead = loadRouteHead<TElement>(request, page);
     const [html, head, stylesheets, scripts] = await Promise.all([
       renderTree(request, page),

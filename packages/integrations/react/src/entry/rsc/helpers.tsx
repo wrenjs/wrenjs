@@ -20,7 +20,6 @@ import {
 } from "#shared/constants.ts";
 import {
   collectPageScripts,
-  executeProxies,
   getRequest,
   handlerApi,
   isTrustedOrigin,
@@ -56,12 +55,12 @@ export const htmlOptions = (matchedEntry: ReactRouteStack): HtmlOptions => {
   return { hydrate, scripts };
 };
 
-export const renderFlight = async (
+export const renderFlight = (
   request: RequestInput,
   matchedEntry: ReactRouteStack,
   options?: Parameters<typeof renderToReadableStream>[1],
 ) => {
-  const page = await preparePage(request, matchedEntry);
+  const page = preparePage(request, matchedEntry);
   const tree = composeTree<ReactRouteStack, ReactNode>(request, page, jsx);
   const head = loadRouteHead(request, page);
   return renderToReadableStream(
@@ -75,7 +74,7 @@ const handlerPage = async (
   matchedEntry: ReactRouteStack,
   isFlight: boolean = false,
 ): Promise<Response> => {
-  const stream = await renderFlight(request, matchedEntry);
+  const stream = renderFlight(request, matchedEntry);
   const status = pageStatus(matchedEntry);
   if (isFlight) return new WrenResponse(stream, { headers: HEADERS_FLIGHT, status });
   const ssr = await getSsrEntry();
@@ -87,15 +86,10 @@ const handlerPage = async (
 
 const textResponse = (body: string, status: number) => new WrenResponse(body, { status });
 
-export const handlerFlight = async (
-  request: RequestInput,
-  matchedEntry: ReactRouteStack,
-): Promise<Response> => {
+export const handlerFlight = async (request: RequestInput): Promise<Response> => {
   const actionId = request.headers.get(FLIGHT_SERVER_ACTION_HEADER);
   if (request.method !== "POST" || !actionId) return textResponse("Method Not Allowed", 405);
   if (!isTrustedOrigin(request)) return textResponse("Forbidden", 403);
-
-  await executeProxies(request, matchedEntry.proxies);
 
   let decoded: [unknown, unknown];
   try {

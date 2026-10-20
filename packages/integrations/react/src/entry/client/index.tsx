@@ -128,7 +128,12 @@ setServerCallback(async (id, args) => {
       body: await encodeReply(args, { temporaryReferences }),
       id,
     });
-    return await createFromFetch(fetch(request), { temporaryReferences });
+    const response = await fetch(request);
+    if (response.type === "opaqueredirect") {
+      window.location.reload();
+      return await new Promise<never>(() => {});
+    }
+    return await createFromFetch(Promise.resolve(response), { temporaryReferences });
   } finally {
     window.dispatchEvent(new Event(LINK_INVALIDATE_EVENT));
   }
@@ -141,7 +146,11 @@ if (import.meta.hot) {
     const controller = new AbortController();
     refresh = controller;
     void fetch(createFlightRequest(window.location.href), { signal: controller.signal })
-      .then((response) => renderResponse(response, controller.signal))
+      .then((response) =>
+        response.type === "opaqueredirect"
+          ? window.location.reload()
+          : renderResponse(response, controller.signal),
+      )
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         console.error("[wrenjs/react] Unable to refresh the page.", error);

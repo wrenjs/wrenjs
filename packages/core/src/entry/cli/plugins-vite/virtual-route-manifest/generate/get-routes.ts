@@ -118,6 +118,7 @@ export const getRoutes = async (config: WrenConfig, root: string): Promise<Routa
         file,
         kind,
         ...toRoutePattern(pagesDir, file),
+        proxies: chainFor(dirname(file)).proxies,
       });
     }
   }

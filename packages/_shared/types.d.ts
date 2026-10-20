@@ -4,8 +4,7 @@ import type { EXPORT_CSS, EXPORT_REQUIRES_CLIENT, EXPORT_SCRIPTS } from "./const
 
 export type IntegrationRouteStack<TPage = unknown, TLayout = unknown, THead = unknown> = RouteStack<
   RouteMeta & RouteModule<TPage, ApiHandler, THead>,
-  RouteMeta & RouteModule<TLayout, ApiHandler, THead>,
-  RouteModule<ProxyHandler>
+  RouteMeta & RouteModule<TLayout, ApiHandler, THead>
 >;
 
 export interface LayoutProps<TChildren> {
@@ -21,8 +20,6 @@ export interface PageProps {
 }
 
 type ApiHandler = (request: Request) => Promise<Response> | Response;
-
-type ProxyHandler = (request: Request) => Promise<void> | void;
 
 interface RouteMeta {
   [EXPORT_CSS]?: () => Promise<string[]> | string[];

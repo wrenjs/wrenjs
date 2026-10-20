@@ -9,7 +9,7 @@ export const render = createPrerender<ReactRouteStack>(async (request, matched) 
   const onError = (error: unknown) => {
     errors.push(error);
   };
-  const [html, flight] = (await renderFlight(request, matched, { onError })).tee();
+  const [html, flight] = renderFlight(request, matched, { onError }).tee();
   const ssr = await getSsrEntry();
   const bodies = await Promise.all([
     ssr

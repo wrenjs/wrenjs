@@ -92,32 +92,18 @@ export const isTrustedOrigin = (request: RequestInput): boolean => {
   return URL.parse(origin)?.host === host;
 };
 
-export const executeProxies = async (
-  request: RequestInput,
-  proxies: readonly { default: (request: Request) => unknown }[] | undefined,
-): Promise<void> => {
-  for (const proxy of proxies ?? []) {
-    // NOTE: Each proxy should be executed sequentially.
-    // oxlint-disable-next-line no-await-in-loop
-    await proxy.default(getRequest(request));
-  }
-};
-
 type ApiMethod = (typeof ENTRY_API_EXPORTS)[number];
 const API_METHODS: ReadonlySet<string> = new Set(ENTRY_API_EXPORTS);
 const isApiMethod = (method: string): method is ApiMethod => API_METHODS.has(method);
 
 type ApiRouteStack = {
   module: RouteModule<unknown, (request: Request) => Promise<Response> | Response>;
-  proxies?: Parameters<typeof executeProxies>[1];
 };
 
 export const handlerApi = async (
   request: RequestInput,
-  matchedEntry: ApiRouteStack,
+  { module }: ApiRouteStack,
 ): Promise<Response> => {
-  const { module, proxies = [] } = matchedEntry;
-  if (proxies.length > 0) await executeProxies(request, proxies);
   const method = request.method.toUpperCase();
   const handler = isApiMethod(method) ? module[method] : undefined;
   if (!handler) {

@@ -59,6 +59,8 @@ export interface RadixTrie<Route = Entry> {
   w?: Route;
 }
 
+export type RedirectStatus = 301 | 302 | 303 | 307 | 308;
+
 export interface RoutableEntry {
   notFounds: Entry[];
   routes: Entry[];
@@ -115,10 +117,27 @@ export interface RouteModule<TDefault = unknown, THandler = unknown, THead = unk
   PUT?: THandler;
 }
 
+/** A `__proxy` default export. Return a `Response` to short-circuit, or nothing to continue. */
+export type RouteProxy = (
+  context: RouteProxyContext,
+  next: RouteProxyNext,
+) => Promise<Response | void> | Response | void;
+
+export interface RouteProxyContext {
+  params: Record<string, string>;
+  redirect: (location: string | URL, status?: RedirectStatus) => Response;
+  request: Request;
+  /** The page URL, without the Flight request suffix. */
+  url: URL;
+}
+
+/** Runs the inner proxies and the route handler; may be called once. */
+export type RouteProxyNext = () => Promise<Response>;
+
 export interface RouteStack<
   TModule extends RouteModule = RouteModule,
   TLayout extends RouteModule = RouteModule,
-  TProxy extends RouteModule = RouteModule,
+  TProxy extends RouteModule = RouteModule<RouteProxy>,
 > {
   kind: "API" | "NOT_FOUND" | "PAGE";
   layouts?: TLayout[];

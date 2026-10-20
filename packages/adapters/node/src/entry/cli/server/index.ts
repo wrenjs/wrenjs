@@ -61,7 +61,12 @@ const responseParts = (response: Response): undefined | WrenResponseParts => {
 
 const writeParts = (res: ServerResponse, { body, headers, status }: WrenResponseParts) => {
   const raw: string[] = [];
-  for (const name in headers) raw.push(name, headers[name]);
+  if (headers instanceof Headers) {
+    headers.delete("content-length");
+    headers.forEach((value, name) => raw.push(name, value));
+  } else {
+    for (const name in headers) raw.push(name, headers[name]);
+  }
   if (body !== null && typeof body !== "string") return writeBody(res.writeHead(status, raw), body);
   raw.push("Content-Length", body ? String(Buffer.byteLength(body)) : "0");
   return res.writeHead(status, raw).end(body);

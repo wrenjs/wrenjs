@@ -9,7 +9,7 @@ export interface WrenResponseInit {
 
 export interface WrenResponseParts {
   body: WrenResponseBody;
-  headers: Readonly<Record<string, string>>;
+  headers: Headers | Readonly<Record<string, string>>;
   status: number;
 }
 
@@ -25,7 +25,10 @@ export class WrenResponse implements Response {
   }
 
   get headers(): Headers {
-    return this.#materialize().headers;
+    const parts = this.#parts;
+    if (!parts) return this.#response!.headers;
+    if (!(parts.headers instanceof Headers)) parts.headers = new Headers(parts.headers);
+    return parts.headers;
   }
 
   get ok(): boolean {

@@ -8,6 +8,7 @@ import type { PageRenderer } from "../ssr/page.ts";
 import { FLIGHT_URL_POSTFIX, HEADERS_FLIGHT, HEADERS_HTML_RESPONSE } from "../../constants.ts";
 import { extractPathname } from "../../utils.ts";
 import { injectIntoHead } from "../ssr/helpers.ts";
+import { runProxies } from "../ssr/request-to-stack.ts";
 
 type PrerenderBodies<TStack> = (
   request: Request,
@@ -22,8 +23,18 @@ export const createPrerender =
   async (request: Request): Promise<PrerenderArtifact[]> => {
     const matched = await matchRouteToStack<TStack>(request.url);
     if (matched?.kind !== ENTRY_KIND_PAGE) throw new Error(`Cannot prerender page ${request.url}.`);
-    const [html, flight] = await renderBodies(request, matched);
     const pathname = extractPathname(request.url)!;
+    let bodies: readonly [BodyInit, BodyInit] | undefined;
+    const response = await runProxies(request, matched, async () => {
+      bodies = await renderBodies(request, matched);
+      return new Response();
+    });
+    if (!bodies || !response.ok) {
+      throw new Error(
+        `Cannot prerender page ${pathname}: a proxy responded with ${response.status}.`,
+      );
+    }
+    const [html, flight] = bodies;
     return [
       { pathname, response: new Response(html, { headers: HEADERS_HTML_RESPONSE }) },
       {

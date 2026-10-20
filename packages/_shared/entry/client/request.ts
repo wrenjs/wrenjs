@@ -18,5 +18,6 @@ export function createFlightRequest(
     body: action?.body,
     headers,
     method: action ? "POST" : "GET",
+    redirect: "manual",
   });
 }

@@ -48,8 +48,8 @@ const clearCache = () => {
 };
 const fetchFlight = async (href: string, signal: AbortSignal): Promise<Response> => {
   const response = await fetch(createFlightRequest(href), { signal });
+  if (response.type === "opaqueredirect") return response;
   if (
-    response.redirected ||
     (!response.ok && response.status !== 404) ||
     !response.headers.get("content-type")?.startsWith("text/x-component")
   ) {
@@ -185,7 +185,12 @@ if (!customElements.get("wren-link")) {
       signal.addEventListener("abort", () => entry.controller.abort(), { once: true });
       const response = await entry.response;
       signal.throwIfAborted();
-      await render(response, signal);
+      if (response.type === "opaqueredirect") {
+        // A proxy redirected: navigate natively so the browser follows it. Never settles.
+        location.assign(url);
+        return new Promise<never>(() => {});
+      }
+      return render(response, signal);
     });
   } else {
     listenLinks();
