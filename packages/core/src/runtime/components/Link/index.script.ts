@@ -11,7 +11,7 @@ import type { Prefetch } from "./types.js";
 interface CacheEntry {
   controller: AbortController;
   created: number;
-  response: Promise<Response>;
+  response: Promise<Response | undefined>;
 }
 type NetworkInformation = { effectiveType?: string; saveData?: boolean };
 
@@ -46,17 +46,12 @@ const evict = (href: string) => {
 const clearCache = () => {
   for (const href of cache.keys()) evict(href);
 };
-const fetchFlight = async (href: string, signal: AbortSignal): Promise<Response> => {
+// Non-Flight responses (redirects, thrown or proxy Responses, errors) resolve `undefined`.
+const fetchFlight = async (href: string, signal: AbortSignal): Promise<Response | undefined> => {
   const response = await fetch(createFlightRequest(href), { signal });
-  if (response.type === "opaqueredirect") return response;
-  if (
-    (!response.ok && response.status !== 404) ||
-    !response.headers.get("content-type")?.startsWith("text/x-component")
-  ) {
-    await response.body?.cancel();
-    throw new Error(`Invalid Flight response for ${href} (${response.status}).`);
-  }
-  return response;
+  if (response.headers.get("content-type")?.startsWith("text/x-component")) return response;
+  await response.body?.cancel();
+  return undefined;
 };
 
 const getFlight = (href: string): CacheEntry => {
@@ -185,8 +180,8 @@ if (!customElements.get("wren-link")) {
       signal.addEventListener("abort", () => entry.controller.abort(), { once: true });
       const response = await entry.response;
       signal.throwIfAborted();
-      if (response.type === "opaqueredirect") {
-        // A proxy redirected: navigate natively so the browser follows it. Never settles.
+      if (!response) {
+        // Let the browser navigate (and follow any redirect). This navigation never settles.
         location.assign(url);
         return new Promise<never>(() => {});
       }

@@ -11,7 +11,7 @@ import {
   renderStylesheets,
   withRequest,
 } from "./helpers.ts";
-import { WrenResponse } from "./response.ts";
+import { catchResponse, WrenResponse } from "./response.ts";
 
 export interface CreateElement<TStack extends IntegrationRouteStack, TElement> {
   (type: TStack["module"]["default"], props: PageProps): TElement;
@@ -89,11 +89,15 @@ export const createPageHandlers = <TStack extends IntegrationRouteStack>(
     routeStack: TStack,
     isFlight = false,
   ): Promise<Response> => {
-    const [html, head] = await renderPage(request, routeStack);
-    return new WrenResponse(injectIntoHead(html, head), {
-      headers: isFlight ? HEADERS_FLIGHT : HEADERS_HTML_RESPONSE,
-      status: pageStatus(routeStack),
-    });
+    try {
+      const [html, head] = await renderPage(request, routeStack);
+      return new WrenResponse(injectIntoHead(html, head), {
+        headers: isFlight ? HEADERS_FLIGHT : HEADERS_HTML_RESPONSE,
+        status: pageStatus(routeStack),
+      });
+    } catch (error) {
+      return catchResponse(error);
+    }
   };
   return {
     [ENTRY_KIND_API]: handlerApi,

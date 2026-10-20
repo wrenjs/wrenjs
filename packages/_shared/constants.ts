@@ -34,6 +34,8 @@ export const SOURCE_RE = /\.[cm]?[jt]sx?$/;
 
 export const WREN_RESPONSE = Symbol.for("wrenjs.response");
 
+export const RESPONSE_DIGEST = "wrenjs.response";
+
 export const HEADERS_HTML_RESPONSE = {
   [CONTENT_TYPE]: `text/html;${UTF_8}`,
   [X_CONTENT_TYPE_OPTIONS]: "nosniff",

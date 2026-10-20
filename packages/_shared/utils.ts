@@ -1,5 +1,10 @@
+import { RESPONSE_DIGEST } from "./constants.ts";
+
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
+
+export const isResponseDigest = (error: unknown): boolean =>
+  isRecord(error) && error.digest === RESPONSE_DIGEST;
 
 export const extractPathname = (path?: string) => {
   if (!path) return undefined;

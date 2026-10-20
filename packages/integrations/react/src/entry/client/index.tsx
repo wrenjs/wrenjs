@@ -11,6 +11,7 @@ import { startTransition, StrictMode, useLayoutEffect, useState } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { LINK_INVALIDATE_EVENT, WINDOW_KEY_HYDRATE } from "#shared/constants.ts";
 import { createFlightRequest } from "#shared/entry/client/request.ts";
+import { isResponseDigest } from "#shared/utils.ts";
 import { rscStream } from "./rsc-html-stream.ts";
 
 declare global {
@@ -61,7 +62,7 @@ function BrowserRoot({ initial }: { initial: RenderState }) {
 }
 
 const onUncaughtError = (error: unknown) => {
-  console.error("[wrenjs/react] Unable to render the page.", error);
+  if (!isResponseDigest(error)) console.error("[wrenjs/react] Unable to render the page.", error);
   mounted?.reject(error);
   failRender?.(error);
 };

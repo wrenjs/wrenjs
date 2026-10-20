@@ -13,7 +13,7 @@ export const render = createPrerender<ReactRouteStack>(async (request, matched) 
   const ssr = await getSsrEntry();
   const bodies = await Promise.all([
     ssr
-      .renderToHtml(html, { ...htmlOptions(matched), onError })
+      .renderToHtml(html, htmlOptions(matched, onError))
       .then((stream) => new Response(stream).arrayBuffer()),
     new Response(flight).arrayBuffer(),
   ]);

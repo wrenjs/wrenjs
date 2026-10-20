@@ -17,6 +17,7 @@ import {
   HEADERS_ACTION,
   HEADERS_FLIGHT,
   HEADERS_HTML_RESPONSE,
+  RESPONSE_DIGEST,
 } from "#shared/constants.ts";
 import {
   collectPageScripts,
@@ -27,6 +28,7 @@ import {
 } from "#shared/entry/ssr/helpers.ts";
 import { composeTree, loadRouteHead, pageStatus, preparePage } from "#shared/entry/ssr/page.ts";
 import { WrenResponse } from "#shared/entry/ssr/response.ts";
+import { isResponseDigest } from "#shared/utils.ts";
 
 export const needsHydration = ({ layouts, module }: ReactRouteStack): boolean =>
   module[EXPORT_REQUIRES_CLIENT] !== false ||
@@ -44,15 +46,18 @@ export const getSsrEntry = (): Promise<SsrEntry> => {
   return ssrEntry;
 };
 
-export const htmlOptions = (matchedEntry: ReactRouteStack): HtmlOptions => {
+export const htmlOptions = (
+  matchedEntry: ReactRouteStack,
+  onError?: HtmlOptions["onError"],
+): HtmlOptions => {
   const modules = [matchedEntry.module, ...(matchedEntry.layouts ?? [])];
   const hydrate = needsHydration(matchedEntry);
-  if (import.meta.env.DEV) return { hydrate, scripts: () => renderPageScripts(modules) };
+  if (import.meta.env.DEV) return { hydrate, onError, scripts: () => renderPageScripts(modules) };
   const scripts = collectPageScripts(modules);
 
   if (!Array.isArray(scripts))
     throw new TypeError("[wrenjs] Page scripts must be static in builds.");
-  return { hydrate, scripts };
+  return { hydrate, onError, scripts };
 };
 
 export const renderFlight = (
@@ -74,14 +79,30 @@ const handlerPage = async (
   matchedEntry: ReactRouteStack,
   isFlight: boolean = false,
 ): Promise<Response> => {
-  const stream = renderFlight(request, matchedEntry);
+  // A thrown Response replaces the page if it lands before the HTML shell; Flight responses are
+  // already streaming, so the client sees the digest and navigates natively.
+  let thrown: Response | undefined;
+  let streaming = false;
+  const onError = (error: unknown) => {
+    if (error instanceof Response) {
+      if (streaming) console.warn("[wrenjs] Ignored a Response thrown after streaming began.");
+      thrown ??= error;
+      return RESPONSE_DIGEST;
+    }
+    if (!isResponseDigest(error)) console.error(error);
+    return undefined;
+  };
+  const stream = renderFlight(request, matchedEntry, { onError });
   const status = pageStatus(matchedEntry);
   if (isFlight) return new WrenResponse(stream, { headers: HEADERS_FLIGHT, status });
   const ssr = await getSsrEntry();
-  return new WrenResponse(await ssr.renderToHtml(stream, htmlOptions(matchedEntry)), {
-    headers: HEADERS_HTML_RESPONSE,
-    status,
-  });
+  const html = await ssr.renderToHtml(stream, htmlOptions(matchedEntry, onError));
+  if (thrown) {
+    void html.cancel();
+    return thrown;
+  }
+  streaming = true;
+  return new WrenResponse(html, { headers: HEADERS_HTML_RESPONSE, status });
 };
 
 const textResponse = (body: string, status: number) => new WrenResponse(body, { status });

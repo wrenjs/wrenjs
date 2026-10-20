@@ -1,4 +1,4 @@
-import { isRecord } from "../../utils.ts";
+import { isRecord, isResponseDigest } from "../../utils.ts";
 
 const STATE_KEY = "__wrenNavigation";
 
@@ -111,7 +111,9 @@ export const listenNavigation = (navigate: (url: URL, signal: AbortSignal) => Pr
       scrollToDestination(url, restore);
     } catch (error) {
       if (signal.aborted) return;
-      console.error("[wrenjs] Client navigation failed; using browser navigation.", error);
+      if (!isResponseDigest(error)) {
+        console.error("[wrenjs] Client navigation failed; using browser navigation.", error);
+      }
       if (restore) location.reload();
       else location.assign(url.href);
     }

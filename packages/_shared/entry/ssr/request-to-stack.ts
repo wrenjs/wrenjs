@@ -1,12 +1,12 @@
 import type { RouteStack } from "@wren-js/core/runtime/router";
-import type { RedirectStatus, RouteProxyContext } from "@wren-js/core/types";
+import type { RouteProxyContext } from "@wren-js/core/types";
 import type { RequestInput } from "virtual:wrenjs-fetch";
 import { ENTRY_KIND_API, ENTRY_KIND_NOT_FOUND, ENTRY_KIND_PAGE } from "@wren-js/core/constants";
 import { matchRouteToStack } from "@wren-js/core/runtime/router";
 import { FLIGHT_HANDLER, FLIGHT_MIME_TYPE, FLIGHT_URL_POSTFIX } from "../../constants.ts";
 import { extractPathname } from "../../utils.ts";
 import { getRequest } from "./helpers.ts";
-import { WrenResponse } from "./response.ts";
+import { redirect, WrenResponse } from "./response.ts";
 
 export type RequestToStackHandler<TRouteStack extends RouteStack> = (
   request: RequestInput,
@@ -20,13 +20,12 @@ export interface RequestToStackMap<TRouteStack extends RouteStack> {
   [FLIGHT_HANDLER]?: RequestToStackHandler<TRouteStack>;
 }
 
-const REDIRECT_STATUSES: ReadonlySet<number> = new Set([301, 302, 303, 307, 308]);
-
 const toPagePath = (path: string) =>
   path.endsWith(FLIGHT_URL_POSTFIX) ? path.slice(0, -FLIGHT_URL_POSTFIX.length) || "/" : path;
 
 class ProxyContext implements RouteProxyContext {
   readonly params: Record<string, string>;
+  readonly redirect = redirect;
 
   get request(): Request {
     return getRequest(this.#input);
@@ -48,13 +47,6 @@ class ProxyContext implements RouteProxyContext {
     this.#input = input;
     this.#isFlight = isFlight;
     this.params = params;
-  }
-
-  redirect(location: string | URL, status: RedirectStatus = 302): Response {
-    if (!REDIRECT_STATUSES.has(status)) {
-      throw new RangeError(`[wrenjs] Invalid redirect status: ${status}.`);
-    }
-    return new WrenResponse(null, { headers: { Location: String(location) }, status });
   }
 }
 

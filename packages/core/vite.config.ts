@@ -18,6 +18,7 @@ export default defineConfig({
       config: "./src/entry/config/index.ts",
       constants: "./src/constants.ts",
       link: "./src/runtime/components/Link/index.ts",
+      response: "./src/runtime/response.ts",
       "runtime/prerender": "./src/runtime/prerender/index.ts",
       "runtime/router": "./src/runtime/router/index.ts",
     },

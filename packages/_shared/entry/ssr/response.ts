@@ -124,3 +124,18 @@ Object.setPrototypeOf(
   WrenResponse.prototype,
   new Proxy({}, { getPrototypeOf: linkResponsePrototype }),
 );
+
+const REDIRECT_STATUSES: ReadonlySet<number> = new Set([301, 302, 303, 307, 308]);
+type RedirectStatus = 301 | 302 | 303 | 307 | 308;
+
+export const redirect = (location: string | URL, status: RedirectStatus = 302): Response => {
+  if (!REDIRECT_STATUSES.has(status)) {
+    throw new RangeError(`[wrenjs] Invalid redirect status: ${status}.`);
+  }
+  return new WrenResponse(null, { headers: { Location: String(location) }, status });
+};
+
+export const catchResponse = (error: unknown): Response => {
+  if (error instanceof Response) return error;
+  throw error;
+};
