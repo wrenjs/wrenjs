@@ -46,45 +46,10 @@
   background-size: 100dvw 100dvh;
 }
 
-/* Use a fixed layer instead of iOS's unreliable fixed backgrounds. */
 @supports (-webkit-touch-callout: none) {
   .glass {
-    isolation: isolate;
-    background-image: none;
-  }
-
-  .glass::before {
-    content: "";
-    position: fixed;
-    inset: -10%;
-    z-index: -1;
-    pointer-events: none;
-    background-image: var(--glass-background);
-    background-size: 100% 100%;
+    background-attachment: scroll;
+    background-size: 100% 100svh;
     background-repeat: no-repeat;
-  }
-
-  @media (hover: none) and (prefers-reduced-motion: no-preference) {
-    .glass::before {
-      animation: glass-drift 16s ease-in-out infinite alternate;
-    }
-
-    /* Follow scrolling where supported; otherwise use gentle ambient motion. */
-    @supports (animation-timeline: scroll()) {
-      .glass::before {
-        animation: glass-drift linear both;
-        animation-timeline: scroll(root block);
-      }
-    }
-  }
-}
-
-@keyframes glass-drift {
-  from {
-    transform: translate3d(-4%, -4%, 0);
-  }
-
-  to {
-    transform: translate3d(4%, 4%, 0);
   }
 }
