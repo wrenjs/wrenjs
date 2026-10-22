@@ -1,27 +1,15 @@
 import type { RouteModule, RouteStack } from "@wren-js/core/runtime/router";
-import type { RouteApiParams, RouteLoader, WrenContext } from "@wren-js/core/types";
+import type { RouteApiHandler, RouteLayoutProps, RoutePageProps } from "@wren-js/core/types";
 import type { EXPORT_CSS, EXPORT_REQUIRES_CLIENT, EXPORT_SCRIPTS } from "./constants.ts";
 
 export type IntegrationRouteStack<TPage = unknown, TLayout = unknown, THead = unknown> = RouteStack<
-  RouteMeta & RouteModule<TPage, ApiHandler, THead>,
-  RouteMeta & RouteModule<TLayout, ApiHandler, THead>
+  RouteMeta & RouteModule<TPage, RouteApiHandler, THead>,
+  RouteMeta & RouteModule<TLayout, RouteApiHandler, THead>
 >;
 
-export interface LayoutProps<TChildren> {
-  children?: TChildren;
-  context?: WrenContext;
-  data?: ReturnType<RouteLoader>;
-  request?: Request;
-}
+export type LayoutProps<TChildren> = RouteLayoutProps<TChildren>;
 
-export interface PageProps {
-  context?: WrenContext;
-  data?: ReturnType<RouteLoader>;
-  params?: Record<string, string>;
-  request?: Request;
-}
-
-type ApiHandler = (request: Request, params: RouteApiParams) => Promise<Response> | Response;
+export type PageProps = RoutePageProps;
 
 interface RouteMeta {
   [EXPORT_CSS]?: () => Promise<string[]> | string[];

@@ -3,5 +3,6 @@
   "compilerOptions": {
     "jsx": "react-jsx"
   },
-  "extends": "@wren-js/core/tsconfig/base"
+  "extends": "@wren-js/core/tsconfig/base",
+  "files": ["../types.d.ts"]
 }

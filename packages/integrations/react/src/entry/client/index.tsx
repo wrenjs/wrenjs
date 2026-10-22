@@ -10,6 +10,7 @@ import {
 import { startTransition, StrictMode, useLayoutEffect, useState } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { LINK_INVALIDATE_EVENT, WINDOW_KEY_HYDRATE } from "#shared/constants.ts";
+import { refreshStylesheet } from "#shared/entry/client/document.ts";
 import { createFlightRequest } from "#shared/entry/client/request.ts";
 import { isResponseDigest } from "#shared/utils.ts";
 import { rscStream } from "./rsc-html-stream.ts";
@@ -28,6 +29,8 @@ interface RenderState {
   onCommit?: () => void;
   payload: FlightPayload;
 }
+
+const RESOURCE_STYLESHEETS = 'link[rel="stylesheet"][data-precedence]';
 
 let mounted: PromiseWithResolvers<void> | undefined;
 let hydration: Promise<void> | undefined;
@@ -99,6 +102,10 @@ export async function renderNavigation(response: Response, signal: AbortSignal):
 async function renderResponse(response: Response, signal: AbortSignal): Promise<void> {
   const payload = await createFromFetch<FlightPayload>(Promise.resolve(response));
   await hydration;
+  if (import.meta.env.DEV) {
+    const links = document.head.querySelectorAll<HTMLLinkElement>(RESOURCE_STYLESHEETS);
+    await Promise.all(Array.from(links, refreshStylesheet));
+  }
   signal.throwIfAborted();
 
   const committed = Promise.withResolvers<void>();

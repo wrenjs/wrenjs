@@ -9,5 +9,6 @@
       "react-dom/*": ["${configDir}/node_modules/preact/compat/*"]
     }
   },
-  "extends": "@wren-js/core/tsconfig/base"
+  "extends": "@wren-js/core/tsconfig/base",
+  "files": ["../types.d.ts"]
 }

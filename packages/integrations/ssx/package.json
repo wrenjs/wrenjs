@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/ssx",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "SSX rendering integration for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -44,7 +44,10 @@
     "./entry/ssr": "./dist/entry/ssr.mjs",
     "./package.json": "./package.json",
     "./tsconfig/*": "./dist/tsconfig/*.json",
-    "./tsconfig/*.json": "./dist/tsconfig/*.json"
+    "./tsconfig/*.json": "./dist/tsconfig/*.json",
+    "./types": {
+      "types": "./dist/types.d.ts"
+    }
   },
   "publishConfig": {
     "access": "public"

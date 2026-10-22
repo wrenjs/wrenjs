@@ -38,5 +38,12 @@ export const defineIntegrationConfig = (pack: PackOptions, lint?: UserConfig["li
       options: { typeAware: true, typeCheck: true },
       ...lint,
     },
-    pack: definePackConfig(pack),
+    pack: definePackConfig({
+      ...pack,
+      copy: [
+        { from: "./src/global.d.ts", rename: "types.d.ts", to: "./dist" },
+        ...(pack.copy ?? []),
+      ],
+      exports: { "./types": { types: "./dist/types.d.ts" }, ...pack.exports },
+    }),
   });

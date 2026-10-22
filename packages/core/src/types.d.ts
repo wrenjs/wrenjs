@@ -8,7 +8,39 @@ import "./virtual-wrenjs-routes.d.ts";
 
 declare global {
   namespace Wren {
+    type ApiHandler<TParams extends RouteParams = RouteParams> = RouteApiHandler<TParams>;
+    type ApiParams<TParams extends RouteParams = RouteParams> = RouteApiParams<TParams>;
+    type Config = RouteConfig;
     interface Context {}
+    type GetStaticPaths = () => Promise<string[]> | string[];
+    type Head<TParams extends RouteParams = RouteParams, TData = unknown> = RouteHead<
+      IntegrationHead,
+      TParams,
+      TData
+    >;
+    type HeadProps<TParams extends RouteParams = RouteParams, TData = unknown> = RouteHeadParams<
+      TParams,
+      TData
+    >;
+    interface Integration {}
+    type Layout<TData = unknown> = RouteComponent<LayoutProps<TData>, IntegrationNode>;
+    type LayoutProps<TData = unknown> = RouteLayoutProps<IntegrationNode, TData>;
+    type Loader<TReturn = unknown, TParams extends RouteParams = RouteParams> = RouteLoader<
+      TReturn,
+      TParams
+    >;
+    type LoaderProps<TParams extends RouteParams = RouteParams> = RouteLoaderParams<TParams>;
+    type Page<TParams extends RouteParams = RouteParams, TData = unknown> = RouteComponent<
+      PageProps<TParams, TData>,
+      IntegrationNode
+    >;
+    type PageProps<TParams extends RouteParams = RouteParams, TData = unknown> = RoutePageProps<
+      TParams,
+      TData
+    >;
+    type Proxy<TParams extends RouteParams = RouteParams> = RouteProxy<TParams>;
+    type ProxyContext<TParams extends RouteParams = RouteParams> = RouteProxyContext<TParams>;
+    type ProxyNext = () => Promise<Response>;
   }
 }
 
@@ -72,7 +104,17 @@ export interface RoutableEntry {
   routes: Entry[];
 }
 
-export type RouteApiParams = Pick<RouteStack, "context" | "params">;
+export type RouteApiHandler<TParams extends RouteParams = RouteParams> = (
+  request: Request,
+  route: RouteApiParams<TParams>,
+) => Promise<Response> | Response;
+
+export interface RouteApiParams<TParams extends RouteParams = RouteParams> {
+  context: WrenContext;
+  params: TParams;
+}
+
+export type RouteComponent<TProps, TNode> = (props: TProps) => Promise<TNode> | TNode;
 
 export interface RouteConfig {
   headers?: Readonly<Record<string, string>>;
@@ -90,24 +132,34 @@ export interface RouteEntry {
   stack: () => Promise<RouteStackModules> | RouteStackModules;
 }
 
-export type RouteHead<TElement = unknown> = ({
-  data,
-  params,
-  request,
-}: RouteHeadParams) => Promise<TElement> | TElement;
+export type RouteHead<
+  TElement = unknown,
+  TParams extends RouteParams = RouteParams,
+  TData = unknown,
+> = ({ data, params, request }: RouteHeadParams<TParams, TData>) => Promise<TElement> | TElement;
 
-export interface RouteHeadParams extends RouteLoaderParams {
-  data?: ReturnType<RouteLoader>;
+export interface RouteHeadParams<
+  TParams extends RouteParams = RouteParams,
+  TData = unknown,
+> extends RouteLoaderParams<TParams> {
+  data?: Promise<TData>;
 }
 
-export type RouteLoader<TDefault = unknown> = ({
+export interface RouteLayoutProps<TChildren = unknown, TData = unknown> {
+  children?: TChildren;
+  context?: WrenContext;
+  data?: Promise<TData>;
+  request?: Request;
+}
+
+export type RouteLoader<TReturn = unknown, TParams extends RouteParams = RouteParams> = ({
   params,
   request,
-}: RouteLoaderParams) => Promise<TDefault>;
+}: RouteLoaderParams<TParams>) => Promise<TReturn>;
 
-export interface RouteLoaderParams {
+export interface RouteLoaderParams<TParams extends RouteParams = RouteParams> {
   context: WrenContext;
-  params?: Record<string, string>;
+  params?: TParams;
   request: Request;
 }
 
@@ -117,7 +169,7 @@ export interface RouteModule<TDefault = unknown, THandler = unknown, THead = unk
   DELETE?: THandler;
   GET?: THandler;
 
-  getStaticPaths?: () => Promise<string[]> | string[];
+  getStaticPaths?: Wren.GetStaticPaths;
   HEAD?: THandler;
   head?: RouteHead<THead>;
   loader?: RouteLoader<TDefault>;
@@ -127,15 +179,24 @@ export interface RouteModule<TDefault = unknown, THandler = unknown, THead = unk
   PUT?: THandler;
 }
 
+export interface RoutePageProps<TParams extends RouteParams = RouteParams, TData = unknown> {
+  context?: WrenContext;
+  data?: Promise<TData>;
+  params?: TParams;
+  request?: Request;
+}
+
+export type RouteParams = Record<string, string>;
+
 /** A `__proxy` default export. Return a `Response` to short-circuit, or nothing to continue. */
-export type RouteProxy = (
-  context: RouteProxyContext,
+export type RouteProxy<TParams extends RouteParams = RouteParams> = (
+  context: RouteProxyContext<TParams>,
   next: RouteProxyNext,
 ) => Promise<Response | void> | Response | void;
 
-export interface RouteProxyContext {
+export interface RouteProxyContext<TParams extends RouteParams = RouteParams> {
   context: WrenContext;
-  params: Record<string, string>;
+  params: TParams;
   redirect: (location: string | URL, status?: RedirectStatus) => Response;
   request: Request;
   /** The page URL, without the Flight request suffix. */
@@ -143,7 +204,7 @@ export interface RouteProxyContext {
 }
 
 /** Runs the inner proxies and the route handler; may be called once. */
-export type RouteProxyNext = () => Promise<Response>;
+export type RouteProxyNext = Wren.ProxyNext;
 
 export interface RouteStack<
   TModule extends RouteModule = RouteModule,
@@ -161,5 +222,9 @@ export interface RouteStack<
 export type RouteStackModules = Pick<Required<RouteStack>, "layouts" | "module" | "proxies">;
 
 export type WrenContext = Wren.Context;
+
+type IntegrationHead = Wren.Integration extends { head: infer THead } ? THead : IntegrationNode;
+
+type IntegrationNode = Wren.Integration extends { node: infer TNode } ? TNode : unknown;
 
 export type { fetch } from "virtual:wrenjs-fetch";

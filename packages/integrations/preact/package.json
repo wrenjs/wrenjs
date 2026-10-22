@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/preact",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Preact rendering integration for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -45,7 +45,10 @@
     "./runtime/island": "./dist/runtime/island.mjs",
     "./package.json": "./package.json",
     "./tsconfig/*": "./dist/tsconfig/*.json",
-    "./tsconfig/*.json": "./dist/tsconfig/*.json"
+    "./tsconfig/*.json": "./dist/tsconfig/*.json",
+    "./types": {
+      "types": "./dist/types.d.ts"
+    }
   },
   "publishConfig": {
     "access": "public"

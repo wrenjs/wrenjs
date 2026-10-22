@@ -1,5 +1,10 @@
 import type { RouteModule } from "@wren-js/core/runtime/router";
-import type { RouteApiParams, RouteLoader, WrenContext } from "@wren-js/core/types";
+import type {
+  RouteApiHandler,
+  RouteApiParams,
+  RouteLoader,
+  WrenContext,
+} from "@wren-js/core/types";
 import type { RequestInput } from "virtual:wrenjs-fetch";
 import { ENTRY_API_EXPORTS } from "@wren-js/core/constants";
 import { EXPORT_CSS, EXPORT_SCRIPTS } from "../../constants.ts";
@@ -114,10 +119,7 @@ const API_METHODS: ReadonlySet<string> = new Set(ENTRY_API_EXPORTS);
 const isApiMethod = (method: string): method is ApiMethod => API_METHODS.has(method);
 
 type ApiRouteStack = RouteApiParams & {
-  module: RouteModule<
-    unknown,
-    (request: Request, route: RouteApiParams) => Promise<Response> | Response
-  >;
+  module: RouteModule<unknown, RouteApiHandler>;
 };
 
 export const handlerApi = async (

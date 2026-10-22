@@ -4,5 +4,6 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@lumeland/ssx"
   },
-  "extends": "@wren-js/core/tsconfig/base"
+  "extends": "@wren-js/core/tsconfig/base",
+  "files": ["../types.d.ts"]
 }
