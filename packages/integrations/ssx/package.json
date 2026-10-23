@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/ssx",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "SSX rendering integration for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -59,9 +59,6 @@
     "prepublishOnly": "vp run build",
     "test": "vp test"
   },
-  "dependencies": {
-    "vite": "catalog:runtime"
-  },
   "devDependencies": {
     "@lumeland/ssx": "catalog:integration-ssx",
     "@wren-js/core": "workspace:*",
@@ -70,6 +67,7 @@
   },
   "peerDependencies": {
     "@lumeland/ssx": "catalog:integration-peers-ssx",
-    "@wren-js/core": "*"
+    "@wren-js/core": "*",
+    "vite": "catalog:runtime"
   }
 }

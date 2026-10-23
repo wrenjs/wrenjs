@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/preact",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Preact rendering integration for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -62,8 +62,7 @@
   },
   "dependencies": {
     "@prefresh/vite": "catalog:integration-preact",
-    "preact-render-to-string": "catalog:integration-preact",
-    "vite": "catalog:runtime"
+    "preact-render-to-string": "catalog:integration-preact"
   },
   "devDependencies": {
     "@wren-js/core": "workspace:*",
@@ -73,6 +72,7 @@
   },
   "peerDependencies": {
     "@wren-js/core": "*",
-    "preact": "catalog:integration-peers-preact"
+    "preact": "catalog:integration-peers-preact",
+    "vite": "catalog:runtime"
   }
 }

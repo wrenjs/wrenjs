@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/react",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "React rendering integration for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -63,8 +63,7 @@
   "dependencies": {
     "@vitejs/plugin-react": "catalog:integration-react",
     "@vitejs/plugin-rsc": "catalog:integration-react",
-    "oxc-transform-react": "catalog:integration-react",
-    "vite": "catalog:runtime"
+    "oxc-transform-react": "catalog:integration-react"
   },
   "devDependencies": {
     "@types/node": "catalog:",
@@ -77,6 +76,7 @@
   "peerDependencies": {
     "@wren-js/core": "*",
     "react": "catalog:integration-peers-react",
-    "react-dom": "catalog:integration-peers-react"
+    "react-dom": "catalog:integration-peers-react",
+    "vite": "catalog:runtime"
   }
 }
