@@ -139,3 +139,9 @@ export const catchResponse = (error: unknown): Response => {
   if (error instanceof Response) return error;
   throw error;
 };
+
+export const methodNotAllowed = (allow: readonly string[]): Response =>
+  new WrenResponse("Method Not Allowed", {
+    headers: { ...HEADERS_TEXT_RESPONSE, Allow: allow.join(", ") },
+    status: 405,
+  });

@@ -172,7 +172,7 @@ export interface RouteModule<TDefault = unknown, THandler = unknown, THead = unk
   getStaticPaths?: Wren.GetStaticPaths;
   HEAD?: THandler;
   head?: RouteHead<THead>;
-  loader?: RouteLoader<TDefault>;
+  loader?: RouteLoader;
   OPTIONS?: THandler;
   PATCH?: THandler;
   POST?: THandler;

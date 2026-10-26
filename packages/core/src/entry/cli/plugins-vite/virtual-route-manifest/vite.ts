@@ -12,7 +12,7 @@ const RESOLVED_ID = `\0${ROUTES_MODULE}`;
 
 export const pluginRouteManifest = (env: ConfigEnv, config: WrenConfig): Plugin => {
   const classified: RouteClassificationCache = new Map();
-  const served = new Map<string, string>();
+  const served = new Map<string, string | undefined>();
   let generated: Promise<string> | undefined;
 
   const generate = (root: string) => {
@@ -41,12 +41,7 @@ export const pluginRouteManifest = (env: ConfigEnv, config: WrenConfig): Plugin 
       const refresh = async () => {
         generated = undefined;
         if (served.size === 0) return;
-        let code: string;
-        try {
-          code = await latest(root);
-        } catch {
-          return;
-        }
+        const code = await latest(root).catch(() => undefined);
         let hit = false;
         for (const [name, previous] of served) {
           if (previous === code) continue;

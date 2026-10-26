@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import process from "node:process";
 import { parseArgs } from "node:util";
 import {
@@ -53,6 +53,7 @@ const loadConfig = async (env: ConfigEnv) => {
           resolvedConfig.configFileDependencies.push(...dependencies);
         },
         configureServer(server) {
+          const rootPath = normalizePath(root);
           const envFiles = new Set(
             [".env", ".env.local", `.env.${env.mode}`, `.env.${env.mode}.local`].map((file) =>
               normalizePath(resolve(root, file)),
@@ -82,7 +83,9 @@ const loadConfig = async (env: ConfigEnv) => {
               server.config.server.hmr === false &&
               (event === "add" || event === "change" || event === "unlink") &&
               envFiles.has(path);
-            if ((event === "change" && /\.config\.[^/]*$/.test(path)) || isEnvChange) {
+            const isConfigChange =
+              event === "change" && dirname(path) === rootPath && /\.config\.[^/]*$/.test(path);
+            if (isConfigChange || isEnvChange) {
               void server.restart().catch((error) => {
                 server.config.logger.error(
                   error instanceof Error ? (error.stack ?? error.message) : String(error),
@@ -109,6 +112,8 @@ const run = async (env: ConfigEnv) => {
   return server;
 };
 
+const USAGE = "Usage: wren [dev|build] [-h|--help] [-v|--version]";
+
 const { positionals, values } = parseArgs({
   allowPositionals: true,
   args: process.argv.slice(2),
@@ -117,13 +122,17 @@ const { positionals, values } = parseArgs({
     version: { short: "v", type: "boolean" },
   },
 });
+const [subcommand = "dev"] = positionals;
 
 if (values.version) {
   console.info(`${WREN_NAME} v${WREN_VERSION}`);
 } else if (values.help) {
-  console.info("Usage: wren [dev|build] [-h|--help] [-v|--version]");
+  console.info(USAGE);
+} else if (subcommand !== "dev" && subcommand !== "build") {
+  console.error(`Unknown command "${subcommand}".\n${USAGE}`);
+  process.exitCode = 1;
 } else {
-  const command = positionals[0] === "build" ? "build" : "serve";
+  const command = subcommand === "build" ? "build" : "serve";
   run({
     command,
     mode: command === "build" ? "production" : (process.env.NODE_ENV ?? "development"),

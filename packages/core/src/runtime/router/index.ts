@@ -27,6 +27,20 @@ const loadStack = (
   return loaded instanceof Promise ? loaded.then(toStack) : toStack(loaded);
 };
 
+const LONGEST_STATIC_NOT_FOUND = Math.max(
+  0,
+  ...Object.keys(staticNotFounds ?? {}).map((key) => key.length),
+);
+
+const matchNotFound = (pathname: string, values: string[]): RouteEntry | undefined => {
+  for (let path = pathname; ; path = path.slice(0, path.lastIndexOf("/")) || "/") {
+    const entry =
+      (path.length <= LONGEST_STATIC_NOT_FOUND ? staticNotFounds?.[path] : undefined) ??
+      trieLookup(dynamicNotFounds, path, values);
+    if (entry || path === "/") return entry;
+  }
+};
+
 export function matchRouteToStack<T extends RouteStack = RouteStack>(
   path?: string,
   context?: WrenContext,
@@ -43,9 +57,7 @@ export function matchRouteToStack(
 
   const values: string[] = [];
   const matchedEntry =
-    trieLookup(dynamicRoutes, pathname, values) ??
-    staticNotFounds?.[pathname] ??
-    trieLookup(dynamicNotFounds, pathname, values);
+    trieLookup(dynamicRoutes, pathname, values) ?? matchNotFound(pathname, values);
   if (!matchedEntry) return undefined;
 
   const names = matchedEntry.params;

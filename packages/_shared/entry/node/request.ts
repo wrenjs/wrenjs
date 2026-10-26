@@ -1,5 +1,6 @@
 import type { IncomingMessage } from "node:http";
 import type { RequestInput } from "virtual:wrenjs-fetch";
+import { requestOrigin } from "../../utils.ts";
 
 export const isRequestAbortError = (req: IncomingMessage, error: unknown): boolean => {
   if (!req.signal?.aborted) return false;
@@ -34,7 +35,7 @@ export const toRequestInput = (req: IncomingMessage, url = req.url ?? "/"): Requ
         init.duplex = "half";
       }
 
-      const origin = `http://${req.headers.host ?? "localhost"}`;
+      const origin = requestOrigin(req.headers.host);
       request = new Request(url.startsWith("/") ? origin + url : new URL(url, origin), init);
       return request;
     },

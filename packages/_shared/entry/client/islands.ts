@@ -19,14 +19,26 @@ const whenIdle = (callback: () => void): (() => void) => {
   return () => clearTimeout(id);
 };
 
+// Islands and slots are `display: contents`, so only their children have boxes to observe.
+const CONTENTS_TAGS: ReadonlySet<string> = new Set(["wren-island", "wren-slot"]);
+
+const observableBoxes = (element: Element): Element[] =>
+  Array.from(element.children).flatMap((child) => {
+    if (child.localName === "template") return [];
+    return CONTENTS_TAGS.has(child.localName) ? observableBoxes(child) : [child];
+  });
+
 const whenVisible = (element: Element, callback: () => void): (() => void) => {
+  const targets = observableBoxes(element);
+  // Output without elements (e.g. only text) can't be observed, so hydrate when idle instead.
+  if (targets.length === 0) return whenIdle(callback);
   const observer = new IntersectionObserver((entries) => {
     if (!entries.some((entry) => entry.isIntersecting)) return;
     observer.disconnect();
     callback();
   });
 
-  observer.observe(element.firstElementChild ?? element);
+  for (const target of targets) observer.observe(target);
   return () => observer.disconnect();
 };
 

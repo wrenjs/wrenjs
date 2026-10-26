@@ -87,17 +87,38 @@ export const listenLinks = (navigate?: (url: URL) => void) => {
   window.addEventListener("keydown", onKeyDown);
 };
 
+// Browsers rate-limit history updates (WebKit throws after 100 per 10s), so scroll positions are
+// saved once scrolling settles, and at most once a second while it continues.
+const SCROLL_SAVE_DELAY = 100;
+const SCROLL_SAVE_MAX_WAIT = 1000;
+
 const saveScroll = () => {
   const state: unknown = history.state;
   const previous = isRecord(state) ? state : {};
-  history.replaceState({ ...previous, [STATE_KEY]: { x: scrollX, y: scrollY } }, "");
+  try {
+    history.replaceState({ ...previous, [STATE_KEY]: { x: scrollX, y: scrollY } }, "");
+  } catch {
+    // A throttled save only loses a scroll position; it must never block navigation.
+  }
 };
 
 export const listenNavigation = (navigate: (url: URL, signal: AbortSignal) => Promise<void>) => {
   let rendered = new URL(location.href);
   let controller: AbortController | undefined;
-  let scrollFrame: number | undefined;
+  let saveTimer: ReturnType<typeof setTimeout> | undefined;
+  let scrollStart: number | undefined;
   let managed = false;
+
+  // A save still pending after the history entry changes would write into the wrong entry.
+  const cancelSave = () => {
+    clearTimeout(saveTimer);
+    saveTimer = undefined;
+    scrollStart = undefined;
+  };
+  const save = () => {
+    cancelSave();
+    saveScroll();
+  };
 
   const run = async (url: URL, restore?: ScrollState) => {
     controller?.abort();
@@ -120,6 +141,7 @@ export const listenNavigation = (navigate: (url: URL, signal: AbortSignal) => Pr
   };
   const onPopState = (event: PopStateEvent) => {
     if (!managed) return;
+    cancelSave();
     const url = new URL(location.href);
     const restore = readScroll(event.state);
     if (url.pathname === rendered.pathname && url.search === rendered.search) {
@@ -132,16 +154,18 @@ export const listenNavigation = (navigate: (url: URL, signal: AbortSignal) => Pr
     }
   };
   const onScroll = () => {
-    scrollFrame ??= requestAnimationFrame(() => {
-      scrollFrame = undefined;
-      if (managed) saveScroll();
-    });
+    if (!managed) return;
+    const now = performance.now();
+    scrollStart ??= now;
+    clearTimeout(saveTimer);
+    if (now - scrollStart >= SCROLL_SAVE_MAX_WAIT) save();
+    else saveTimer = setTimeout(save, SCROLL_SAVE_DELAY);
   };
 
   listenLinks((url) => {
     managed = true;
     history.scrollRestoration = "manual";
-    saveScroll();
+    save();
     void run(url);
   });
   window.addEventListener("popstate", onPopState);

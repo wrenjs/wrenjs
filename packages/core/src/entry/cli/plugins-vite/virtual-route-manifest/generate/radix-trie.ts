@@ -1,4 +1,5 @@
 import type { Entry, RadixTrie } from "#/types.js";
+import { encodePath } from "#shared/cli/utils.ts";
 
 const createNode = (): RadixTrie => ({ s: Object.create(null) });
 
@@ -26,8 +27,9 @@ const insert = (root: RadixTrie, pattern: string, entry: Entry) => {
   let i = 0;
   for (const seg of segs) {
     if (!seg.includes(":")) {
-      node.s[seg] ??= createNode();
-      node = node.s[seg];
+      const literal = encodePath(seg);
+      node.s[literal] ??= createNode();
+      node = node.s[literal];
     } else if (seg === `:${names[i]}`) {
       node.p ??= createNode();
       node = node.p;
@@ -39,7 +41,7 @@ const insert = (root: RadixTrie, pattern: string, entry: Entry) => {
       if (mixed.i === i) throw new Error(`Params do not match pattern "${pattern}".`);
       const child = createNode();
       node.m ??= [];
-      node.m.push({ lits: mixed.lits, node: child });
+      node.m.push({ lits: mixed.lits.map((lit) => encodePath(lit)), node: child });
       node = child;
       i = mixed.i;
     }

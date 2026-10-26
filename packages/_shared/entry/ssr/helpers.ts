@@ -8,7 +8,7 @@ import type {
 import type { RequestInput } from "virtual:wrenjs-fetch";
 import { ENTRY_API_EXPORTS } from "@wren-js/core/constants";
 import { EXPORT_CSS, EXPORT_SCRIPTS } from "../../constants.ts";
-import { WrenResponse } from "./response.ts";
+import { catchResponse, methodNotAllowed } from "./response.ts";
 
 export const getRequest = (request: RequestInput): Request =>
   "toRequest" in request ? request.toRequest() : request;
@@ -117,11 +117,12 @@ export const collectPageScripts = (
 ): Promise<string[]> | string[] => collectUrls(modules, EXPORT_SCRIPTS);
 
 const DOCTYPE = "<!DOCTYPE html>";
+const DOCTYPE_RE = /^\s*<!doctype\s+html\s*>/i;
 export const injectIntoHead = (html: string, markup: string): string => {
   if (import.meta.env.DEV) {
     markup = `<script type="module" src="${import.meta.env.BASE_URL}@vite/client"></script>${markup}`;
   }
-  const doctype = html.match(/^\s*<!doctype\s+html\s*>/i)?.[0];
+  const doctype = html.match(DOCTYPE_RE)?.[0];
   const documentHtml = doctype ? html : `${DOCTYPE}${html}`;
   if (!markup) return documentHtml;
   const headIndex = documentHtml.indexOf("</head>");
@@ -148,10 +149,13 @@ export const handlerApi = async (
   request: RequestInput,
   routeStack: ApiRouteStack,
 ): Promise<Response> => {
+  const { module } = routeStack;
   const method = request.method.toUpperCase();
-  const handler = isApiMethod(method) ? routeStack.module[method] : undefined;
-  if (!handler) {
-    return new WrenResponse("Method Not Allowed", { status: 405 });
+  const handler = isApiMethod(method) ? module[method] : undefined;
+  if (!handler) return methodNotAllowed(ENTRY_API_EXPORTS.filter((name) => module[name]));
+  try {
+    return await handler(getRequest(request), routeStack);
+  } catch (error) {
+    return catchResponse(error);
   }
-  return handler(getRequest(request), routeStack);
 };

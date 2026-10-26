@@ -101,8 +101,8 @@ class WrenLinkElement extends HTMLElement {
   #timer?: ReturnType<typeof setTimeout>;
   #visible?: IntersectionObserver;
 
-  attributeChangedCallback() {
-    if (this.isConnected) this.#setup();
+  attributeChangedCallback(_name: string, oldValue: null | string, newValue: null | string) {
+    if (oldValue !== newValue && this.#events?.signal.aborted === false) this.#setup();
   }
 
   connectedCallback() {

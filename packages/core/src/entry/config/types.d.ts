@@ -7,14 +7,13 @@ export interface WrenAdapter {
 
 export interface WrenConfig {
   /**
-   * Hosting adapter plugins that hook into the Vite build pipeline.
+   * Hosting adapter that prepares the build output for a deployment target.
    *
-   * Each adapter is a standard Vite `Plugin` and can use any Vite plugin hooks
-   * to generate platform-specific output during `wren build`.
+   * An adapter is a `{ name, viteConfig }` object. `viteConfig` receives the resolved `WrenConfig`
+   * and returns Vite configuration (plugins, environments, ...) that is merged into Wren's, so it
+   * can generate platform-specific output during `wren build`.
    *
-   * The adapter receives the resolved `WrenConfig`.
-   *
-   * If no adapters are specified, Wren's default build output remains unchanged.
+   * Without an adapter, Wren's default build output remains unchanged.
    *
    * @default undefined
    */
@@ -35,19 +34,6 @@ export interface WrenConfig {
      * @default false
      */
     inlineCSS?: boolean | number;
-
-    // /**
-    //  * If client JS assets should be inlined into the per-route HTML for prerendered output.
-    //  *
-    //  * | Value | Behavior |
-    //  * | :---: | :--- |
-    //  * | `true` | Inline all JS assets. |
-    //  * | `false` | Do not inline any JS assets. |
-    //  * | `number` | Inline assets smaller than the specified size in bytes. |
-    //  *
-    //  * @default false
-    //  */
-    // inlineJS?: boolean | number;
 
     /**
      * Defines the output format for the build.
@@ -78,12 +64,8 @@ export interface WrenConfig {
   integrations?: WrenIntegration[];
 
   /**
-   * Defines the routing strategy used by the application.
-   *
-   * | Value    | Behavior |
-   * | :---: | :--- |
-   * | `string` | Use a file-based routing strategy where routes are determined by the file structure, at the specified directory. |
-   * | `() => Config` | Use a code-based routing strategy where routes are determined programmatically. |
+   * Directory used for file-based routing, relative to the project root. Routes are determined by
+   * the file structure within it.
    *
    * @default "src/pages"
    */

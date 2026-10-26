@@ -31,7 +31,7 @@ import {
   pageStatus,
   preparePage,
 } from "#shared/entry/ssr/page.ts";
-import { WrenResponse } from "#shared/entry/ssr/response.ts";
+import { methodNotAllowed, WrenResponse } from "#shared/entry/ssr/response.ts";
 import { isResponseDigest } from "#shared/utils.ts";
 
 export const needsHydration = ({ layouts, module }: ReactRouteStack): boolean =>
@@ -122,8 +122,9 @@ const handlerPage = async (
 const textResponse = (body: string, status: number) => new WrenResponse(body, { status });
 
 export const handlerFlight = async (request: RequestInput): Promise<Response> => {
+  if (request.method !== "POST") return methodNotAllowed(["POST"]);
   const actionId = request.headers.get(FLIGHT_SERVER_ACTION_HEADER);
-  if (request.method !== "POST" || !actionId) return textResponse("Method Not Allowed", 405);
+  if (!actionId) return textResponse("Bad Request", 400);
   if (!isTrustedOrigin(request)) return textResponse("Forbidden", 403);
 
   let decoded: [unknown, unknown];
@@ -149,7 +150,10 @@ export const handlerFlight = async (request: RequestInput): Promise<Response> =>
     return new WrenResponse(renderToReadableStream(await action(...(args as unknown[]))), {
       headers: HEADERS_ACTION,
     });
-  } catch {
+  } catch (error) {
+    // A thrown Response such as a redirect is sent as-is.
+    if (error instanceof Response) return error;
+    console.error("[wrenjs] Server action failed.", error);
     return textResponse("Internal Server Error", 500);
   }
 };

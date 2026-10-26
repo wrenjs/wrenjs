@@ -20,7 +20,8 @@ const selectedPaths = async (
     route.module(),
     ...(route.layouts?.map((load) => load()) ?? []),
   ]);
-  if (!prerenderAll && !modules.some((module) => module.config?.prerender === true)) return [];
+  const nearest = modules.find(({ config }) => config?.prerender !== undefined);
+  if (!prerenderAll && nearest?.config?.prerender !== true) return [];
   if (!route.params?.length) {
     if (!pattern) throw new Error("A static prerender route must have a pathname.");
     return [pattern];

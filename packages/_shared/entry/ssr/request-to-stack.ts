@@ -3,10 +3,10 @@ import type { RedirectStatus, RouteProxyContext, WrenContext } from "@wren-js/co
 import type { RequestInput } from "virtual:wrenjs-fetch";
 import { ENTRY_KIND_API, ENTRY_KIND_NOT_FOUND, ENTRY_KIND_PAGE } from "@wren-js/core/constants";
 import { matchRouteToStack } from "@wren-js/core/runtime/router";
-import { FLIGHT_HANDLER, FLIGHT_MIME_TYPE, FLIGHT_URL_POSTFIX } from "../../constants.ts";
-import { extractPathname } from "../../utils.ts";
+import { FLIGHT_HANDLER, FLIGHT_MIME_TYPE, FLIGHT_URL_POSTFIX, noop } from "../../constants.ts";
+import { extractPathname, requestOrigin } from "../../utils.ts";
 import { getRequest } from "./helpers.ts";
-import { redirect, WrenResponse } from "./response.ts";
+import { catchResponse, redirect, WrenResponse } from "./response.ts";
 
 export type RequestToStackHandler<TRouteStack extends RouteStack> = (
   request: RequestInput,
@@ -35,7 +35,7 @@ class ProxyContext implements RouteProxyContext {
   get url(): URL {
     if (this.#url) return this.#url;
     const { headers, url } = this.#input;
-    this.#url = new URL(url, `http://${headers.get("host") ?? "localhost"}`);
+    this.#url = new URL(url, requestOrigin(headers.get("host")));
     if (this.#isFlight) this.#url.pathname = toPagePath(this.#url.pathname);
     return this.#url;
   }
@@ -54,12 +54,6 @@ class ProxyContext implements RouteProxyContext {
   redirect(this: void, location: string | URL, status?: RedirectStatus): Response {
     return redirect(location, status);
   }
-
-  // // The getters live on the prototype, which `console.log` doesn't show.
-  // [Symbol.for("nodejs.util.inspect.custom")]() {
-  //   const { params, request, url } = this;
-  //   return { params, redirect: this.redirect, request, url };
-  // }
 }
 
 export const runProxies = <TRouteStack extends RouteStack>(
@@ -77,7 +71,15 @@ export const runProxies = <TRouteStack extends RouteStack>(
       pending = i ? dispatch(i - 1) : handler(request, routeStack, isFlight);
       return pending;
     };
-    const result: unknown = await proxies[i].default(context, next);
+    let result: unknown;
+    try {
+      result = await proxies[i].default(context, next);
+    } catch (error) {
+      return catchResponse(error);
+    } finally {
+      // A proxy that answers without awaiting next() must not leave its rejection unhandled.
+      void pending?.catch(noop);
+    }
     if (result === undefined) return pending ?? next();
     if (result instanceof Response) return result;
     throw new TypeError("[wrenjs] A proxy must return a Response or nothing.");

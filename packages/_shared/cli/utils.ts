@@ -19,6 +19,14 @@ export const routerFileFilter = (router: string, extensions: RegExp): RegExp => 
 
 export const stem = (file: string): string => basename(file, extname(file));
 
+const PATH_ENCODE_RE = /[\p{Cc} "#<>?^`{}\u0080-\u{10FFFF}]+/gu;
+
+export const encodePath = (path: string): string =>
+  path
+    .toWellFormed()
+    .normalize("NFC")
+    .replaceAll(PATH_ENCODE_RE, (chars) => encodeURIComponent(chars));
+
 export const sortedRecord = <T>(entries: [string, T][]): Record<string, T> =>
   Object.fromEntries(entries.toSorted(([a], [b]) => (a < b ? -1 : 1)));
 

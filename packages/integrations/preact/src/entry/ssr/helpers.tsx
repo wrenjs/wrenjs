@@ -3,10 +3,8 @@ import { Fragment } from "preact";
 import { renderToStringAsync } from "preact-render-to-string";
 import { jsx } from "preact/jsx-runtime";
 import type { PreactRouteStack } from "#/types.ts";
+import { AsyncFunction, noop } from "#shared/constants.ts";
 import { composeTree, createPageHandlers, createPageRenderer } from "#shared/entry/ssr/page.ts";
-import { noop } from "#shared/constants.ts";
-
-import { AsyncFunction } from "#shared/constants.ts";
 
 const isAsync = (type: unknown): type is (props: object) => Promise<ComponentChildren> =>
   type instanceof AsyncFunction;

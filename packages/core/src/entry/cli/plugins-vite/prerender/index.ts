@@ -7,6 +7,28 @@ import { inlineStylesheets } from "./inline-css.ts";
 
 const PRERENDER_CONCURRENCY = 32;
 
+// Static hosts look files up by decoded path. A segment that would decode into a separator or a
+// dot segment stays encoded instead of escaping its directory.
+const UNSAFE_SEGMENT_RE = /[/\\]|^\.\.?$/;
+
+const decodeSegment = (segment: string) => {
+  try {
+    const decoded = decodeURIComponent(segment);
+    return UNSAFE_SEGMENT_RE.test(decoded) ? segment : decoded;
+  } catch {
+    return segment;
+  }
+};
+
+const toFilePath = (pathname: string) => pathname.slice(1).split("/").map(decodeSegment).join("/");
+
+// Paths are compared and requested the way browsers send them: percent-encoded.
+const toPathname = (path: string, base: URL) => {
+  const url = new URL(extractPathname(path) ?? "/", base);
+  if (url.origin !== base.origin) throw new Error(`Invalid prerender path: ${path}.`);
+  return extractPathname(url.pathname)!;
+};
+
 export const prerenderRoutes = async (
   runtimes: PrerenderRuntime[],
   outDir: string,
@@ -25,7 +47,7 @@ export const prerenderRoutes = async (
     if (response.status !== 200)
       throw new Error(`Cannot prerender ${pathname}: HTTP ${response.status}.`);
     const isHtml = response.headers.get("content-type")?.startsWith("text/html");
-    const file = isHtml ? join(pathname.slice(1), "index.html") : pathname.slice(1);
+    const file = isHtml ? join(toFilePath(pathname), "index.html") : toFilePath(pathname);
     if (pathnames.has(pathname) || files.has(file)) {
       throw new Error(`Conflicting prerender artifact: ${pathname}.`);
     }
@@ -40,15 +62,21 @@ export const prerenderRoutes = async (
         : new Uint8Array(await response.arrayBuffer()),
     );
   };
-  let pages = 0;
-  const jobs = await Promise.all(
-    runtimes.map(async (runtime) =>
-      (await runtime.getPaths(prerenderAll)).map((path) => [runtime, path] as const),
-    ),
+  const provided = await Promise.all(
+    runtimes.map(async (runtime) => [runtime, await runtime.getPaths(prerenderAll)] as const),
   );
-  await forEachLimit(jobs.flat(), PRERENDER_CONCURRENCY, async ([runtime, path]) => {
-    const pathname = extractPathname(path)!;
-    if (pathnames.has(pathname)) throw new Error(`Multiple prerender providers claim ${pathname}.`);
+  const claims = new Map<string, PrerenderRuntime>();
+  for (const [runtime, paths] of provided) {
+    for (const path of paths) {
+      const pathname = toPathname(path, base);
+      if ((claims.get(pathname) ?? runtime) !== runtime) {
+        throw new Error(`Multiple prerender providers claim ${pathname}.`);
+      }
+      claims.set(pathname, runtime);
+    }
+  }
+  let pages = 0;
+  await forEachLimit([...claims], PRERENDER_CONCURRENCY, async ([pathname, runtime]) => {
     const artifacts = await runtime.render(new Request(new URL(pathname, base)));
     await Promise.all(artifacts.map(capture));
     if (!pathnames.has(pathname)) {

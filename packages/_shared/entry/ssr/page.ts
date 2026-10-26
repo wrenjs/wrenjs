@@ -50,6 +50,15 @@ type HeaderRecord = Readonly<Record<string, string>>;
 const pageHeadersCache = new WeakMap<object, readonly [HeaderRecord, HeaderRecord]>();
 const hasHeaders = ({ config }: IntegrationRouteStack["module"]) => config?.headers !== undefined;
 
+// Header names are case-insensitive, so later records must override earlier ones in any case.
+const mergeHeaders = (records: readonly (HeaderRecord | undefined)[]): HeaderRecord => {
+  const merged: Record<string, string> = {};
+  for (const record of records) {
+    for (const [name, value] of Object.entries(record ?? {})) merged[name.toLowerCase()] = value;
+  }
+  return merged;
+};
+
 export const pageHeaders = (
   { layouts = [], module }: Pick<IntegrationRouteStack, "layouts" | "module">,
   isFlight: boolean,
@@ -59,14 +68,13 @@ export const pageHeaders = (
   }
   let headers = import.meta.env.DEV ? undefined : pageHeadersCache.get(module);
   if (!headers) {
-    const custom: Record<string, string> = Object.assign(
-      {},
+    const custom = [
       ...layouts.toReversed().map((layout) => layout.config?.headers),
       module.config?.headers,
-    );
+    ];
     headers = [
-      { ...HEADERS_HTML_RESPONSE, ...custom },
-      { ...HEADERS_FLIGHT, ...custom },
+      mergeHeaders([HEADERS_HTML_RESPONSE, ...custom]),
+      mergeHeaders([HEADERS_FLIGHT, ...custom]),
     ];
     pageHeadersCache.set(module, headers);
   }

@@ -1,4 +1,4 @@
-import Link from "wrenjs/link";
+import Link from "@wren-js/core/link";
 
 export default async function RootLayout({ children }: { children: JSX.Children }) {
   return (

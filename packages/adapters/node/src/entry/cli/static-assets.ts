@@ -3,7 +3,7 @@ import { readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { extname, relative, resolve, sep } from "node:path";
 import { promisify } from "node:util";
 import { brotliCompress, constants, gzip } from "node:zlib";
-import { forEachLimit, sortedRecord } from "#shared/cli/utils.ts";
+import { encodePath, forEachLimit, sortedRecord } from "#shared/cli/utils.ts";
 import {
   ASSET_CACHE_CONTROL,
   EXT_FLT,
@@ -105,7 +105,8 @@ export const writeStaticAssets = async (
   assetsDir: string,
 ): Promise<void> => {
   const segments = assetsDir.split("/").filter(Boolean).join("/");
-  const assetsPrefix = segments ? `/${segments}/` : null;
+  // Keys are compared with raw request pathnames, which browsers percent-encode.
+  const assetsPrefix = segments ? encodePath(`/${segments}/`) : null;
   const files = (await listFiles(clientDir))
     .filter((entry) => entry.isFile())
     .map((entry) => {
@@ -115,7 +116,7 @@ export const writeStaticAssets = async (
   const existing = new Set(files.map(({ file }) => file));
   const assets = new Map<string, StaticAsset>();
   await forEachLimit(files, CONCURRENCY, async ({ file, path }) => {
-    const url = `/${file}`;
+    const url = encodePath(`/${file}`);
     const isBuildAsset = assetsPrefix !== null && url.startsWith(assetsPrefix);
     const asset = await describeAsset(path, file, isBuildAsset, existing);
     assets.set(url, asset);

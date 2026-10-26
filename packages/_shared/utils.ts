@@ -12,6 +12,9 @@ export const responseParts = (response: Response): undefined | WrenResponseParts
   return typeof take === "function" ? take.call(response) : undefined;
 };
 
+export const requestOrigin = (host: null | string | undefined): string =>
+  `http://${host ?? "localhost"}`;
+
 export const extractPathname = (path?: string) => {
   if (!path) return undefined;
   let start = 0;
