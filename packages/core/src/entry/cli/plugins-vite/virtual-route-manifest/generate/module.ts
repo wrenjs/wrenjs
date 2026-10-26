@@ -24,6 +24,7 @@ export const generateRouteManifestModule = (
     const loader = loaderFor(entry);
     const layouts = entry.layouts?.map(loaderFor);
     const proxies = entry.proxies?.map(loaderFor);
+    // TODO: Ensure these params are actually used...
     return {
       kind: entry.kind,
       layouts: layouts?.map(code),
@@ -58,9 +59,6 @@ export const generateRouteManifestModule = (
           }`
         : ""
     }
-
-    // Resolves a route's module, layouts, and proxies together; once loaded, returns
-    // the same object synchronously so requests skip the promise machinery.
     function createStack(load, layouts, proxies) {
       let resolved;
       return () =>

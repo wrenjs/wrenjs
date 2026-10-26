@@ -11,18 +11,18 @@ catalog:
 
 catalogs:
   adapter-cloudflare:
-    "@cloudflare/vite-plugin": 1.64.0
+    "@cloudflare/vite-plugin": 1.65.0
 
   benchmarks:
     "@types/autocannon": "7.12.7"
     "autocannon": "8.0.0"
 
   integration-preact:
-    preact: "11.0.1"
+    preact: "11.0.2"
     preact-render-to-string: "6.8.1"
     "@prefresh/vite": "4.0.1"
   integration-peers-preact:
-    "preact": "^11.0.1"
+    "preact": "^11.0.2"
 
   integration-ssx:
     "@lumeland/ssx": "0.1.16"

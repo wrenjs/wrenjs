@@ -1,8 +1,8 @@
 {
   "devDependencies": {
     "@lumeland/ssx": "0.1.16",
-    "@wren-js/core": "0.12.0",
-    "@wren-js/ssx": "0.12.0",
+    "@wren-js/core": "0.14.0",
+    "@wren-js/ssx": "0.14.0",
     "typescript": "7.0.2"
   },
   "scripts": {
