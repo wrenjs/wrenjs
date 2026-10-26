@@ -58,3 +58,6 @@ export const HEADERS_FLIGHT = {
   [VARY]: "Accept",
   [X_CONTENT_TYPE_OPTIONS]: "nosniff",
 } as const;
+
+export const AsyncFunction = (async () => {}).constructor;
+export const noop = () => {};

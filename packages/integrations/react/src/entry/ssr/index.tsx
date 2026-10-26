@@ -1,6 +1,6 @@
 import { createFromReadableStream } from "@vitejs/plugin-rsc/react/ssr";
 import { getClientEntryUrl } from "@vitejs/plugin-rsc/ssr";
-import { renderToReadableStream } from "react-dom/server.edge";
+import { renderToReadableStream } from "react-dom/server";
 import { WINDOW_KEY_HYDRATE } from "#shared/constants.ts";
 import { injectRSCPayload } from "./rsc-html-stream.ts";
 

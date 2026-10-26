@@ -2,6 +2,7 @@ import type { DevEnvironment, Plugin, Rolldown } from "vite";
 import { isAbsolute, resolve } from "node:path";
 import { isCSSRequest, normalizePath } from "vite";
 import { EXPORT_CSS, ROUTE_MODULE_RE } from "../../../constants.ts";
+import { NODE_MODULES_RE, routerFileFilter } from "../../utils.ts";
 
 const VIRTUAL_PREFIX = "virtual:wrenjs-css:";
 const RESOLVED_PREFIX = `\0${VIRTUAL_PREFIX}`;
@@ -90,7 +91,9 @@ export const pluginWrenCss = (router: string): Plugin[] => {
         handler: (source) => `\0${source}`,
       },
       transform: {
-        filter: { id: ROUTE_MODULE_RE },
+        filter: {
+          id: { exclude: NODE_MODULES_RE, include: routerFileFilter(router, ROUTE_MODULE_RE) },
+        },
         handler(code, id) {
           if (!id.startsWith(pagesDir)) return null;
           const virtualId = JSON.stringify(VIRTUAL_PREFIX + encodeURIComponent(id));

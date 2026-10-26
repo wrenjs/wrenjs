@@ -90,8 +90,7 @@ export const createFetch =
   (request: RequestInput, context?: WrenContext): Promise<Response> => {
     const isFlight = request.headers.get("accept") === FLIGHT_MIME_TYPE;
 
-    let pathname = extractPathname(request.url) ?? "/";
-    if (isFlight) pathname = toPagePath(pathname);
+    const path = isFlight ? toPagePath(extractPathname(request.url) ?? "/") : request.url || "/";
     const dispatch = (matchedEntry: TRouteStack | undefined) => {
       if (!matchedEntry) return Promise.resolve(new WrenResponse(null, { status: 404 }));
       const handler =
@@ -101,6 +100,6 @@ export const createFetch =
         ? runProxies(request, matchedEntry, handler, isFlight)
         : handler(request, matchedEntry, isFlight);
     };
-    const matched = matchRouteToStack<TRouteStack>(pathname, context);
+    const matched = matchRouteToStack<TRouteStack>(path, context);
     return matched instanceof Promise ? matched.then(dispatch) : dispatch(matched);
   };

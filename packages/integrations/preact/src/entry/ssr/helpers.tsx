@@ -4,17 +4,19 @@ import { renderToStringAsync } from "preact-render-to-string";
 import { jsx } from "preact/jsx-runtime";
 import type { PreactRouteStack } from "#/types.ts";
 import { composeTree, createPageHandlers, createPageRenderer } from "#shared/entry/ssr/page.ts";
+import { noop } from "#shared/constants.ts";
 
-const AsyncFunction = (async () => {}).constructor;
+import { AsyncFunction } from "#shared/constants.ts";
+
 const isAsync = (type: unknown): type is (props: object) => Promise<ComponentChildren> =>
   type instanceof AsyncFunction;
 
 const h = (type: ComponentType<object>, props: object): VNode => {
   if (!isAsync(type)) return jsx(type, props);
-  let pending: Promise<unknown> | undefined;
   const children: ComponentChildren[] = [];
+  const pending = type(props).then((tree) => children.fill(tree));
+  pending.catch(noop);
   children[0] = jsx(() => {
-    pending ??= type(props).then((tree) => children.fill(tree));
     throw pending;
   }, {});
   return jsx(Fragment, { children });

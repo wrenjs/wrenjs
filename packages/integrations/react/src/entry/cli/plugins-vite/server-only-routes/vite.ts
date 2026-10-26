@@ -2,7 +2,8 @@ import type { RscPluginManager } from "@vitejs/plugin-rsc";
 import type { Plugin } from "vite";
 import { getPluginApi } from "@vitejs/plugin-rsc";
 import { PACKAGE_NAME } from "#/constants.ts";
-import { EXPORT_REQUIRES_CLIENT, ROUTES_MODULE } from "#shared/constants.ts";
+import { NODE_MODULES_RE } from "#shared/cli/utils.ts";
+import { EXPORT_REQUIRES_CLIENT, ROUTE_MODULE_RE, ROUTES_MODULE } from "#shared/constants.ts";
 
 const ROUTES_ID = `\0${ROUTES_MODULE}`;
 const STAMP = `\nexport const ${EXPORT_REQUIRES_CLIENT} = false;\n`;
@@ -42,6 +43,7 @@ export const pluginWrenServerOnlyRoutes = (): Plugin => {
     },
     name: `${PACKAGE_NAME}:server-only-routes`,
     transform: {
+      filter: { id: { exclude: NODE_MODULES_RE, include: ROUTE_MODULE_RE } },
       handler(code, id) {
         if (!serverOnly.has(id)) return undefined;
         return { code: code + STAMP, map: null };

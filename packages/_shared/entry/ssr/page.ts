@@ -7,8 +7,7 @@ import {
   handlerApi,
   injectIntoHead,
   loadRouteData,
-  renderPageScripts,
-  renderStylesheets,
+  renderAssetTags,
   withRequest,
 } from "./helpers.ts";
 import { catchResponse, WrenResponse } from "./response.ts";
@@ -99,6 +98,24 @@ export const loadRouteHead = <TElement>(
   return undefined;
 };
 
+// Builds resolve each route's stylesheets and page scripts statically, so their tags are
+// rendered once per route instead of on every request.
+const assetTagsCache = new WeakMap<object, string>();
+const routeAssetTags = (
+  module: object,
+  modules: Parameters<typeof renderAssetTags>[0],
+): Promise<string> | string => {
+  if (import.meta.env.DEV) return renderAssetTags(modules);
+  let tags = assetTagsCache.get(module);
+  if (tags === undefined) {
+    const rendered = renderAssetTags(modules);
+    if (typeof rendered !== "string") return rendered;
+    tags = rendered;
+    assetTagsCache.set(module, tags);
+  }
+  return tags;
+};
+
 export const createPageRenderer =
   <TStack extends IntegrationRouteStack<unknown, unknown, TElement>, TElement>(
     renderTree: (request: RequestInput, page: PreparedPage<TStack>) => Promise<string> | string,
@@ -107,13 +124,12 @@ export const createPageRenderer =
   async (request, routeStack) => {
     const page = preparePage(request, routeStack);
     const routeHead = loadRouteHead<TElement>(request, page);
-    const [html, head, stylesheets, scripts] = await Promise.all([
+    const [html, head, assets] = await Promise.all([
       renderTree(request, page),
       routeHead === undefined ? "" : Promise.resolve(routeHead).then(renderHead),
-      renderStylesheets(page.modules),
-      renderPageScripts(page.modules),
+      routeAssetTags(page.module, page.modules),
     ]);
-    return [html, head + stylesheets + scripts] as const;
+    return [html, head + assets] as const;
   };
 
 export const createPageHandlers = <TStack extends IntegrationRouteStack>(

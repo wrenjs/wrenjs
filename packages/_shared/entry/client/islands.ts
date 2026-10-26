@@ -30,15 +30,33 @@ const whenVisible = (element: Element, callback: () => void): (() => void) => {
   return () => observer.disconnect();
 };
 
+const ownSlot = (island: Element): Element | undefined => {
+  for (const slot of island.querySelectorAll("wren-slot")) {
+    if (slot.closest("wren-island") === island) return slot;
+  }
+  return undefined;
+};
+
+const takeSlotHtml = (island: Element): string | undefined => {
+  const template = island.querySelector(":scope > template[data-slot]");
+  if (!template) return ownSlot(island)?.innerHTML;
+  const html = template.innerHTML;
+  template.remove();
+  return html;
+};
+
 export const defineIslands = (hydrate: IslandHydrate): void => {
   if (customElements.get("wren-island")) return;
 
   class WrenIslandElement extends HTMLElement {
     #cancel?: () => void;
+    #slotHtml?: string;
     #started = false;
 
     connectedCallback() {
       if (this.#started) return;
+      // Read before this or any nested island hydrates, while the slot still holds server HTML.
+      this.#slotHtml ??= takeSlotHtml(this);
       const start = () => {
         this.#cancel = undefined;
         this.#started = true;
@@ -60,15 +78,12 @@ export const defineIslands = (hydrate: IslandHydrate): void => {
       const name = this.getAttribute("export") ?? "default";
       try {
         if (!src) throw new Error("Missing src.");
-        const slot = this.querySelector(":scope > template[data-slot]");
-        const slotHtml = slot?.innerHTML;
-        slot?.remove();
         const module: Record<string, unknown> = await import(src);
         const Component = module[name];
         if (!Component) throw new Error(`Export "${name}" not found in ${src}.`);
         const props: unknown = JSON.parse(this.getAttribute("props") ?? "{}");
         if (!isRecord(props)) throw new Error("Island props must be an object.");
-        await hydrate(this, Component, props, slotHtml);
+        await hydrate(this, Component, props, this.#slotHtml);
       } catch (error) {
         console.error("[wrenjs] Unable to hydrate island.", this, error);
       }

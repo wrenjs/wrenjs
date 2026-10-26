@@ -14,7 +14,7 @@ import { catchResponse } from "../ssr/response.ts";
 type PrerenderBodies<TStack> = (
   request: Request,
   routeStack: TStack,
-) => Promise<readonly [html: BodyInit, flight: BodyInit]>;
+) => Promise<readonly [html: BodyInit, flight?: BodyInit]>;
 
 export const getPaths = (prerenderAll = false): Promise<string[]> =>
   getPrerenderPaths(manifest, prerenderAll);
@@ -28,13 +28,13 @@ export const createPrerender =
     let rendered: PrerenderArtifact[] = [];
     const response = await runProxies(request, matched, () =>
       renderBodies(request, matched).then(([html, flight]) => {
-        rendered = [
-          { pathname, response: new Response(html, { headers: HEADERS_HTML_RESPONSE }) },
-          {
+        rendered = [{ pathname, response: new Response(html, { headers: HEADERS_HTML_RESPONSE }) }];
+        if (flight !== undefined) {
+          rendered.push({
             pathname: pathname + FLIGHT_URL_POSTFIX,
             response: new Response(flight, { headers: HEADERS_FLIGHT }),
-          },
-        ];
+          });
+        }
         return rendered[0].response;
       }, catchResponse),
     );
@@ -43,9 +43,12 @@ export const createPrerender =
   };
 
 export const documentBodies =
-  <TStack>(renderPage: PageRenderer<TStack>): PrerenderBodies<TStack> =>
+  <TStack>(
+    renderPage: PageRenderer<TStack>,
+    { flight = true }: { flight?: boolean } = {},
+  ): PrerenderBodies<TStack> =>
   async (request, routeStack) => {
     const [html, head] = await renderPage(request, routeStack);
     const document = injectIntoHead(html, head);
-    return [document, document];
+    return flight ? [document, document] : [document];
   };

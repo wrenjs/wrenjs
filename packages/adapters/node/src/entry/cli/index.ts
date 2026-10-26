@@ -15,9 +15,10 @@ const wrenAdapterNode = (): WrenAdapter => ({
         buildApp: {
           async handler(builder) {
             const dist = join(builder.config.root, "dist");
+            const assetsDir = builder.environments.client?.config.build.assetsDir ?? "assets";
             await Promise.all([
               copyFile(join(import.meta.dirname, "entry", RUNTIME), join(dist, RUNTIME)),
-              writeStaticAssets(join(dist, "client"), join(dist, STATIC_ASSETS_FILE)),
+              writeStaticAssets(join(dist, "client"), join(dist, STATIC_ASSETS_FILE), assetsDir),
             ]);
           },
           order: "post",

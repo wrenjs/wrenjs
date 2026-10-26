@@ -50,18 +50,29 @@ export const getSsrEntry = (): Promise<SsrEntry> => {
   return ssrEntry;
 };
 
+const routeHtmlCache = new WeakMap<object, Pick<HtmlOptions, "hydrate" | "scripts">>();
+
 export const htmlOptions = (
   matchedEntry: ReactRouteStack,
   onError?: HtmlOptions["onError"],
 ): HtmlOptions => {
-  const modules = [matchedEntry.module, ...(matchedEntry.layouts ?? [])];
-  const hydrate = needsHydration(matchedEntry);
-  if (import.meta.env.DEV) return { hydrate, onError, scripts: () => renderPageScripts(modules) };
-  const scripts = collectPageScripts(modules);
-
-  if (!Array.isArray(scripts))
-    throw new TypeError("[wrenjs] Page scripts must be static in builds.");
-  return { hydrate, onError, scripts };
+  if (import.meta.env.DEV) {
+    const modules = [matchedEntry.module, ...(matchedEntry.layouts ?? [])];
+    return {
+      hydrate: needsHydration(matchedEntry),
+      onError,
+      scripts: () => renderPageScripts(modules),
+    };
+  }
+  let route = routeHtmlCache.get(matchedEntry.module);
+  if (!route) {
+    const scripts = collectPageScripts([matchedEntry.module, ...(matchedEntry.layouts ?? [])]);
+    if (!Array.isArray(scripts))
+      throw new TypeError("[wrenjs] Page scripts must be static in builds.");
+    route = { hydrate: needsHydration(matchedEntry), scripts };
+    routeHtmlCache.set(matchedEntry.module, route);
+  }
+  return { ...route, onError };
 };
 
 export const renderFlight = (
@@ -83,8 +94,6 @@ const handlerPage = async (
   matchedEntry: ReactRouteStack,
   isFlight: boolean = false,
 ): Promise<Response> => {
-  // A thrown Response replaces the page if it lands before the HTML shell; Flight responses are
-  // already streaming, so the client sees the digest and navigates natively.
   let thrown: Response | undefined;
   let streaming = false;
   const onError = (error: unknown) => {

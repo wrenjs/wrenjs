@@ -20,12 +20,19 @@ export const island = <T,>(value: T, src: string, name: string): T => {
       export: name,
       src,
     });
-    const slot = children === undefined ? undefined : h("wren-slot", null, outside(children));
+    let slotRendered = false;
+    const SlotContent = () => {
+      slotRendered = true;
+      return outside(children);
+    };
+    const SlotFallback = () =>
+      slotRendered ? null : h("template", { "data-slot": "" }, outside(children));
+    const slot = children === undefined ? undefined : h("wren-slot", null, h(SlotContent, null));
     return h(
       "wren-island",
       attributes,
       h(IslandContext.Provider, { value: true }, h(Component, { ...props, children: slot })),
-      slot && h("template", { "data-slot": "" }, outside(children)),
+      slot && h(SlotFallback, null),
     );
   };
   Island.displayName = `Island(${name})`;

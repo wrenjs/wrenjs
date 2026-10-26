@@ -1,19 +1,9 @@
-import type { ServerResponse } from "node:http";
 import type { Plugin } from "vite";
-import { pipeline } from "node:stream/promises";
 import { isCSSRequest, isRunnableDevEnvironment } from "vite";
 import { isRequestAbortError, toRequestInput } from "../../../entry/node/request.ts";
+import { sendResponse } from "../../../entry/node/response.ts";
 
 type SsrEntryModule = Pick<typeof import("virtual:wrenjs-fetch"), "fetch">;
-
-const sendResponse = async (res: ServerResponse, response: Response): Promise<void> => {
-  res.writeHead(response.status, [...response.headers].flat());
-  if (!response.body) {
-    res.end();
-    return;
-  }
-  await pipeline(response.body, res);
-};
 
 export const pluginWrenDevServer = (entry: string): Plugin => ({
   apply: "serve",

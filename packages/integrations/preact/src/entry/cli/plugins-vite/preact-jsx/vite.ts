@@ -1,4 +1,7 @@
 import type { Plugin } from "vite";
+import { PACKAGE_NAME } from "#/constants.ts";
+
+const PREFRESH_DEPS: ReadonlySet<string> = new Set(["@prefresh/core", "@prefresh/utils"]);
 
 export const pluginWrenPreactJsx = (): Plugin => {
   return {
@@ -26,7 +29,7 @@ export const pluginWrenPreactJsx = (): Plugin => {
           },
         },
         optimizeDeps: {
-          include: ["preact", "preact/jsx-runtime", "preact/jsx-dev-runtime"],
+          include: ["preact", "preact/hooks", "preact/jsx-runtime", "preact/jsx-dev-runtime"],
           rolldownOptions: {
             transform: {
               jsx: {
@@ -42,6 +45,14 @@ export const pluginWrenPreactJsx = (): Plugin => {
           },
         },
       };
+    },
+    configEnvironment(_name, { optimizeDeps: { include } = {} }) {
+      if (!include) return;
+      for (let i = 0; i < include.length; i++) {
+        if (PREFRESH_DEPS.has(include[i])) {
+          include[i] = `${PACKAGE_NAME} > @prefresh/vite > ${include[i]}`;
+        }
+      }
     },
     enforce: "pre",
     name: "vite:preact-jsx",

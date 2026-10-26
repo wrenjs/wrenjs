@@ -39,7 +39,10 @@ export const pluginServerEnv = (): Plugin => {
       handler: () => RESOLVED_ID,
     },
     transform: {
-      filter: { code: /\bmeta\b/, id: /\.[cm]?[jt]sx?(?:$|\?)/ },
+      filter: {
+        code: /\bimport\s*\.\s*meta\s*(?:\?\s*)?\.\s*env\b/,
+        id: /\.[cm]?[jt]sx?(?:$|\?)/,
+      },
       handler(code, id) {
         if (id === RESOLVED_ID) return null;
         let name = "__wrenServerEnv";

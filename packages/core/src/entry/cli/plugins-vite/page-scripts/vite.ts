@@ -4,7 +4,7 @@ import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { isCSSRequest, normalizePath } from "vite";
 import { WREN_NAME } from "#/constants.ts";
 import { applyEdits, countLines, replaceLines } from "#shared/cli/edits.ts";
-import { sortedRecord, stem } from "#shared/cli/utils.ts";
+import { NODE_MODULES_RE, routerFileFilter, sortedRecord, stem } from "#shared/cli/utils.ts";
 import {
   EXPORT_SCRIPTS,
   PAGE_SCRIPT_HOIST_PREFIX,
@@ -76,7 +76,7 @@ const loadInline = async (context: Rolldown.PluginContext, file: string, index: 
   };
 };
 
-export const pluginPageScripts = (router: string): Plugin => {
+export const pluginPageScripts = (router: string): Plugin[] => {
   const registry = new Map<string, ScriptTarget>();
   const consumers = new Set<string>();
 
@@ -159,7 +159,7 @@ export const pluginPageScripts = (router: string): Plugin => {
     return `export default ${JSON.stringify(targets.map((target) => base + target.key))};`;
   };
 
-  return {
+  const plugin = {
     buildApp: {
       async handler(builder) {
         const targets = [...registry.values()];
@@ -228,6 +228,14 @@ export const pluginPageScripts = (router: string): Plugin => {
       const { base } = this.environment.config;
       for (const target of registry.values()) {
         if (target.reference) target.url = base + this.getFileName(target.reference);
+      }
+    },
+
+    hotUpdate({ modules }) {
+      for (const { id } of modules) {
+        if (!id) continue;
+        declared.delete(id);
+        hoisted.get(id)?.delete(this.environment.name);
       }
     },
 
@@ -302,20 +310,31 @@ export const pluginPageScripts = (router: string): Plugin => {
     sharedDuringBuild: true,
 
     transform: {
-      filter: { id: SOURCE_RE },
+      filter: { code: "<script", id: { exclude: NODE_MODULES_RE, include: SOURCE_RE } },
       async handler(code, id) {
-        const { config, mode } = this.environment;
-        const isServer = config.consumer === "server";
-        const isRoute = isServer && id.startsWith(pagesDir) && ROUTE_MODULE_RE.test(id);
-        const edits = code.includes("<script") ? await hoistScripts(this, code, id, isServer) : [];
-
-        if (edits.length === 0) declared.delete(id);
-        hoisted.get(id)?.delete(this.environment.name);
-        if (edits.length === 0 && !isRoute) return null;
-
-        const appended = isRoute ? stamp(id, config.root, mode === "build") : "";
-        return { code: applyEdits(code, edits) + appended, map: null };
+        const isServer = this.environment.config.consumer === "server";
+        const edits = await hoistScripts(this, code, id, isServer);
+        if (edits.length > 0) return { code: applyEdits(code, edits), map: null };
+        declared.delete(id);
+        return null;
       },
     },
   } satisfies Plugin;
+
+  const routeExports: Plugin = {
+    applyToEnvironment: (environment) => environment.config.consumer === "server",
+    enforce: "pre",
+    name: `${WREN_NAME}-page-scripts-routes`,
+    sharedDuringBuild: true,
+    transform: {
+      filter: { id: { exclude: NODE_MODULES_RE, include: routerFileFilter(router, SOURCE_RE) } },
+      handler(code, id) {
+        if (!id.startsWith(pagesDir) || !ROUTE_MODULE_RE.test(id)) return null;
+        const { config, mode } = this.environment;
+        return { code: code + stamp(id, config.root, mode === "build"), map: null };
+      },
+    },
+  };
+
+  return [plugin, routeExports];
 };

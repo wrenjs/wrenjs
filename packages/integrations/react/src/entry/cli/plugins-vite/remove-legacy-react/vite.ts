@@ -7,7 +7,7 @@ export const pluginWrenRemoveLegacyReact = (): Plugin => ({
   applyToEnvironment: (env) => env.name === "ssr",
   name: `${PACKAGE_NAME}:remove-legacy-react`,
   transform: {
-    filter: { code: "react-dom-server-legacy", id: /react-dom.*server\.edge/ },
+    filter: { code: "react-dom-server-legacy", id: /react-dom.*server\.(?:browser|bun|edge|node)/ },
     handler(code) {
       const replaced = code.replaceAll(REGEX_LEGACY, "({})");
       return replaced === code ? null : { code: replaced, map: null };

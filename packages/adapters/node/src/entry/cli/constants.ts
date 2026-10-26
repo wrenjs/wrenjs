@@ -69,6 +69,7 @@ export const PAGE_CACHE_CONTROL = "public,max-age=0,must-revalidate";
 
 export const EXT_HTML = ".html";
 export const EXT_FLT = ".flt";
+export const EXT_MAP = ".map";
 export const EXT_INDEX_HTML = "/index.html";
 export const EXT_FLT_UNDER = `_${EXT_FLT}`;
 export const UTF_8 = "charset=utf-8";

@@ -1,8 +1,11 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { PrerenderArtifact, PrerenderRuntime } from "#/types.js";
+import { forEachLimit } from "#shared/cli/utils.ts";
 import { extractPathname } from "#shared/utils.ts";
 import { inlineStylesheets } from "./inline-css.ts";
+
+const PRERENDER_CONCURRENCY = 32;
 
 export const prerenderRoutes = async (
   runtimes: PrerenderRuntime[],
@@ -38,23 +41,20 @@ export const prerenderRoutes = async (
     );
   };
   let pages = 0;
-  await Promise.all(
-    runtimes.map(async (runtime) => {
-      const paths = await runtime.getPaths(prerenderAll);
-      await Promise.all(
-        paths.map(async (path) => {
-          const pathname = extractPathname(path)!;
-          if (pathnames.has(pathname))
-            throw new Error(`Multiple prerender providers claim ${pathname}.`);
-          const artifacts = await runtime.render(new Request(new URL(pathname, base)));
-          await Promise.all(artifacts.map(capture));
-          if (!pathnames.has(pathname)) {
-            throw new Error(`Prerender renderer did not return ${pathname}.`);
-          }
-          pages++;
-        }),
-      );
-    }),
+  const jobs = await Promise.all(
+    runtimes.map(async (runtime) =>
+      (await runtime.getPaths(prerenderAll)).map((path) => [runtime, path] as const),
+    ),
   );
+  await forEachLimit(jobs.flat(), PRERENDER_CONCURRENCY, async ([runtime, path]) => {
+    const pathname = extractPathname(path)!;
+    if (pathnames.has(pathname)) throw new Error(`Multiple prerender providers claim ${pathname}.`);
+    const artifacts = await runtime.render(new Request(new URL(pathname, base)));
+    await Promise.all(artifacts.map(capture));
+    if (!pathnames.has(pathname)) {
+      throw new Error(`Prerender renderer did not return ${pathname}.`);
+    }
+    pages++;
+  });
   return pages;
 };

@@ -29,7 +29,11 @@ const wrenIntegrationReact = (options: WrenIntegrationReactOptions = {}): WrenIn
       environments: {
         client: clientEnvironment(clientEntry),
         rsc: serverEnvironment(env, rscEntry, "dist/ssr"),
-        ssr: serverEnvironment(env, ssrEntry, "dist/react"),
+        ssr: {
+          ...serverEnvironment(env, ssrEntry, "dist/react"),
+          // Pre-bundled up front so dev doesn't discover it late and re-optimize.
+          optimizeDeps: { include: ["react-dom/server"] },
+        },
       },
       plugins: [
         pluginWrenLink({ clientEntry, kind: "flight" }),

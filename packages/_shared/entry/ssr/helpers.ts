@@ -13,20 +13,32 @@ import { WrenResponse } from "./response.ts";
 export const getRequest = (request: RequestInput): Request =>
   "toRequest" in request ? request.toRequest() : request;
 
+class RouteProps {
+  declare readonly context: WrenContext;
+
+  get request(): Request {
+    return getRequest(this.#input);
+  }
+
+  readonly #input: RequestInput;
+
+  constructor(input: RequestInput, context: WrenContext, props: object) {
+    Object.assign(this, props);
+    this.context = context;
+    this.#input = input;
+  }
+}
+
 export const withRequest = <T extends object>(
   request: RequestInput,
   context: WrenContext,
   props: T,
-) =>
-  "toRequest" in request
-    ? {
-        ...props,
-        context,
-        get request() {
-          return request.toRequest();
-        },
-      }
-    : { ...props, context, request };
+): T & { readonly context: WrenContext; readonly request: Request } =>
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- RouteProps copies every prop.
+  new RouteProps(request, context, props) as unknown as T & {
+    readonly context: WrenContext;
+    readonly request: Request;
+  };
 
 const hasLoader = ({ loader }: { loader?: RouteLoader }) => loader !== undefined;
 const noData = () => undefined;
@@ -89,6 +101,16 @@ export const renderStylesheets = (
 export const renderPageScripts = (
   modules: UrlExport<typeof EXPORT_SCRIPTS>[],
 ): Promise<string> | string => renderUrls(modules, EXPORT_SCRIPTS, pageScriptTag);
+
+export const renderAssetTags = (
+  modules: (UrlExport<typeof EXPORT_CSS> & UrlExport<typeof EXPORT_SCRIPTS>)[],
+): Promise<string> | string => {
+  const stylesheets = renderStylesheets(modules);
+  const scripts = renderPageScripts(modules);
+  return typeof stylesheets === "string" && typeof scripts === "string"
+    ? stylesheets + scripts
+    : Promise.all([stylesheets, scripts]).then(([links, tags]) => links + tags);
+};
 
 export const collectPageScripts = (
   modules: UrlExport<typeof EXPORT_SCRIPTS>[],

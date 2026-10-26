@@ -20,6 +20,8 @@ import {
 } from "#/constants.ts";
 import { staticExportNames, stem } from "#shared/cli/utils.ts";
 
+export type RouteClassificationCache = Map<string, Promise<Entry | undefined>>;
+
 type Wrappers = Pick<Required<Entry>, "layouts" | "proxies">;
 
 const SPECIAL_KINDS = new Map<string, EntryKind>([
@@ -47,16 +49,28 @@ const classifyModule = (fileName: string, exportNames: string[]): EntryKind | un
 
 const isRouteModule = (file: Dirent) => file.isFile() && ROUTE_MODULE_RE.test(file.name);
 
-const classifyFile = async (file: Dirent): Promise<Entry | undefined> => {
-  const fullPath = normalizePath(`${file.parentPath}/${file.name}`);
+const classifyFile = async (fullPath: string, fileName: string): Promise<Entry | undefined> => {
   const { errors, module } = parseSync(fullPath, await readFile(fullPath, "utf8"));
   if (errors.length > 0) {
     throw new SyntaxError(
       `Cannot parse ${fullPath}: ${errors.map((error) => error.message).join("\n")}`,
     );
   }
-  const kind = classifyModule(file.name, staticExportNames(module.staticExports));
+  const kind = classifyModule(fileName, staticExportNames(module.staticExports));
   return kind && { file: fullPath, kind };
+};
+
+const classifyCachedFile = (file: Dirent, cache: RouteClassificationCache) => {
+  const fullPath = normalizePath(`${file.parentPath}/${file.name}`);
+  const cached = cache.get(fullPath);
+  if (cached) return cached;
+  // Cached while pending, so evicting a file mid-read discards the possibly stale result.
+  const entry = classifyFile(fullPath, file.name);
+  cache.set(fullPath, entry);
+  entry.catch(() => {
+    if (cache.get(fullPath) === entry) cache.delete(fullPath);
+  });
+  return entry;
 };
 
 const toRoutePattern = (pagesDir: string, file: string) => {
@@ -73,10 +87,16 @@ const toRoutePattern = (pagesDir: string, file: string) => {
   return { params, pattern: pattern || "/" };
 };
 
-export const getRoutes = async (config: WrenConfig, root: string): Promise<RoutableEntry> => {
+export const getRoutes = async (
+  config: WrenConfig,
+  root: string,
+  cache: RouteClassificationCache,
+): Promise<RoutableEntry> => {
   const pagesDir = normalizePath(resolve(root, config.router!));
   const files = await readdir(pagesDir, { recursive: true, withFileTypes: true });
-  const classified = await Promise.all(files.filter(isRouteModule).map(classifyFile));
+  const classified = await Promise.all(
+    files.filter(isRouteModule).map((file) => classifyCachedFile(file, cache)),
+  );
   const entries = classified.filter((entry) => entry !== undefined);
 
   const wrappers = new Map<string, Wrappers & { roots: Entry[] }>();

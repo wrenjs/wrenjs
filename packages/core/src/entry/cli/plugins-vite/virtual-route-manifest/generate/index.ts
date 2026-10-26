@@ -1,6 +1,6 @@
 import type { WrenConfig } from "#/entry/config/types.js";
 import type { Entry } from "#/types.js";
-import { getRoutes } from "./get-routes.ts";
+import { getRoutes, type RouteClassificationCache } from "./get-routes.ts";
 import { createRadixTrie } from "./radix-trie.ts";
 
 const partition = (routes: Entry[]) => {
@@ -14,8 +14,12 @@ const partition = (routes: Entry[]) => {
   return [createRadixTrie(dynamicRoutes), staticRoutes] as const;
 };
 
-export const generateRouteManifest = async (config: WrenConfig, root: string) => {
-  const { notFounds, routes } = await getRoutes(config, root);
+export const generateRouteManifest = async (
+  config: WrenConfig,
+  root: string,
+  cache: RouteClassificationCache,
+) => {
+  const { notFounds, routes } = await getRoutes(config, root, cache);
   const [dynamicNotFounds, staticNotFounds] = partition(notFounds);
   const [dynamicRoutes, staticRoutes] = partition(routes);
   return { dynamicNotFounds, dynamicRoutes, staticNotFounds, staticRoutes };
