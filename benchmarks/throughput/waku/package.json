@@ -25,6 +25,5 @@
     "start": "waku start",
     "typegen": "waku router typegen"
   },
-  "type": "module",
-  "version": "0.0.0"
+  "type": "module"
 }

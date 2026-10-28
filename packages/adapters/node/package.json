@@ -50,6 +50,7 @@
     "build": "vp pack",
     "check": "vp check",
     "dev": "vp pack --watch",
+    "publish": "vp pm publish --publish-branch trunk",
     "prepublishOnly": "vp run build",
     "test": "vp test"
   },

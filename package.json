@@ -7,7 +7,7 @@
     "czg": "czg",
     "pkg": "vpr --filter '...@wren-js/core' --filter '!#*/*' build",
     "prepare": "vp config",
-    "publish": "vpr build && vpr --filter '...wrenjs' --filter '!#*/*' publish"
+    "publish": "vpr --filter '...@wren-js/core' --filter '!#*/*' publish"
   },
   "devDependencies": {
     "@wren-js/core": "workspace:*",
