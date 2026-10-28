@@ -1,8 +1,8 @@
 {
   "devDependencies": {
-    "@wren-js/core": "0.14.0",
-    "@wren-js/preact": "0.14.0",
-    "preact": "11.0.2",
+    "@wren-js/core": "0.17.0",
+    "@wren-js/preact": "0.17.0",
+    "preact": "11.1.0",
     "typescript": "7.0.2"
   },
   "scripts": {

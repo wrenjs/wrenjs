@@ -18,11 +18,11 @@ catalogs:
     "autocannon": "8.0.0"
 
   integration-preact:
-    preact: "11.0.2"
-    preact-render-to-string: "6.8.1"
+    preact: "11.1.0"
+    preact-render-to-string: "6.8.2"
     "@prefresh/vite": "4.0.1"
   integration-peers-preact:
-    "preact": "^11.0.2"
+    "preact": "^11.1.0"
 
   integration-ssx:
     "@lumeland/ssx": "0.1.16"
@@ -36,7 +36,7 @@ catalogs:
     "@vitejs/plugin-rsc": 0.5.38
     react-dom: 19.3.1
     react: 19.3.1
-    oxc-transform-react: 0.155.0
+    oxc-transform-react: 0.156.0
   integration-peers-react:
     "react": "^19.3.1"
     "react-dom": "^19.3.1"

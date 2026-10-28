@@ -1,7 +1,7 @@
 {
   "devDependencies": {
-    "@wren-js/core": "0.14.0",
-    "oxlint": "1.89.0",
+    "@wren-js/core": "0.17.0",
+    "oxlint": "1.90.0",
     "typescript": "7.0.2"
   },
   "scripts": {
