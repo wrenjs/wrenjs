@@ -17,7 +17,7 @@ export const pluginWrenLink = (options: {
     if (this.environment.config.consumer !== "server") return;
     await preloadModule(this, LINK_SCRIPT_MODULE);
   },
-  config: () => ({ optimizeDeps: { exclude: [SCRIPT_IMPORT] } }),
+  configEnvironment: () => ({ optimizeDeps: { exclude: [SCRIPT_IMPORT] } }),
   enforce: "pre",
   load: {
     filter: { id: new RegExp(`^${CLIENT_ID}$`) },

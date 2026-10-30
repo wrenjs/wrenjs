@@ -15,6 +15,5 @@
   "npm.scriptRunner": "vp",
   "oxc.enable": true,
   "prettier.enable": false,
-  "search.exclude": {},
   "unocss.disable": false
 }

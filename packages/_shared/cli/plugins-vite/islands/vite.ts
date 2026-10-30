@@ -1,14 +1,15 @@
 import type { Plugin } from "vite";
+import { type Dirent, globSync } from "node:fs";
 import { readFile } from "node:fs/promises";
-import { extname } from "node:path";
-import { parseSync } from "vite";
+import { extname, join, resolve } from "node:path";
+import { normalizePath, parseSync } from "vite";
 import {
   ISLAND_SCRIPT_MODULE,
   PAGE_SCRIPT_HOIST_PREFIX,
   PAGE_SCRIPT_URL_PREFIX,
   SOURCE_RE,
 } from "../../../constants.ts";
-import { hasNamespaceExport, preloadModule, staticExportNames } from "../../utils.ts";
+import { escapeGlob, hasNamespaceExport, preloadModule, staticExportNames } from "../../utils.ts";
 
 type ParseResult = ReturnType<typeof parseSync>;
 
@@ -17,10 +18,29 @@ const DIRECTIVE = "use client";
 const IMPL_QUERY = "?wren-island-impl";
 const IMPL_RE = /\?wren-island-impl\.[cm]?[jt]sx?$/;
 
-const hasDirective = ({ program }: ParseResult) =>
+const hasDirective = ({ errors, program }: ParseResult) =>
+  errors.length === 0 &&
   program.body.some(
     (statement) => statement.type === "ExpressionStatement" && statement.directive === DIRECTIVE,
   );
+
+const findIslands = async (root: string, outDir: string): Promise<string[]> => {
+  const exclude = (entry: Dirent) =>
+    entry.isDirectory() &&
+    (entry.name === "node_modules" ||
+      entry.name.startsWith(".") ||
+      join(entry.parentPath, entry.name) === outDir);
+  const entries = globSync("**/*", { cwd: root, exclude, withFileTypes: true });
+  const islands = await Promise.all(
+    entries.map(async (entry) => {
+      if (!entry.isFile() || !SOURCE_RE.test(entry.name)) return [];
+      const file = join(entry.parentPath, entry.name);
+      const code = await readFile(file, "utf8");
+      return code.includes(DIRECTIVE) && hasDirective(parseSync(file, code)) ? [file] : [];
+    }),
+  );
+  return islands.flat();
+};
 
 export const pluginWrenIslands = (options: {
   runtimeEntry: string;
@@ -28,10 +48,28 @@ export const pluginWrenIslands = (options: {
   wrapperImport: string;
 }): Plugin => {
   const implIds = new Set<string>();
+  let root: string;
+  let outDir: string;
   return {
     async buildStart() {
       if (this.environment.config.consumer !== "server") return;
       await preloadModule(this, ISLAND_SCRIPT_MODULE);
+    },
+    config(config) {
+      root = resolve(config.root ?? ".");
+      outDir = resolve(root, config.build?.outDir ?? "dist");
+    },
+    async configEnvironment(_name, { build, consumer, input }, { command }) {
+      if (command !== "serve" || consumer !== "client") return undefined;
+      const islands = await findIslands(root, outDir);
+      if (islands.length === 0) return undefined;
+      const entry = input ?? build?.rolldownOptions?.input;
+      const inputs = typeof entry === "string" ? [entry] : Object.values(entry ?? {});
+      return {
+        optimizeDeps: {
+          entries: [...inputs, ...islands].map((path) => escapeGlob(normalizePath(path))),
+        },
+      };
     },
     enforce: "pre",
     load: {
@@ -59,7 +97,7 @@ export const pluginWrenIslands = (options: {
       handler(code, id) {
         if (this.environment.config.consumer !== "server") return null;
         const parsed = parseSync(id, code);
-        if (parsed.errors.length > 0 || !hasDirective(parsed)) return null;
+        if (!hasDirective(parsed)) return null;
         if (hasNamespaceExport(parsed.module.staticExports)) {
           throw new Error(`[wrenjs] "${DIRECTIVE}" modules cannot use "export *" (${id}).`);
         }

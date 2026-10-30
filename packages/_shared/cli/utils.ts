@@ -6,6 +6,10 @@ type StaticExports = ReturnType<typeof parseSync>["module"]["staticExports"];
 
 export const NODE_MODULES_RE = /\/node_modules\//;
 
+const GLOB_SYNTAX_RE = /(?<!\\)([()[\]{}*?|]|^!|[!+@](?=\()|\\(?![()[\]{}!*+?@|]))/g;
+
+export const escapeGlob = (path: string): string => path.replaceAll(GLOB_SYNTAX_RE, "\\$&");
+
 export const routerFileFilter = (router: string, extensions: RegExp): RegExp => {
   const directory = normalizePath(router)
     .split("/")

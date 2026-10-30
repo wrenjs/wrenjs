@@ -27,10 +27,11 @@ declare global {
 }
 
 const NAME = "wrenjs-adapter-cloudflare";
+const SERVER_ENTRY = "@wren-js/adapter-cloudflare/entry/server";
 
 const workerDefaults = ({ assets, compatibility_flags, main }: WorkerConfig) => {
   const defaults: Partial<WorkerConfig> = {};
-  if (!main) defaults.main = "@wren-js/adapter-cloudflare/entry/server";
+  if (!main) defaults.main = SERVER_ENTRY;
   if (!compatibility_flags.includes("nodejs_compat")) {
     defaults.compatibility_flags = ["nodejs_compat"];
   }
@@ -100,6 +101,7 @@ const wrenAdapterCloudflare = ({
     const customize = plugin.config;
     const childEnvironments: string[] = [];
     return {
+      environments: { [server.environment]: { optimizeDeps: { exclude: [SERVER_ENTRY] } } },
       plugins: [
         pluginWorker(server.entry, server.environment, childEnvironments),
         cloudflare({
