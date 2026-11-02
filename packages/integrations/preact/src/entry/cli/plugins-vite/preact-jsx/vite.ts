@@ -57,7 +57,7 @@ export const pluginWrenPreactJsx = (): Plugin => {
         }
       }
       if (consumer === "server" && resolve?.noExternal === true) {
-        return { optimizeDeps: { include: [...PREACT_DEPS, `${PACKAGE_NAME}/runtime/island`] } };
+        return { optimizeDeps: { include: [...PREACT_DEPS] } };
       }
       return undefined;
     },
