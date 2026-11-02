@@ -108,8 +108,12 @@ export const pluginWrenCss = (router: string): Plugin[] => {
     },
     {
       applyToEnvironment: (environment) => environment.name === "client",
-      generateBundle() {
+      generateBundle(_options, bundle) {
         for (const { fileName, source } of serverAssets) {
+          const existing = bundle[fileName];
+          if (existing?.type === "asset") {
+            continue;
+          }
           this.emitFile({ fileName, source, type: "asset" });
         }
       },

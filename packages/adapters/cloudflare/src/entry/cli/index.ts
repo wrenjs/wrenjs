@@ -29,13 +29,14 @@ declare global {
 const NAME = "wrenjs-adapter-cloudflare";
 const SERVER_ENTRY = "@wren-js/adapter-cloudflare/entry/server";
 
-const workerDefaults = ({ assets, compatibility_flags, main }: WorkerConfig) => {
+const workerDefaults = ({ assets, main, upload_source_maps }: WorkerConfig) => {
   const defaults: Partial<WorkerConfig> = {};
   if (!main) defaults.main = SERVER_ENTRY;
-  if (!compatibility_flags.includes("nodejs_compat")) {
-    defaults.compatibility_flags = ["nodejs_compat"];
-  }
+  // if (!compatibility_flags.includes("nodejs_compat")) {
+  //   defaults.compatibility_flags = ["nodejs_compat"];
+  // }
   if (!assets?.html_handling) defaults.assets = { html_handling: "drop-trailing-slash" };
+  if (upload_source_maps === undefined) defaults.upload_source_maps = false;
   return defaults;
 };
 
