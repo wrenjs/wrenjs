@@ -14,6 +14,7 @@ interface CacheEntry {
   response: Promise<Response | undefined>;
 }
 type NetworkInformation = { effectiveType?: string; saveData?: boolean };
+type Prefetched = readonly [href: string, entry: CacheEntry];
 
 const HOVER_DELAY = 80;
 const CACHE_LIMIT = 20;
@@ -39,8 +40,9 @@ const withoutHash = (url: URL) => {
   key.hash = "";
   return key.href;
 };
-const evict = (href: string) => {
-  cache.get(href)?.controller.abort();
+const evict = (href: string, entry = cache.get(href)) => {
+  if (!entry || cache.get(href) !== entry) return;
+  entry.controller.abort();
   cache.delete(href);
 };
 const clearCache = () => {
@@ -70,13 +72,20 @@ const getFlight = (href: string): CacheEntry => {
   });
   return entry;
 };
-const prefetchRoute = async (link: HTMLElement) => {
+const onPrefetchError = (error: unknown) => {
+  if (error instanceof DOMException && error.name === "AbortError") return;
+  console.error("[wrenjs] Unable to prefetch Link.", error);
+};
+const prefetchRoute = (link: HTMLElement): Prefetched | undefined => {
   const url = canPrefetch() ? getClientNavigationUrl(link) : undefined;
-  if (!url) return;
+  if (!url) return undefined;
   const href = withoutHash(url);
   if (kind === "flight") {
-    await getFlight(href).response;
-  } else if (kind === "document" && !hinted.has(href)) {
+    const entry = getFlight(href);
+    void entry.response.catch(onPrefetchError);
+    return [href, entry];
+  }
+  if (kind === "document" && !hinted.has(href)) {
     hinted.add(href);
     const hint = document.createElement("link");
     hint.rel = "prefetch";
@@ -84,6 +93,7 @@ const prefetchRoute = async (link: HTMLElement) => {
     hint.href = href;
     document.head.append(hint);
   }
+  return undefined;
 };
 
 class WrenLinkElement extends HTMLElement {
@@ -98,6 +108,7 @@ class WrenLinkElement extends HTMLElement {
   }
 
   #events?: AbortController;
+  #intent?: Prefetched;
   #timer?: ReturnType<typeof setTimeout>;
   #visible?: IntersectionObserver;
 
@@ -112,6 +123,7 @@ class WrenLinkElement extends HTMLElement {
     this.addEventListener("focus", this.#onHover, { signal });
     this.addEventListener("mouseleave", this.#onLeave, { signal });
     this.addEventListener("blur", this.#onLeave, { signal });
+    this.addEventListener("click", this.#stopTimer, { signal });
     this.#setup();
   }
 
@@ -121,29 +133,29 @@ class WrenLinkElement extends HTMLElement {
   }
 
   #cancel() {
-    this.#onLeave();
+    this.#release();
     this.#visible?.disconnect();
     this.#visible = undefined;
   }
 
   readonly #onHover = () => {
-    this.#onLeave();
+    if (this.#timer !== undefined || this.#intent) return;
     const { prefetch } = this;
-    if (prefetch === true || prefetch === "hover") {
-      this.#timer = setTimeout(() => this.#prefetch(), HOVER_DELAY);
-    }
+    if (prefetch !== true && prefetch !== "hover") return;
+    this.#timer = setTimeout(() => {
+      this.#timer = undefined;
+      this.#intent = prefetchRoute(this);
+    }, HOVER_DELAY);
   };
 
-  readonly #onLeave = () => {
-    clearTimeout(this.#timer);
-    this.#timer = undefined;
+  readonly #onLeave = ({ type }: Event) => {
+    if (!this.matches(type === "blur" ? ":hover" : ":focus")) this.#release();
   };
 
-  #prefetch() {
-    void prefetchRoute(this).catch((error: unknown) => {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      console.error("[wrenjs] Unable to prefetch Link.", error);
-    });
+  #release() {
+    this.#stopTimer();
+    if (this.#intent) evict(...this.#intent);
+    this.#intent = undefined;
   }
 
   #setup() {
@@ -153,16 +165,21 @@ class WrenLinkElement extends HTMLElement {
     if (!this.hasAttribute("role")) this.setAttribute("role", "link");
     if (!this.hasAttribute("tabindex")) this.tabIndex = 0;
     const { prefetch } = this;
-    if (prefetch === "on-load") this.#prefetch();
+    if (prefetch === "on-load") prefetchRoute(this);
     else if (prefetch === "visible") {
       this.#visible = new IntersectionObserver((entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
         this.#visible?.disconnect();
-        this.#prefetch();
+        prefetchRoute(this);
       });
       this.#visible.observe(this);
     }
   }
+
+  readonly #stopTimer = () => {
+    clearTimeout(this.#timer);
+    this.#timer = undefined;
+  };
 }
 
 if (!customElements.get("wren-link")) {
@@ -172,6 +189,9 @@ if (!customElements.get("wren-link")) {
   );
   customElements.define("wren-link", WrenLinkElement);
   window.addEventListener(LINK_INVALIDATE_EVENT, clearCache);
+  window.addEventListener("blur", clearCache);
+  window.addEventListener("pagehide", clearCache);
+  import.meta.hot?.on("vite:beforeUpdate", clearCache);
   if (kind === "flight") {
     listenNavigation(async (url, signal) => {
       const href = withoutHash(url);
