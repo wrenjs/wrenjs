@@ -18,11 +18,11 @@ catalogs:
     "autocannon": "8.0.0"
 
   integration-preact:
-    preact: "11.1.0"
+    preact: "11.1.1"
     preact-render-to-string: "6.8.2"
     "@prefresh/vite": "4.0.1"
   integration-peers-preact:
-    "preact": "^11.1.0"
+    "preact": "^11.1.1"
 
   integration-ssx:
     "@lumeland/ssx": "0.1.16"
