@@ -6,9 +6,18 @@ export const DOCS_NAV_LINKS = [
 	{
 		label: "Get started",
 		links: [
-			{ href: "/docs", icon: "i-lucide:compass", label: "Overview" },
 			{ href: "/docs/getting-started", icon: "i-lucide:rocket", label: "Getting started" },
 			{ href: "/docs/project-structure", icon: "i-lucide:folder", label: "Project Structure" },
+		],
+	},
+	{
+		label: "Routing",
+		links: [
+			{
+				href: "/docs/routing/file/structure",
+				icon: "i-lucide:folder-tree",
+				label: "File-based",
+			},
 		],
 	},
 ];
@@ -20,7 +29,7 @@ export const MAIN_NAV_LINKS = [
 		label: "Home",
 	},
 	{
-		href: "/docs",
+		href: "/docs/getting-started",
 		icon: "i-lucide:book",
 		label: "Docs",
 	},

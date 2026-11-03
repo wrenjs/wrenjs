@@ -21,6 +21,6 @@
 		"preact": "catalog:integration-preact",
 		"typescript": "catalog:",
 		"unocss": "66.12.0",
-		"wrangler": "4.156.0"
+		"wrangler": "4.156.2"
 	}
 }

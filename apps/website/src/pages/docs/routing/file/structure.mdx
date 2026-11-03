@@ -1,0 +1,68 @@
+import { Terminal } from "../../../../components/docs/terminal";
+import { Icon } from "../../../../components/icon";
+import { Badge } from "../../../../components/docs/badge";
+
+<header>
+# File-based Routing Structure
+
+If you are familiar with other common meta-frameworks such as NextJS, Astro, or SvelteKit, you will find setting up a `wrenjs` project intuitive and straightforward.
+
+When used cleverly, the file-based routing system can greatly simplify the organization and management of your application's routes and enable some really powerful patterns.
+
+</header>
+
+<section>
+## Conventions
+
+There are several special filenames and folder names that have specific meanings in the routing system.
+
+Unless specified, all files expect a `default` export for them to be used.
+
+Also, everything is technically optional - but below some items are noted as such just to be clear.
+
+<h3>Root Layout</h3>
+<h4>`{pages_root}/___root.tsx` <Badge>Optional</Badge></h4>
+The root layout is inherited by all routes and typically contains the overall HTML structure for the application.
+
+*Note that the root layout is optional* - you can omit it if you want to use a component for overall HTML structure elsewhere, or if you prefer instead to use a root `__layout.tsx` file for your main layout.
+
+Wren won't automatically provide wrapping `<html>` and `<body>` elements for your application, however, so you will need to include those somewhere (if you want them). Wren does provide a `<!DOCTYPE html>` declaration for you.
+
+<h3>Regular Layout</h3>
+<h4>`__layout.tsx` <Badge>Optional</Badge></h4>
+
+Layout files wrap the content of a route and are used to define shared structures.
+
+*Note that you don't necessarily need layout files* - if you desire, you may instead wrap your content with shared layout components to provide consistent structure across pages.
+
+<h3>Not Found Route</h3>
+<h4>`__not-found.tsx` <Badge>Optional</Badge></h4>
+The not found page is used to render a 404 page when a route is not matched. They can be nested within route groups / folders to provide specific 404 pages for different sections of the application.
+
+<h3>Route Groups</h3>
+<h4>`(group-name)/`</h4>
+Route groups are used to organize routes without affecting the URL structure. They are defined by wrapping folder names in parentheses.
+
+<h3>Dynamic Routes</h3>
+<h4>`[paramname].{ts,tsx}`</h4>
+Dynamic routes allow you to capture URL parameters. The parameter becomes available as a prop in the corresponding Page or API handler, as well as any nested layouts within the route.
+
+<h3>Catch-All Routes</h3>
+<h4>`[...paramname].{ts,tsx}`</h4>
+Catch-all routes allow you to capture all remaining URL segments. The parameter becomes available as a prop in the corresponding Page or API handler, as well as any nested layouts within the route.
+
+<h3>Route Proxies</h3>
+<h4>`__proxy.ts`</h4>
+Route proxies can be thought of as middleware. They run in order before any request reaches the corresponding Page or API handler.
+
+They can be used to perform tasks such as authentication, logging, or modifying the request/response before it reaches the main handler.
+
+<h3>Regular Routes</h3>
+<h4>`{filename}.{ts,tsx}`</h4>
+Regular routes are defined by creating files with the appropriate name and extension. The filename determines the URL path for the route.
+
+API Routes use the `.ts` convention, while `.tsx` imply that file is a Page Route. You don't necessarily need to follow this convention, however.
+
+Any page route's `default` export will be used to render the content for the route. `GET`, `POST`, and other HTTP method exports can be used to handle requests for API routes.
+
+</section>

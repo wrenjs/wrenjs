@@ -17,7 +17,9 @@ export default defineConfig({
 			{
 				apply: "build",
 				load(id) {
-					if (id === "\0uno-dist-chunk-entry") return "";
+					if (id === "\0uno-dist-chunk-entry") {
+						return "";
+					}
 					return undefined;
 				},
 				name: "uno-dist-chunk-entry",

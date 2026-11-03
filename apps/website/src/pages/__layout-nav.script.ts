@@ -57,39 +57,39 @@ class WrenNavMenu extends HTMLElement {
 		this.#panel = null;
 	}
 
-	#handleDesktop = (event: MediaQueryListEvent) => {
+	readonly #handleDesktop = (event: MediaQueryListEvent) => {
 		if (event.matches) {
 			this.open = false;
 		}
 	};
 
-	#handleFocusOut = (event: FocusEvent) => {
+	readonly #handleFocusOut = (event: FocusEvent) => {
 		const next = event.relatedTarget;
 		if (next instanceof Node && !this.contains(next)) {
 			this.open = false;
 		}
 	};
 
-	#handleKeydown = (event: KeyboardEvent) => {
+	readonly #handleKeydown = (event: KeyboardEvent) => {
 		if (event.key === "Escape") {
 			event.preventDefault();
 			this.open = false;
 		}
 	};
 
-	#handleOutsidePointer = (event: PointerEvent) => {
+	readonly #handleOutsidePointer = (event: PointerEvent) => {
 		if (!event.composedPath().includes(this)) {
 			this.open = false;
 		}
 	};
 
-	#handlePanelClick = (event: MouseEvent) => {
+	readonly #handlePanelClick = (event: MouseEvent) => {
 		if (event.target instanceof Element && event.target.closest("a[href], wren-link[href]")) {
 			this.open = false;
 		}
 	};
 
-	#handleToggle = () => {
+	readonly #handleToggle = () => {
 		if (this.open) {
 			this.open = false;
 			return;

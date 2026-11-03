@@ -57,7 +57,7 @@ export function Terminal({
 						{PACKAGE_MANAGERS.map((item) => (
 							<button
 								aria-selected={packageManager.value === item}
-								class={`:uno: cursor-pointer border-b-4 border-transparent px-3 py-2 font-mono text-sm text-gray-800 transition-colors hover:text-gray-900 [html[data-${LS_PKG_KEY.replaceAll(":", "\\:")}=${item}]_&]:border-b-blue`}
+								class={`:uno: cursor-pointer border-b-4 border-transparent px-3 py-2 font-mono text-sm text-gray-800 transition-colors hover:text-gray-900 [html[data-${LS_PKG_KEY.replaceAll(":", String.raw`\:`)}=${item}]_&]:border-b-blue`}
 								data-pm-tab={item}
 								key={item}
 								onClick={() => selectPackageManager(item)}
@@ -75,7 +75,7 @@ export function Terminal({
 				<div aria-live="polite" role="tabpanel">
 					{PACKAGE_MANAGERS.map((item) => (
 						<pre
-							class={`m-0 overflow-x-auto p-4 font-mono text-sm leading-6 hidden [html[data-${LS_PKG_KEY.replaceAll(":", "\\:")}=${item}]_&]:block`}
+							class={`m-0 overflow-x-auto p-4 font-mono text-sm leading-tight hidden [html[data-${LS_PKG_KEY.replaceAll(":", String.raw`\:`)}=${item}]_&]:block`}
 							data-active={packageManager.value === item}
 							data-pm-command={item}
 							key={item}
@@ -88,7 +88,9 @@ export function Terminal({
 
 			{kind === "file" && (
 				<div>
-					<pre class="m-0 overflow-x-auto p-4 font-mono text-sm leading-6">{parsedContents}</pre>
+					<pre class="m-0 overflow-x-auto p-4 font-mono text-sm leading-tight">
+						{parsedContents}
+					</pre>
 				</div>
 			)}
 
@@ -114,7 +116,7 @@ async function copyCommand(contents: string, packageManager: string, copied: any
 		setTimeout(() => {
 			copied.value = false;
 		}, 2000);
-	} catch (err) {
-		console.error("Failed to copy: ", err);
+	} catch (error) {
+		console.error("Failed to copy:", error);
 	}
 }

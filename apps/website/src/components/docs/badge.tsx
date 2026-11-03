@@ -1,4 +1,6 @@
-import { Glass, type GlassProps } from "../glass";
+import type { GlassProps } from "../glass";
+
+import { Glass } from "../glass";
 
 interface BadgeProps extends GlassProps {
 	size?: "md" | "sm";

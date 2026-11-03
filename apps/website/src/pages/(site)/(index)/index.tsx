@@ -27,7 +27,7 @@ export default function HomePage() {
 						<div class="md:contents hidden">
 							<PackageManagerSelect />
 						</div>
-						<CTA href="/docs">
+						<CTA href="/docs/getting-started">
 							Get Started
 							<Icon class=":uno: ml-2" name="i-lucide:arrow-right" />
 						</CTA>

@@ -10,21 +10,29 @@ interface MarkdownNode {
 	value?: string;
 }
 
-export const remarkHeadings = function (this: { parse(value: string): MarkdownNode }) {
+export const remarkHeadings = function remarkHeadings(this: {
+	parse(value: string): MarkdownNode;
+}) {
 	return (tree: MarkdownNode & { children: MarkdownNode[] }) => {
 		const ids = new Set(["docs-content"]);
 		const entries: { depth: Heading["depth"]; node: MarkdownNode }[] = [];
 		const headings: Heading[] = [];
 		visit(tree, (node) => {
 			const id = readAttribute(node, "id");
-			if (typeof id === "string") ids.add(id);
+			if (typeof id === "string") {
+				ids.add(id);
+			}
 			const depth =
 				node.type === "heading" ? node.depth : Number(node.name?.match(/^h([23])$/)?.[1]);
-			if (depth === 2 || depth === 3) entries.push({ depth, node });
+			if (depth === 2 || depth === 3) {
+				entries.push({ depth, node });
+			}
 		});
 		for (const { depth, node } of entries) {
 			const label = readText(node).replace(/\s+/g, " ").trim();
-			if (!label) continue;
+			if (!label) {
+				continue;
+			}
 			const existing = readAttribute(node, "id");
 			if (existing !== undefined && typeof existing !== "string") {
 				throw new Error(`Documentation heading "${label}" must use a static string ID`);
@@ -40,7 +48,9 @@ export const remarkHeadings = function (this: { parse(value: string): MarkdownNo
 						?.join("-") || "section";
 				id = slug;
 				let suffix = 1;
-				while (ids.has(id)) id = `${slug}-${suffix++}`;
+				while (ids.has(id)) {
+					id = `${slug}-${suffix++}`;
+				}
 			}
 			ids.add(id);
 			if (node.attributes) {
@@ -88,7 +98,9 @@ function readText(node: MarkdownNode): string {
 		return "";
 	}
 	if (node.type === "text" || node.type === "inlineCode") {
-		if (typeof node.value !== "string") throw new Error("MDX text node is missing its value");
+		if (typeof node.value !== "string") {
+			throw new Error("MDX text node is missing its value");
+		}
 		return node.value;
 	}
 	return node.children?.map(readText).join("") ?? "";
@@ -96,5 +108,7 @@ function readText(node: MarkdownNode): string {
 
 function visit(node: MarkdownNode, callback: (node: MarkdownNode) => void) {
 	callback(node);
-	for (const child of node.children ?? []) visit(child, callback);
+	for (const child of node.children ?? []) {
+		visit(child, callback);
+	}
 }

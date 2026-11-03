@@ -24,8 +24,8 @@ export default defineConfig({
 		...DOCS_NAV_LINKS.flatMap(({ links }) => links.map(({ icon }) => icon)),
 		...MAIN_NAV_LINKS.map(({ icon }) => icon),
 		...PACKAGE_MANAGERS.flatMap((item) => [
-			`[html[data-${LS_PKG_KEY.replaceAll(":", "\\:")}=${item}]_&]:block`,
-			`[html[data-${LS_PKG_KEY.replaceAll(":", "\\:")}=${item}]_&]:border-b-blue`,
+			`[html[data-${LS_PKG_KEY.replaceAll(":", String.raw`\:`)}=${item}]_&]:block`,
+			`[html[data-${LS_PKG_KEY.replaceAll(":", String.raw`\:`)}=${item}]_&]:border-b-blue`,
 		]),
 	],
 

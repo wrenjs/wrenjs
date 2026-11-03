@@ -1,5 +1,7 @@
 import "virtual:uno.css";
 import "./___root.css";
+import type { ComponentChildren } from "preact";
+
 import { LS_PKG_KEY, LS_THEME_KEY, PACKAGE_MANAGERS } from "#/constants";
 
 export const head = () => (
