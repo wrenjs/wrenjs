@@ -7,15 +7,15 @@
 export const config = { prerender: true };
 
 export default function AboutPage() {
-  return (
-    <main>
-      <h1>About</h1>
-      <p>This is a minimal RSC framework built with Vite + Elysia.</p>
-      <p>This page was statically prerendered at build time.</p>
-      <nav>
-        <a href="/">← Back Home</a>
-        <a href="/about/subpage">Go to subpage →</a>
-      </nav>
-    </main>
-  );
+	return (
+		<main>
+			<h1>About</h1>
+			<p>This is a minimal RSC framework built with Vite + Elysia.</p>
+			<p>This page was statically prerendered at build time.</p>
+			<nav>
+				<a href="/">← Back Home</a>
+				<a href="/about/subpage">Go to subpage →</a>
+			</nav>
+		</main>
+	);
 }

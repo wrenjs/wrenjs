@@ -1,14 +1,14 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact",
-    "paths": {
-      "react": ["${configDir}/node_modules/preact/compat/"],
-      "react-dom": ["${configDir}/node_modules/preact/compat/"],
-      "react-dom/*": ["${configDir}/node_modules/preact/compat/*"]
-    }
-  },
-  "extends": "@wren-js/core/tsconfig/base",
-  "files": ["../types.d.ts"]
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "preact",
+		"paths": {
+			"react": ["${configDir}/node_modules/preact/compat/"],
+			"react-dom": ["${configDir}/node_modules/preact/compat/"],
+			"react-dom/*": ["${configDir}/node_modules/preact/compat/*"]
+		}
+	},
+	"extends": "@wren-js/core/tsconfig/base",
+	"files": ["../types.d.ts"]
 }

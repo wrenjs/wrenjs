@@ -6,10 +6,10 @@
  * so you get: RootLayout > BlogLayout > Page
  */
 export default function TestLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ background: "blue", padding: "1rem" }}>
-      <h2>Test Layout</h2>
-      {children}
-    </div>
-  );
+	return (
+		<div style={{ background: "blue", padding: "1rem" }}>
+			<h2>Test Layout</h2>
+			{children}
+		</div>
+	);
 }

@@ -3,9 +3,9 @@
 import type { ReactNode } from "react";
 
 declare global {
-  namespace Wren {
-    interface Integration {
-      node: ReactNode;
-    }
-  }
+	namespace Wren {
+		interface Integration {
+			node: ReactNode;
+		}
+	}
 }

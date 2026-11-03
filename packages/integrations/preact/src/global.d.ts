@@ -3,10 +3,10 @@
 import type { ComponentChildren, VNode } from "preact";
 
 declare global {
-  namespace Wren {
-    interface Integration {
-      head: VNode;
-      node: ComponentChildren;
-    }
-  }
+	namespace Wren {
+		interface Integration {
+			head: VNode;
+			node: ComponentChildren;
+		}
+	}
 }

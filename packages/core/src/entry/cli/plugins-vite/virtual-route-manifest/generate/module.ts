@@ -1,53 +1,55 @@
 import { normalizePath } from "vite";
+
 import type { Entry } from "#/types.js";
+
 import type { generateRouteManifest } from "./index.ts";
 
 const code = (source: string) => ({ __wrenCode: source });
 
 export const generateRouteManifestModule = (
-  manifest: Awaited<ReturnType<typeof generateRouteManifest>>,
-  cacheModules: boolean,
+	manifest: Awaited<ReturnType<typeof generateRouteManifest>>,
+	cacheModules: boolean,
 ): string => {
-  const loaders = new Map<string, string>();
-  const loaderFor = (entry: Entry) => {
-    const file = normalizePath(entry.file);
-    let name = loaders.get(file);
-    if (!name) {
-      name = `load${loaders.size}`;
-      loaders.set(file, name);
-    }
-    return name;
-  };
-  const routes = JSON.stringify(manifest, (_key, entry: Entry | null) => {
-    if (!entry || typeof entry.file !== "string") return entry;
+	const loaders = new Map<string, string>();
+	const loaderFor = (entry: Entry) => {
+		const file = normalizePath(entry.file);
+		let name = loaders.get(file);
+		if (!name) {
+			name = `load${loaders.size}`;
+			loaders.set(file, name);
+		}
+		return name;
+	};
+	const routes = JSON.stringify(manifest, (_key, entry: Entry | null) => {
+		if (!entry || typeof entry.file !== "string") return entry;
 
-    const loader = loaderFor(entry);
-    const layouts = entry.layouts?.map(loaderFor);
-    const proxies = entry.proxies?.map(loaderFor);
-    // TODO: Ensure these params are actually used...
-    return {
-      kind: entry.kind,
-      layouts: layouts?.map(code),
-      module: code(loader),
-      params: entry.params,
-      pattern: entry.pattern,
-      proxies: proxies?.map(code),
-      stack: code(
-        `createStack(${loader}, [${layouts?.join(", ") ?? ""}], [${proxies?.join(", ") ?? ""}])`,
-      ),
-    };
-  }).replace(/\{"__wrenCode":"([^"]+)"\}/g, "$1");
+		const loader = loaderFor(entry);
+		const layouts = entry.layouts?.map(loaderFor);
+		const proxies = entry.proxies?.map(loaderFor);
+		// TODO: Ensure these params are actually used...
+		return {
+			kind: entry.kind,
+			layouts: layouts?.map(code),
+			module: code(loader),
+			params: entry.params,
+			pattern: entry.pattern,
+			proxies: proxies?.map(code),
+			stack: code(
+				`createStack(${loader}, [${layouts?.join(", ") ?? ""}], [${proxies?.join(", ") ?? ""}])`,
+			),
+		};
+	}).replace(/\{"__wrenCode":"([^"]+)"\}/g, "$1");
 
-  const declarations = [...loaders].map(([file, name]) => {
-    const load = `() => import(${JSON.stringify(file)})`;
-    const loader = cacheModules ? `memoize(${load})` : load;
-    return `const ${name} = ${loader};`;
-  });
+	const declarations = [...loaders].map(([file, name]) => {
+		const load = `() => import(${JSON.stringify(file)})`;
+		const loader = cacheModules ? `memoize(${load})` : load;
+		return `const ${name} = ${loader};`;
+	});
 
-  return `
+	return `
     ${
-      cacheModules
-        ? `function memoize(load) {
+			cacheModules
+				? `function memoize(load) {
             let pending;
             return () => {
               pending ??= load().catch((error) => {
@@ -57,8 +59,8 @@ export const generateRouteManifestModule = (
               return pending;
             };
           }`
-        : ""
-    }
+				: ""
+		}
     function createStack(load, layouts, proxies) {
       let resolved;
       return () =>

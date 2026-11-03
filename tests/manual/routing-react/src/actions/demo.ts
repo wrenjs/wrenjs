@@ -13,14 +13,14 @@
 let count = 0;
 
 export async function getServerCount() {
-  return count;
+	return count;
 }
 
 export async function getServerTime() {
-  return new Date().toISOString();
+	return new Date().toISOString();
 }
 
 export async function incrementCounter() {
-  count++;
-  return count;
+	count++;
+	return count;
 }

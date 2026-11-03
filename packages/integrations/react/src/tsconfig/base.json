@@ -1,8 +1,8 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "compilerOptions": {
-    "jsx": "react-jsx"
-  },
-  "extends": "@wren-js/core/tsconfig/base",
-  "files": ["../types.d.ts"]
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"jsx": "react-jsx"
+	},
+	"extends": "@wren-js/core/tsconfig/base",
+	"files": ["../types.d.ts"]
 }

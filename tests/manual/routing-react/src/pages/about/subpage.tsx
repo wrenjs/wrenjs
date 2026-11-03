@@ -7,12 +7,12 @@
 export const config = { prerender: true };
 
 export default function AboutPage() {
-  return (
-    <main>
-      <h1>About - Subpage</h1>
-      <nav>
-        <a href="/">← Back Home</a>
-      </nav>
-    </main>
-  );
+	return (
+		<main>
+			<h1>About - Subpage</h1>
+			<nav>
+				<a href="/">← Back Home</a>
+			</nav>
+		</main>
+	);
 }

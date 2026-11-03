@@ -1,162 +1,162 @@
 .root {
-  --docs-accent: color-mix(in oklch, var(--colors-blue) 70%, #173d83);
+	--docs-accent: color-mix(in oklch, var(--colors-blue) 70%, #173d83);
 }
 
 .root [hidden] {
-  display: none !important;
+	display: none !important;
 }
 
 .skipLink {
-  transform: translateY(calc(-100% - 1rem));
+	transform: translateY(calc(-100% - 1rem));
 }
 
 .skipLink:focus {
-  transform: none;
+	transform: none;
 }
 
 .navLink[aria-current="page"]::after {
-  content: "";
-  width: 0.35rem;
-  height: 0.35rem;
-  flex-shrink: 0;
-  margin-left: auto;
-  border-radius: 50%;
-  background: #00000099;
+	content: "";
+	width: 0.35rem;
+	height: 0.35rem;
+	flex-shrink: 0;
+	margin-left: auto;
+	border-radius: 50%;
+	background: #00000099;
 }
 
 .mobileBar {
-  background: color-mix(in srgb, var(--colors-bg) 94%, transparent);
+	background: color-mix(in srgb, var(--colors-bg) 94%, transparent);
 }
 
 .chevron {
-  transition: transform 150ms ease;
+	transition: transform 150ms ease;
 }
 
 .menu[open] .chevron {
-  transform: rotate(180deg);
+	transform: rotate(180deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .root *,
-  .root *::after {
-    transition: none;
-  }
+	.root *,
+	.root *::after {
+		transition: none;
+	}
 }
 
 .markdown {
-  i {
-    position: relative;
-    top: 0.125em;
-  }
+	i {
+		position: relative;
+		top: 0.125em;
+	}
 
-  section,
-  header {
-    padding: 2rem clamp(0.25rem, 3vw, 2rem);
-  }
+	section,
+	header {
+		padding: 2rem clamp(0.25rem, 3vw, 2rem);
+	}
 
-  section:first-child,
-  header:first-child {
-    padding-top: 0;
-  }
+	section:first-child,
+	header:first-child {
+		padding-top: 0;
+	}
 
-  section {
-    border-top: 1px solid #00000012;
-    border-radius: 1.5rem 1.5rem 0 0;
-  }
+	section {
+		border-top: 1px solid #00000012;
+		border-radius: 1.5rem 1.5rem 0 0;
+	}
 
-  section:nth-child(even) {
-    background-color: #ffffff85;
-  }
+	section:nth-child(even) {
+		background-color: #ffffff85;
+	}
 
-  a[href] {
-    color: color-mix(in srgb, var(--colors-blue) 80%, #0000ff 25%);
-  }
+	a[href] {
+		color: color-mix(in srgb, var(--colors-blue) 80%, #0000ff 25%);
+	}
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-serif);
-    line-height: 1;
-    font-weight: 600;
-  }
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: var(--font-serif);
+		line-height: 1;
+		font-weight: 600;
+	}
 
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-  }
+	h1 {
+		font-size: 2rem;
+		margin-bottom: 1rem;
+	}
 
-  h2 {
-    font-size: 1.5rem;
-    margin: 1rem 0;
-  }
+	h2 {
+		font-size: 1.5rem;
+		margin: 1rem 0;
+	}
 
-  h3 {
-    font-size: 1.25rem;
-    margin-bottom: 0.75rem;
-  }
+	h3 {
+		font-size: 1.25rem;
+		margin-bottom: 0.75rem;
+	}
 
-  ul {
-    list-style: disc;
-    padding-left: 1rem;
-    margin: 0.5rem 0;
+	ul {
+		list-style: disc;
+		padding-left: 1rem;
+		margin: 0.5rem 0;
 
-    li {
-      margin-bottom: 0.25rem;
+		li {
+			margin-bottom: 0.25rem;
 
-      ul {
-        list-style: circle;
-        padding-left: 1rem;
-      }
-    }
-  }
+			ul {
+				list-style: circle;
+				padding-left: 1rem;
+			}
+		}
+	}
 
-  p {
-    margin: 0.5rem 0;
-  }
+	p {
+		margin: 0.5rem 0;
+	}
 
-  code {
-    font-family: var(--font-mono);
-    padding: 0.125rem 0.25rem;
-    line-height: 1;
-  }
+	code {
+		font-family: var(--font-mono);
+		padding: 0.125rem 0.25rem;
+		line-height: 1;
+	}
 
-  pre > code {
-    padding: 0;
-  }
+	pre > code {
+		padding: 0;
+	}
 
-  pre {
-    max-width: 100%;
-    overflow-x: auto;
-  }
+	pre {
+		max-width: 100%;
+		overflow-x: auto;
+	}
 
-  [role="tablist"] {
-    min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: thin;
-  }
+	[role="tablist"] {
+		min-width: 0;
+		overflow-x: auto;
+		scrollbar-width: thin;
+	}
 
-  table {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-  }
+	table {
+		display: block;
+		max-width: 100%;
+		overflow-x: auto;
+	}
 
-  :global(.terminal ~ .terminal) {
-    margin-top: 1rem;
-  }
+	:global(.terminal ~ .terminal) {
+		margin-top: 1rem;
+	}
 
-  [id] {
-    scroll-margin-top: 6rem;
-  }
+	[id] {
+		scroll-margin-top: 6rem;
+	}
 
-  blockquote {
-    color: var(--colors-gray-700);
-    margin: 1rem 0;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    background-color: color-mix(in hsl, var(--colors-blue) 5%, transparent);
-  }
+	blockquote {
+		color: var(--colors-gray-700);
+		margin: 1rem 0;
+		padding: 1rem;
+		border-radius: 0.5rem;
+		background-color: color-mix(in hsl, var(--colors-blue) 5%, transparent);
+	}
 }

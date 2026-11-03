@@ -3,9 +3,9 @@
 import "@lumeland/ssx/jsx-runtime";
 
 declare global {
-  namespace Wren {
-    interface Integration {
-      node: JSX.Children;
-    }
-  }
+	namespace Wren {
+		interface Integration {
+			node: JSX.Children;
+		}
+	}
 }

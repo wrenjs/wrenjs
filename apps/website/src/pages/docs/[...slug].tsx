@@ -5,13 +5,13 @@ const docs = import.meta.glob<ComponentType>("./**/*.mdx", { eager: true, import
 const toSlug = (path: string) => path.slice("./".length, -".mdx".length);
 
 export default function DocsPage({ params }: { params: { slug: string } }) {
-  const Content = docs[`./${params.slug}.mdx`];
-  if (!Content) {
-    return <h1>Not Found</h1>;
-  }
-  return <Content />;
+	const Content = docs[`./${params.slug}.mdx`];
+	if (!Content) {
+		return <h1>Not Found</h1>;
+	}
+	return <Content />;
 }
 
 export function getStaticPaths() {
-  return Object.keys(docs).map((path) => `/docs/${toSlug(path)}`);
+	return Object.keys(docs).map((path) => `/docs/${toSlug(path)}`);
 }

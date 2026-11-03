@@ -11,36 +11,37 @@
  * callServer mechanism wired up in entry.client.tsx.
  */
 import { useState, useTransition } from "react";
+
 import { incrementCounter } from "../actions/demo.ts";
 
 interface CounterProps {
-  count?: number;
+	count?: number;
 }
 export function Counter(props: CounterProps) {
-  const [count, setCount] = useState(0);
-  const [serverCount, setServerCount] = useState(props.count);
-  const [isPending, startTransition] = useTransition();
+	const [count, setCount] = useState(0);
+	const [serverCount, setServerCount] = useState(props.count);
+	const [isPending, startTransition] = useTransition();
 
-  function handleLocalClick() {
-    setCount((c) => c + 1);
-  }
+	function handleLocalClick() {
+		setCount((c) => c + 1);
+	}
 
-  function handleServerClick() {
-    startTransition(async () => {
-      const result = await incrementCounter();
-      setServerCount(result);
-    });
-  }
+	function handleServerClick() {
+		startTransition(async () => {
+			const result = await incrementCounter();
+			setServerCount(result);
+		});
+	}
 
-  return (
-    <div>
-      <p>Client count: {count}</p>
-      <button onClick={handleLocalClick}>Increment (client)</button>
+	return (
+		<div>
+			<p>Client count: {count}</p>
+			<button onClick={handleLocalClick}>Increment (client)</button>
 
-      <p>
-        Server count: {serverCount ?? "—"} {isPending && "(loading...)"}
-      </p>
-      <button onClick={handleServerClick}>Increment (server action)</button>
-    </div>
-  );
+			<p>
+				Server count: {serverCount ?? "—"} {isPending && "(loading...)"}
+			</p>
+			<button onClick={handleServerClick}>Increment (server action)</button>
+		</div>
+	);
 }

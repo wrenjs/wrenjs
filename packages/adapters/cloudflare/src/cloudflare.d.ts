@@ -1,8 +1,8 @@
 declare namespace Cloudflare {
-  interface Env {}
+	interface Env {}
 }
 
 interface ExecutionContext {
-  passThroughOnException(): void;
-  waitUntil(promise: Promise<unknown>): void;
+	passThroughOnException(): void;
+	waitUntil(promise: Promise<unknown>): void;
 }

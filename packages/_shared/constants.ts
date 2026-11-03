@@ -37,26 +37,26 @@ export const WREN_RESPONSE = Symbol.for("wrenjs.response");
 export const RESPONSE_DIGEST = "wrenjs.response";
 
 export const HEADERS_HTML_RESPONSE = {
-  [CONTENT_TYPE]: `text/html;${UTF_8}`,
-  [X_CONTENT_TYPE_OPTIONS]: "nosniff",
+	[CONTENT_TYPE]: `text/html;${UTF_8}`,
+	[X_CONTENT_TYPE_OPTIONS]: "nosniff",
 } as const;
 
 export const HEADERS_TEXT_RESPONSE = {
-  [CONTENT_TYPE]: `text/plain;${UTF_8}`,
-  [X_CONTENT_TYPE_OPTIONS]: "nosniff",
+	[CONTENT_TYPE]: `text/plain;${UTF_8}`,
+	[X_CONTENT_TYPE_OPTIONS]: "nosniff",
 } as const;
 
 export const HEADERS_ACTION = {
-  [CACHE_CONTROL]: "no-store",
-  [CONTENT_TYPE]: FLIGHT_MIME_TYPE,
-  [VARY]: "Accept",
-  [X_CONTENT_TYPE_OPTIONS]: "nosniff",
+	[CACHE_CONTROL]: "no-store",
+	[CONTENT_TYPE]: FLIGHT_MIME_TYPE,
+	[VARY]: "Accept",
+	[X_CONTENT_TYPE_OPTIONS]: "nosniff",
 } as const;
 
 export const HEADERS_FLIGHT = {
-  [CONTENT_TYPE]: FLIGHT_MIME_TYPE,
-  [VARY]: "Accept",
-  [X_CONTENT_TYPE_OPTIONS]: "nosniff",
+	[CONTENT_TYPE]: FLIGHT_MIME_TYPE,
+	[VARY]: "Accept",
+	[X_CONTENT_TYPE_OPTIONS]: "nosniff",
 } as const;
 
 export const AsyncFunction = (async () => {}).constructor;
