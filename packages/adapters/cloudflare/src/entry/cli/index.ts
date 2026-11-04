@@ -3,7 +3,7 @@ import type { WrenAdapter } from "@wren-js/core/config";
 import type { Plugin } from "vite";
 
 import { cloudflare } from "@cloudflare/vite-plugin";
-import { appendFile } from "node:fs/promises";
+import { appendFile, readFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 
 import { CACHE_CONTROL, FLIGHT_URL_POSTFIX, HEADERS_FLIGHT } from "#shared/constants.ts";
@@ -30,6 +30,9 @@ declare global {
 
 const NAME = "wrenjs-adapter-cloudflare";
 const SERVER_ENTRY = "@wren-js/adapter-cloudflare/entry/server";
+const EDGE_CACHE = { "Cloudflare-CDN-Cache-Control": "max-age=31536000" };
+const EDGE_CACHE_RE = /cloudflare-cdn-cache-control/i;
+const CATCH_ALL_RE = /^[ \t]*\/\*[ \t]*$/m;
 
 const workerDefaults = ({ assets, main, upload_source_maps }: WorkerConfig) => {
 	const defaults: Partial<WorkerConfig> = {};
@@ -68,22 +71,32 @@ const pluginWorker = (entry: string, name: string, childEnvironments: string[]):
 const formatRule = ([pattern, headers]: [string, Readonly<Record<string, string>>]) =>
 	[pattern, ...Object.entries(headers).map(([name, value]) => `  ${name}: ${value}`)].join("\n");
 
-const pluginHeaders = (headers?: HeaderRules): Plugin => ({
+const pluginHeaders = (headers: HeaderRules = {}, edgeCache = () => false): Plugin => ({
 	buildApp: {
-		async handler({ environments: { client } }) {
+		async handler({ config: { logger }, environments: { client } }) {
 			const { base, build, root } = client.config;
 			const prefix = base.startsWith("/") ? base : "/";
-			const rules = Object.entries({
+			const file = resolve(root, build.outDir, "_headers");
+			const rules: Record<string, Readonly<Record<string, string>>> = {
 				[`${prefix}${build.assetsDir}/*`]: {
 					[CACHE_CONTROL]: "public, max-age=31536000, immutable",
 				},
 				[`${prefix}*${FLIGHT_URL_POSTFIX}`]: HEADERS_FLIGHT,
 				...headers,
-			});
-			await appendFile(
-				resolve(root, build.outDir, "_headers"),
-				`\n${rules.map(formatRule).join("\n\n")}\n`,
-			);
+			};
+			if (edgeCache()) {
+				const existing = await readFile(file, "utf8").catch(() => "");
+				if (!EDGE_CACHE_RE.test(existing + JSON.stringify(headers))) {
+					if ("/*" in rules || !CATCH_ALL_RE.test(existing)) {
+						rules["/*"] = { ...rules["/*"], ...EDGE_CACHE };
+					} else {
+						logger.warn(
+							`[wrenjs] Static files won't be edge-cached: _headers already has a "/*" rule, and adding another would replace it. Add this to that rule instead:\n${formatRule(["/*", EDGE_CACHE])}`,
+						);
+					}
+				}
+			}
+			await appendFile(file, `\n${Object.entries(rules).map(formatRule).join("\n\n")}\n`);
 		},
 		order: "post",
 	},
@@ -103,20 +116,27 @@ const wrenAdapterCloudflare = ({
 		}
 		const customize = plugin.config;
 		const childEnvironments: string[] = [];
+		let edgeCache = false;
 		return {
 			environments: { [server.environment]: { optimizeDeps: { exclude: [SERVER_ENTRY] } } },
 			plugins: [
 				pluginWorker(server.entry, server.environment, childEnvironments),
 				cloudflare({
 					...plugin,
-					config: (worker) =>
-						Object.assign(
+					config: (worker) => {
+						const overrides = Object.assign(
 							workerDefaults(worker),
 							typeof customize === "function" ? customize(worker) : customize,
-						),
+						);
+						const { cache } = overrides;
+						edgeCache =
+							(cache?.enabled ?? worker.cache?.enabled) === true
+							&& !(cache?.cross_version_cache ?? worker.cache?.cross_version_cache);
+						return overrides;
+					},
 					viteEnvironment: { childEnvironments, name: server.environment },
 				}),
-				pluginHeaders(headers),
+				pluginHeaders(headers, () => edgeCache),
 			],
 		};
 	},
