@@ -10,6 +10,7 @@ export function defineConfig(config: WrenConfig = {}) {
 
 export const DEFAULTS: WrenConfig = {
 	build: {
+		hashFileNames: true,
 		output: "server",
 	},
 	router: "src/pages",

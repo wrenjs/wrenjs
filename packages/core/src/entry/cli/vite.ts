@@ -5,6 +5,7 @@ import type { WrenConfig } from "#/entry/config/types.js";
 import { WREN_NAME } from "#/constants.ts";
 
 import { pluginServerEnv } from "./plugins-vite/env/vite.ts";
+import { pluginHashFileNames } from "./plugins-vite/hash-file-names/vite.ts";
 import { pluginOptimizeDeps } from "./plugins-vite/optimize-deps/vite.ts";
 import { pluginPageScripts } from "./plugins-vite/page-scripts/vite.ts";
 import { pluginPrerenderRoutes } from "./plugins-vite/prerender/vite.ts";
@@ -60,6 +61,7 @@ export const getViteConfig = async (env: ConfigEnv, config: WrenConfig) => {
 			pluginOptimizeDeps(config.router!),
 			pluginServerEnv(),
 			pluginPrerenderRoutes(config),
+			config.build?.hashFileNames && pluginHashFileNames(),
 		],
 		resolve: {
 			// Framework runtimes import virtual modules that Node cannot resolve.

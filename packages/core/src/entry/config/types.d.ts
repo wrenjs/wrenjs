@@ -22,6 +22,8 @@ export interface WrenConfig {
 	 * Configuration options related to the build output.
 	 */
 	build?: {
+		hashFileNames?: boolean;
+
 		/**
 		 * If client CSS assets should be inlined into the per-route HTML for prerendered output.
 		 *
