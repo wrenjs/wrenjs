@@ -19,6 +19,24 @@ const STRATEGIES = new Set<string>(["idle", "load", "visible"]);
 const isStrategy = (value: unknown): value is HydrateStrategy =>
 	typeof value === "string" && STRATEGIES.has(value);
 
+const ISLAND_RE = /<wren-island(?=[\s/>])((?:[^>"']|"[^"]*"|'[^']*')*)>/g;
+const ATTRIBUTE_RE = /([^\s"'/=>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'))?/g;
+
+export const eagerIslandSources = (html: string): string[] => {
+	const sources: string[] = [];
+	if (!html.includes("<wren-island")) return sources;
+	for (const [, attributes = ""] of html.matchAll(ISLAND_RE)) {
+		let src: string | undefined;
+		let hydrate: string | undefined;
+		for (const [, name, double, single] of attributes.matchAll(ATTRIBUTE_RE)) {
+			if (name === "src") src = double ?? single;
+			else if (name === HYDRATE_ATTRIBUTE) hydrate = double ?? single;
+		}
+		if (src && hydrate !== "visible" && hydrate !== "idle") sources.push(src);
+	}
+	return sources;
+};
+
 const isPlain = (value: object) => {
 	const prototype: unknown = Object.getPrototypeOf(value);
 	return prototype === Object.prototype || prototype === null;

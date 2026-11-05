@@ -20,6 +20,7 @@ import type { PageScript } from "./extract.ts";
 import { extractPageScripts } from "./extract.ts";
 
 const VIRTUAL_ID = `virtual:${WREN_NAME}-page-scripts`;
+const RESOLVED_ID = `\0${VIRTUAL_ID}`;
 const IMPORT_NAME = "__wrenPageScripts";
 const ROUTE_PREFIX = `${VIRTUAL_ID}:route:`;
 const RESOLVED_ROUTE_PREFIX = `\0${ROUTE_PREFIX}`;
@@ -30,6 +31,8 @@ const SCRIPT_URL_ID = `\0${PAGE_SCRIPT_URL_PREFIX}`;
 
 interface ScriptTarget {
 	id: string;
+
+	imports?: string[];
 
 	key: string;
 	name: string;
@@ -64,6 +67,20 @@ const resolveTarget = async (
 		return undefined;
 	}
 	return { id: resolved.id, name: stem(resolved.id) };
+};
+
+const staticImports = (bundle: Rolldown.OutputBundle, fileName: string) => {
+	const files = new Set([fileName]);
+	for (const file of files) {
+		const chunk = bundle[file];
+		if (chunk?.type === "chunk") {
+			for (const next of chunk.imports) {
+				files.add(next);
+			}
+		}
+	}
+	files.delete(fileName);
+	return [...files].filter((file) => file in bundle);
 };
 
 const loadInline = async (context: Rolldown.PluginContext, file: string, index: number) => {
@@ -189,7 +206,11 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 						`[${WREN_NAME}] Page scripts were not bundled by the client environment (server environments must build first): ${missing.join(", ")}`,
 					);
 				}
+				const preload = builder.environments.client?.config.build.modulePreload !== false;
 				const manifest = {
+					...(preload && {
+						imports: sortedRecord(targets.map((target) => [target.url!, target.imports ?? []])),
+					}),
 					routes: sortedRecord(
 						Array.from(routes, ([id, key]) => [
 							key,
@@ -223,16 +244,18 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 			}
 		},
 
-		buildStart() {
+		async buildStart({ input }) {
 			const { mode, name } = this.environment;
 			if (mode !== "build" || name !== "client") {
 				return;
 			}
+			const entries = Object.entries(Array.isArray(input) ? {} : input);
+			const resolved = await Promise.all(entries.map(([, source]) => this.resolve(source)));
+			const inputNames = new Map(entries.map(([inputName], i) => [resolved[i]?.id, inputName]));
 			for (const target of registry.values()) {
 				target.reference = this.emitFile({
 					id: target.id,
-
-					name: `scripts/${target.name}`,
+					name: inputNames.get(target.id) ?? `scripts/${target.name}`,
 					preserveSignature: "exports-only",
 					type: "chunk",
 				});
@@ -249,14 +272,16 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 
 		enforce: "pre",
 
-		generateBundle() {
+		generateBundle(_, bundle) {
 			if (this.environment.name !== "client") {
 				return;
 			}
 			const { base } = this.environment.config;
 			for (const target of registry.values()) {
 				if (target.reference) {
-					target.url = base + this.getFileName(target.reference);
+					const fileName = this.getFileName(target.reference);
+					target.url = base + fileName;
+					target.imports = staticImports(bundle, fileName).map((file) => base + file);
 				}
 			}
 		},
@@ -278,12 +303,16 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 					new RegExp(`^${SCRIPT_URL_ID}`),
 					new RegExp(`^${RESOLVED_ROUTE_PREFIX}`),
 					new RegExp(`^${HOISTED_ID}$`),
+					new RegExp(`^${RESOLVED_ID}$`),
 				],
 			},
 			async handler(id) {
 				const { config, mode } = this.environment;
 				if (id === HOISTED_ID) {
 					return "export {};";
+				}
+				if (id === RESOLVED_ID) {
+					return "export default { routes: {}, scripts: {} };";
 				}
 				if (id.startsWith(SCRIPT_URL_ID)) {
 					const file = id.slice(SCRIPT_URL_ID.length);
@@ -341,7 +370,10 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 					return `\0${source}`;
 				}
 
-				return source === VIRTUAL_ID ? { external: true, id: source } : null;
+				if (source !== VIRTUAL_ID) {
+					return null;
+				}
+				return this.environment.mode === "build" ? { external: true, id: source } : RESOLVED_ID;
 			},
 		},
 

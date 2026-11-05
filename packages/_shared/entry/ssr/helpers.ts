@@ -8,8 +8,10 @@ import type {
 import type { RequestInput } from "virtual:wrenjs-fetch";
 
 import { ENTRY_API_EXPORTS } from "@wren-js/core/constants";
+import scriptManifest from "virtual:wrenjs-page-scripts";
 
 import { EXPORT_CSS, EXPORT_SCRIPTS } from "../../constants.ts";
+import { eagerIslandSources } from "./islands.ts";
 import { catchResponse, methodNotAllowed } from "./response.ts";
 
 export const getRequest = (request: RequestInput): Request =>
@@ -78,7 +80,7 @@ const collectUrls = <K extends string>(
 	return Promise.all(pending).then((resolved) => dedupe([...lists, ...resolved]));
 };
 
-const joinTags = (urls: string[], tag: (url: string) => string): string => {
+const joinTags = (urls: Iterable<string>, tag: (url: string) => string): string => {
 	let markup = "";
 	for (const url of urls) markup += tag(url);
 	return markup;
@@ -94,7 +96,28 @@ const renderUrls = <K extends string>(
 };
 
 const stylesheetTag = (href: string) => `<link rel="stylesheet" href="${href}">`;
+const modulePreloadTag = (href: string) => `<link rel="modulepreload" href="${href}">`;
 const pageScriptTag = (src: string) => `<script type="module" src="${src}"></script>`;
+
+export const collectModulePreloads = (scripts: readonly string[]): string[] => {
+	const { imports } = scriptManifest;
+	if (!imports) return [];
+	const preloads = new Set(scripts.flatMap((script) => imports[script] ?? []));
+	for (const script of scripts) preloads.delete(script);
+	return [...preloads];
+};
+
+export const renderIslandPreloads = (html: string, requested: ReadonlySet<string>): string => {
+	const { imports } = scriptManifest;
+	if (!imports) return "";
+	const preloads = new Set<string>();
+	for (const src of eagerIslandSources(html)) {
+		const deps = imports[src];
+		if (!deps) continue;
+		for (const url of [src, ...deps]) if (!requested.has(url)) preloads.add(url);
+	}
+	return joinTags(preloads, modulePreloadTag);
+};
 
 export const renderStylesheets = (
 	modules: UrlExport<typeof EXPORT_CSS>[],
@@ -104,19 +127,32 @@ export const renderPageScripts = (
 	modules: UrlExport<typeof EXPORT_SCRIPTS>[],
 ): Promise<string> | string => renderUrls(modules, EXPORT_SCRIPTS, pageScriptTag);
 
-export const renderAssetTags = (
-	modules: (UrlExport<typeof EXPORT_CSS> & UrlExport<typeof EXPORT_SCRIPTS>)[],
-): Promise<string> | string => {
-	const stylesheets = renderStylesheets(modules);
-	const scripts = renderPageScripts(modules);
-	return typeof stylesheets === "string" && typeof scripts === "string"
-		? stylesheets + scripts
-		: Promise.all([stylesheets, scripts]).then(([links, tags]) => links + tags);
-};
-
 export const collectPageScripts = (
 	modules: UrlExport<typeof EXPORT_SCRIPTS>[],
 ): Promise<string[]> | string[] => collectUrls(modules, EXPORT_SCRIPTS);
+
+export interface AssetTags {
+	requested: ReadonlySet<string>;
+	tags: string;
+}
+
+const assetTags = (stylesheets: string, scripts: string[]): AssetTags => {
+	const preloads = collectModulePreloads(scripts);
+	return {
+		requested: new Set([...scripts, ...preloads]),
+		tags: stylesheets + joinTags(preloads, modulePreloadTag) + joinTags(scripts, pageScriptTag),
+	};
+};
+
+export const renderAssetTags = (
+	modules: (UrlExport<typeof EXPORT_CSS> & UrlExport<typeof EXPORT_SCRIPTS>)[],
+): AssetTags | Promise<AssetTags> => {
+	const stylesheets = renderStylesheets(modules);
+	const scripts = collectPageScripts(modules);
+	return typeof stylesheets === "string" && Array.isArray(scripts)
+		? assetTags(stylesheets, scripts)
+		: Promise.all([stylesheets, scripts]).then(([links, urls]) => assetTags(links, urls));
+};
 
 const DOCTYPE = "<!DOCTYPE html>";
 const DOCTYPE_RE = /^\s*<!doctype\s+html\s*>/i;

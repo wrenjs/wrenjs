@@ -1,16 +1,26 @@
+import type { ReactNode } from "react";
+
 import { createFromReadableStream } from "@vitejs/plugin-rsc/react/ssr";
 import { getClientEntryUrl } from "@vitejs/plugin-rsc/ssr";
+import { preloadModule } from "react-dom";
 import { renderToReadableStream } from "react-dom/server";
 
 import { WINDOW_KEY_HYDRATE } from "#shared/constants.ts";
 
 import { injectRSCPayload } from "./rsc-html-stream.ts";
 
+const ModulePreloads = ({ children, hrefs }: { children: ReactNode; hrefs: string[] }) => {
+	for (const href of hrefs) preloadModule(href);
+	return children;
+};
+
 export async function renderToHtml(
 	rscStream: ReadableStream<Uint8Array>,
 	options: {
 		hydrate?: boolean;
 		onError?: (error: unknown) => void;
+
+		preloads?: string[];
 
 		scripts?: (() => Promise<string> | string) | string[];
 	} = {},
@@ -24,15 +34,19 @@ export async function renderToHtml(
 		hydrate
 			? `self.${WINDOW_KEY_HYDRATE}=${JSON.stringify(mode)};import(${JSON.stringify(getClientEntryUrl())})`
 			: undefined;
-	const { scripts } = options;
+	const { preloads, scripts } = options;
 	const bootstrapModules = Array.isArray(scripts) && scripts.length > 0 ? scripts : undefined;
 	let htmlStream: ReadableStream<Uint8Array>;
 	try {
-		htmlStream = await renderToReadableStream(createFromReadableStream(stream1), {
-			bootstrapModules,
-			bootstrapScriptContent: bootstrap("hydrate"),
-			onError: options.onError,
-		});
+		const root: ReactNode = createFromReadableStream(stream1);
+		htmlStream = await renderToReadableStream(
+			preloads?.length ? <ModulePreloads hrefs={preloads}>{root}</ModulePreloads> : root,
+			{
+				bootstrapModules,
+				bootstrapScriptContent: bootstrap("hydrate"),
+				onError: options.onError,
+			},
+		);
 	} catch {
 		htmlStream = await renderToReadableStream(
 			<html>

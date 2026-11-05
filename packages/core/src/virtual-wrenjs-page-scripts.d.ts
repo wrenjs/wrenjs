@@ -1,5 +1,9 @@
 declare module "virtual:wrenjs-page-scripts" {
-	const manifest: { routes: Record<string, string[]>; scripts: Record<string, string> };
+	const manifest: {
+		imports?: Record<string, string[]>;
+		routes: Record<string, string[]>;
+		scripts: Record<string, string>;
+	};
 	export default manifest;
 }
 

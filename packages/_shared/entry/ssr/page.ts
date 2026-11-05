@@ -3,6 +3,7 @@ import type { RequestInput } from "virtual:wrenjs-fetch";
 import { ENTRY_KIND_API, ENTRY_KIND_NOT_FOUND, ENTRY_KIND_PAGE } from "@wren-js/core/constants";
 
 import type { IntegrationRouteStack, LayoutProps, PageProps } from "../../types.ts";
+import type { AssetTags } from "./helpers.ts";
 import type { RequestToStackMap } from "./request-to-stack.ts";
 
 import { HEADERS_FLIGHT, HEADERS_HTML_RESPONSE } from "../../constants.ts";
@@ -11,6 +12,7 @@ import {
 	injectIntoHead,
 	loadRouteData,
 	renderAssetTags,
+	renderIslandPreloads,
 	withRequest,
 } from "./helpers.ts";
 import { catchResponse, WrenResponse } from "./response.ts";
@@ -111,20 +113,17 @@ export const loadRouteHead = <TElement>(
 
 // Builds resolve each route's stylesheets and page scripts statically, so their tags are
 // rendered once per route instead of on every request.
-const assetTagsCache = new WeakMap<object, string>();
+const assetTagsCache = new WeakMap<object, AssetTags>();
 const routeAssetTags = (
 	module: object,
 	modules: Parameters<typeof renderAssetTags>[0],
-): Promise<string> | string => {
+): AssetTags | Promise<AssetTags> => {
 	if (import.meta.env.DEV) return renderAssetTags(modules);
-	let tags = assetTagsCache.get(module);
-	if (tags === undefined) {
-		const rendered = renderAssetTags(modules);
-		if (typeof rendered !== "string") return rendered;
-		tags = rendered;
-		assetTagsCache.set(module, tags);
-	}
-	return tags;
+	const cached = assetTagsCache.get(module);
+	if (cached) return cached;
+	const assets = renderAssetTags(modules);
+	if (!(assets instanceof Promise)) assetTagsCache.set(module, assets);
+	return assets;
 };
 
 export const createPageRenderer =
@@ -140,7 +139,7 @@ export const createPageRenderer =
 			routeHead === undefined ? "" : Promise.resolve(routeHead).then(renderHead),
 			routeAssetTags(page.module, page.modules),
 		]);
-		return [html, head + assets] as const;
+		return [html, head + assets.tags + renderIslandPreloads(html, assets.requested)] as const;
 	};
 
 export const createPageHandlers = <TStack extends IntegrationRouteStack>(

@@ -1,4 +1,5 @@
 const STYLESHEETS = 'link[rel="stylesheet"]';
+const MODULE_PRELOADS = 'link[rel="modulepreload"]';
 const TIMESTAMP_RE = /[?&]t=\d{13}$/;
 
 const whenLoaded = (link: HTMLLinkElement) =>
@@ -14,9 +15,9 @@ const syncAttributes = (target: Element, source: Element) => {
 	for (const { name, value } of source.attributes) target.setAttribute(name, value);
 };
 
-const stylesheets = ({ head }: Document) =>
+const links = ({ head }: Document, selector: string) =>
 	new Map<string, Element>(
-		Array.from(head.querySelectorAll<HTMLLinkElement>(STYLESHEETS), (link) => [
+		Array.from(head.querySelectorAll<HTMLLinkElement>(selector), (link) => [
 			import.meta.env.DEV ? link.href.replace(TIMESTAMP_RE, "") : link.href,
 			link,
 		]),
@@ -54,15 +55,20 @@ export const renderDocument = async (response: Response, signal: AbortSignal): P
 	const next = new DOMParser().parseFromString(await response.text(), "text/html");
 	signal.throwIfAborted();
 
-	const current = stylesheets(document);
+	const preloaded = links(document, MODULE_PRELOADS);
+	const preloads = links(next, MODULE_PRELOADS);
+	for (const [href, link] of preloads) if (!preloaded.has(href)) document.head.append(link);
+
+	const current = links(document, STYLESHEETS);
 	for (const style of document.head.querySelectorAll<HTMLStyleElement>("style[data-href]")) {
 		current.set(new URL(style.dataset.href!, document.baseURI).href, style);
 	}
-	const wanted = stylesheets(next);
+	const wanted = links(next, STYLESHEETS);
 	await Promise.all(Array.from(wanted, ([href, link]) => syncStylesheet(link, current.get(href))));
 	signal.throwIfAborted();
 
 	for (const [href, link] of current) if (!wanted.has(href)) link.remove();
+	for (const [href, link] of preloaded) if (!preloads.has(href)) link.remove();
 	document.title = next.title;
 	for (const meta of document.head.querySelectorAll("meta")) meta.remove();
 	document.head.prepend(...next.head.querySelectorAll("meta"));

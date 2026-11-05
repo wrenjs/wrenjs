@@ -21,6 +21,7 @@ import {
 	RESPONSE_DIGEST,
 } from "#shared/constants.ts";
 import {
+	collectModulePreloads,
 	collectPageScripts,
 	getRequest,
 	handlerApi,
@@ -53,7 +54,7 @@ export const getSsrEntry = (): Promise<SsrEntry> => {
 	return ssrEntry;
 };
 
-const routeHtmlCache = new WeakMap<object, Pick<HtmlOptions, "hydrate" | "scripts">>();
+const routeHtmlCache = new WeakMap<object, Pick<HtmlOptions, "hydrate" | "preloads" | "scripts">>();
 
 export const htmlOptions = (
 	matchedEntry: ReactRouteStack,
@@ -72,7 +73,11 @@ export const htmlOptions = (
 		const scripts = collectPageScripts([matchedEntry.module, ...(matchedEntry.layouts ?? [])]);
 		if (!Array.isArray(scripts))
 			throw new TypeError("[wrenjs] Page scripts must be static in builds.");
-		route = { hydrate: needsHydration(matchedEntry), scripts };
+		route = {
+			hydrate: needsHydration(matchedEntry),
+			preloads: collectModulePreloads(scripts),
+			scripts,
+		};
 		routeHtmlCache.set(matchedEntry.module, route);
 	}
 	return { ...route, onError };
