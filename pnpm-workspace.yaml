@@ -7,8 +7,8 @@ catalog:
   "@slowpoketail/oxc": "1.8.0"
   "czg": "^1.14.0"
   "typescript": "7.0.2"
-  "vite": "npm:@voidzero-dev/vite-plus-core@1.4.0"
-  "vite-plus": "1.4.0"
+  "vite": "npm:@voidzero-dev/vite-plus-core@1.5.0"
+  "vite-plus": "1.5.0"
 
 catalogs:
   adapter-cloudflare:
@@ -37,7 +37,7 @@ catalogs:
     "@vitejs/plugin-rsc": "0.5.38"
     react-dom: "19.3.1"
     react: "19.3.1"
-    oxc-transform-react: "0.156.0"
+    oxc-transform-react: "0.157.0"
   integration-peers-react:
     "react": "^19.3.1"
     "react-dom": "^19.3.1"
@@ -70,3 +70,15 @@ peerDependencyRules:
     "@wren-js/core": "*"
 
 publishBranch: trunk
+
+minimumReleaseAgeExclude:
+  - "@voidzero-dev/vite-plus-core@1.5.0"
+  - "@voidzero-dev/vite-plus-darwin-arm64@1.5.0"
+  - "@voidzero-dev/vite-plus-darwin-x64@1.5.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-gnu@1.5.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-musl@1.5.0"
+  - "@voidzero-dev/vite-plus-linux-x64-gnu@1.5.0"
+  - "@voidzero-dev/vite-plus-linux-x64-musl@1.5.0"
+  - "@voidzero-dev/vite-plus-win32-arm64-msvc@1.5.0"
+  - "@voidzero-dev/vite-plus-win32-x64-msvc@1.5.0"
+  - vite-plus@1.5.0
