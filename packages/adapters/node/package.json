@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/adapter-node",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "description": "Node adapter for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -57,6 +57,7 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@wren-js/core": "workspace:*",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {

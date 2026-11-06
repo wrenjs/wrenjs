@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/react",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "description": "React rendering integration for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -72,6 +72,7 @@
     "@types/react-dom": "catalog:integration-react",
     "@wren-js/core": "workspace:*",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {

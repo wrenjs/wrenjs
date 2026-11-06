@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/preact",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "description": "Preact rendering integration for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -70,6 +70,7 @@
     "@wren-js/core": "workspace:*",
     "preact": "catalog:integration-preact",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/ssx",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "description": "SSX rendering integration for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -64,6 +64,7 @@
     "@lumeland/ssx": "catalog:integration-ssx",
     "@wren-js/core": "workspace:*",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {

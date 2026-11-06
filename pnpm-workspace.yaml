@@ -45,14 +45,14 @@ catalogs:
     "react-dom": "^19.3.1"
 
   runtime:
-    "vite": "8.3.5"
+    "vite": "8.3.6"
 
 catalogMode: prefer
 
 overrides:
   "react-dom@*": "catalog:integration-react"
   "react@*": "catalog:integration-react"
-  "vite": "catalog:"
+  vite: "catalog:"
 
 packages:
   - apps/*

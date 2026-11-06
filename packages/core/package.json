@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/core",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "description": "Framework agnostic utilities for the wrenjs meta-framework",
   "keywords": [
     "@wren-js/core",
@@ -73,6 +73,7 @@
   },
   "devDependencies": {
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   }
 }

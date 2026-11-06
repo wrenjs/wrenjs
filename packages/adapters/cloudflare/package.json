@@ -1,6 +1,6 @@
 {
   "name": "@wren-js/adapter-cloudflare",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "description": "Cloudflare Workers adapter for wrenjs",
   "keywords": [
     "@wren-js/core",
@@ -62,6 +62,7 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@wren-js/core": "workspace:*",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
