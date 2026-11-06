@@ -1,32 +1,32 @@
 {
-	"name": "#monorepo/wrenjs",
-	"type": "module",
-	"scripts": {
-		"build": "vpr pkg",
-		"check": "vp check --fix",
-		"czg": "czg",
-		"pkg": "vpr --filter '...@wren-js/core' --filter '!#*/*' build",
-		"prepare": "vp config",
-		"publish": "vpr --filter '...@wren-js/core' --filter '!#*/*' publish"
-	},
-	"devDependencies": {
-		"@slowpoketail/oxc": "catalog:",
-		"@wren-js/core": "workspace:*",
-		"czg": "catalog:",
-		"typescript": "catalog:",
-		"vite": "catalog:",
-		"vite-plus": "catalog:"
-	},
-	"devEngines": {
-		"packageManager": {
-			"name": "pnpm",
-			"version": "12.16.1",
-			"onFail": "download"
-		},
-		"runtime": {
-			"name": "node",
-			"version": "^26.13.0",
-			"onFail": "download"
-		}
-	}
+  "name": "#monorepo/wrenjs",
+  "type": "module",
+  "scripts": {
+    "build": "vpr pkg",
+    "check": "vp check --fix",
+    "czg": "czg",
+    "pkg": "vpr --filter '...@wren-js/core' --filter '!#*/*' build",
+    "prepare": "vp config",
+    "publish": "vpr --filter '...@wren-js/core' --filter '!#*/*' publish"
+  },
+  "devDependencies": {
+    "@slowpoketail/oxc": "catalog:",
+    "@wren-js/core": "workspace:*",
+    "czg": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.18.0",
+      "onFail": "download"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "^26.13.0",
+      "onFail": "download"
+    }
+  }
 }
