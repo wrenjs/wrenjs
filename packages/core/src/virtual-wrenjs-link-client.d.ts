@@ -1,5 +1,5 @@
 declare module "virtual:wrenjs-link-client" {
-	export const kind: "document" | "flight" | "native";
+	export const kind: "document" | "flight";
 	export function render(response: Response, signal: AbortSignal): Promise<void>;
 }
 

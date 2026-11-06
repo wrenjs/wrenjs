@@ -12,10 +12,12 @@ const CLIENT_ID = `\0${LINK_CLIENT_MODULE}`;
 
 export const pluginWrenLink = (options: {
 	clientEntry: string;
-	kind: "document" | "flight" | "native";
+	kind: "document" | "flight";
 }): Plugin => ({
 	async buildStart() {
-		if (this.environment.config.consumer !== "server") return;
+		if (this.environment.config.consumer !== "server") {
+			return;
+		}
 		await preloadModule(this, LINK_SCRIPT_MODULE);
 	},
 	enforce: "pre",
@@ -36,7 +38,9 @@ export const pluginWrenLink = (options: {
 	resolveId: {
 		filter: { id: new RegExp(`^(?:${LINK_CLIENT_MODULE}|${LINK_SCRIPT_MODULE})$`) },
 		async handler(source) {
-			if (source === LINK_CLIENT_MODULE) return CLIENT_ID;
+			if (source === LINK_CLIENT_MODULE) {
+				return CLIENT_ID;
+			}
 			const resolved = await this.resolve(SCRIPT_IMPORT);
 			if (!resolved || resolved.external) {
 				return this.error("Unable to resolve Wren Link's browser entry.");
