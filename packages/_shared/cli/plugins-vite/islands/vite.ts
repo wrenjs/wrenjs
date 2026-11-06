@@ -33,7 +33,9 @@ export const pluginWrenIslands = (options: {
 	const implIds = new Set<string>();
 	return {
 		async buildStart() {
-			if (this.environment.config.consumer !== "server") return;
+			if (this.environment.config.consumer !== "server") {
+				return;
+			}
 			await preloadModule(this, ISLAND_SCRIPT_MODULE);
 		},
 		configEnvironment: () => ({ optimizeDeps: { exclude: [options.wrapperImport] } }),
@@ -41,7 +43,9 @@ export const pluginWrenIslands = (options: {
 		load: {
 			filter: { id: IMPL_RE },
 			handler(id) {
-				if (this.environment.config.consumer !== "server" || !implIds.has(id)) return null;
+				if (this.environment.config.consumer !== "server" || !implIds.has(id)) {
+					return null;
+				}
 				return readFile(id.slice(0, id.indexOf(IMPL_QUERY)), "utf8");
 			},
 		},
@@ -61,9 +65,13 @@ export const pluginWrenIslands = (options: {
 				id: { exclude: [IMPL_RE, /\/node_modules\//], include: SOURCE_RE },
 			},
 			handler(code, id) {
-				if (this.environment.config.consumer !== "server") return null;
+				if (this.environment.config.consumer !== "server") {
+					return null;
+				}
 				const parsed = parseSync(id, code);
-				if (!hasDirective(parsed)) return null;
+				if (!hasDirective(parsed)) {
+					return null;
+				}
 				if (hasNamespaceExport(parsed.module.staticExports)) {
 					throw new Error(`[wrenjs] "${DIRECTIVE}" modules cannot use "export *" (${id}).`);
 				}

@@ -1,6 +1,4 @@
-import type { RouteLoader } from "wrenjs/runtime/types";
-
-export const loader: RouteLoader<Record<string, string> | undefined> = async ({ params }) => params;
+export const loader: Wren.Loader = async ({ params }) => params;
 
 export default function TestPage({ data }: { data?: { test: string } }) {
 	return (

@@ -1,7 +1,7 @@
 import type { WrenIntegration } from "@wren-js/core/config";
 
-import prefresh from "@prefresh/vite";
 import { preactSsrPrecompile } from "@pracht/preact-ssr-precompile";
+import prefresh from "@prefresh/vite";
 import { resolve } from "node:path";
 
 import { clientEnvironment, serverEnvironment } from "#shared/cli/environments.ts";
@@ -17,33 +17,33 @@ import { pluginWrenPreactJsx } from "./plugins-vite/preact-jsx/vite.ts";
 const entry = (name: string) => resolve(import.meta.dirname, "entry", `${name}.mjs`);
 
 const wrenIntegrationPreact = (): WrenIntegration => {
-  const ssrEntry = entry("ssr");
-  const clientEntry = entry("client");
+	const ssrEntry = entry("ssr");
+	const clientEntry = entry("client");
 
-  return {
-    name: PACKAGE_NAME,
-    prerender: { entry: entry("prerender"), environment: "ssr" },
-    server: { entry: ssrEntry, environment: "ssr" },
-    viteConfig: async (config, env) => ({
-      environments: {
-        client: clientEnvironment(clientEntry, "dist/client"),
-        ssr: serverEnvironment(env, ssrEntry, "dist/ssr", { emitAssets: true, noExternal: true }),
-      },
-      plugins: [
-        preactSsrPrecompile(),
-        pluginWrenLink({ clientEntry, kind: "flight" }),
-        pluginWrenIslands({
-          runtimeEntry: clientEntry,
-          wrapperImport: `${PACKAGE_NAME}/runtime/island`,
-        }),
-        pluginWrenDevServer(ssrEntry),
-        pluginWrenServerOnly(),
-        ...pluginWrenCss(config.router!),
-        pluginWrenPreactJsx(),
-        await prefresh(),
-      ],
-    }),
-  };
+	return {
+		name: PACKAGE_NAME,
+		prerender: { entry: entry("prerender"), environment: "ssr" },
+		server: { entry: ssrEntry, environment: "ssr" },
+		viteConfig: async (config, env) => ({
+			environments: {
+				client: clientEnvironment(clientEntry, "dist/client"),
+				ssr: serverEnvironment(env, ssrEntry, "dist/ssr", { emitAssets: true, noExternal: true }),
+			},
+			plugins: [
+				preactSsrPrecompile(),
+				pluginWrenLink({ clientEntry, kind: "document" }),
+				pluginWrenIslands({
+					runtimeEntry: clientEntry,
+					wrapperImport: `${PACKAGE_NAME}/runtime/island`,
+				}),
+				pluginWrenDevServer(ssrEntry),
+				pluginWrenServerOnly(),
+				...pluginWrenCss(config.router!),
+				pluginWrenPreactJsx(),
+				await prefresh(),
+			],
+		}),
+	};
 };
 
 export default wrenIntegrationPreact;

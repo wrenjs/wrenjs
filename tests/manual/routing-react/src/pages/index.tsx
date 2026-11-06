@@ -1,19 +1,22 @@
-// import Link from "@wren-js/react/link";
-import type { RouteLoader } from "wrenjs/runtime/types";
+import Link from "@wren-js/core/link";
 /**
  * Home page — Server Component (default, no directive needed).
  * This code runs ONLY on the server and never ships to the client.
  */
-import { getServerCount, getServerTime } from "../actions/demo.ts";
-import { Counter } from "../components/Counter.tsx";
+import { getServerCount, getServerTime } from "../actions/demo";
+import { Counter } from "../components/Counter";
 
-export const loader: RouteLoader = async ({ request }) => ({
+export const loader: Wren.Loader = async ({ request }) => ({
 	headers: request.headers.get("accept"),
 	method: request.method,
 	url: request.url,
 });
 
-export default async function HomePage({ data }: { data?: unknown }) {
+export default async function HomePage({
+	data,
+}: {
+	data?: Promise<[Parameters<typeof getServerTime>]>;
+}) {
 	// You can do server-only things here: read files, query a DB, etc.
 	const serverTimestamp = await getServerTime();
 	const serverCount = await getServerCount();
@@ -26,10 +29,10 @@ export default async function HomePage({ data }: { data?: unknown }) {
 			<nav>
 				<ul>
 					<li>
-						<a href="/about">About (prerendered/SSG)</a>
+						<Link href="/about">About (prerendered/SSG)</Link>
 					</li>
 					<li>
-						<a href="/blog">Blog (nested layout demo)</a>
+						<Link href="/blog">Blog (nested layout demo)</Link>
 					</li>
 					<li>
 						<a href="/contact">Contact</a>
@@ -46,9 +49,6 @@ export default async function HomePage({ data }: { data?: unknown }) {
 				</ul>
 			</nav>
 			<pre>{JSON.stringify(res, null, 2)}</pre>
-			<p id="page-script-target">page script pending…</p>
-			<script src="../scripts/hello.ts" type="module" />
-			<script type="module">{`console.log("inline page script");`}</script>
 		</main>
 	);
 }

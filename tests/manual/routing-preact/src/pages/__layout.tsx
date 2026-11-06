@@ -1,6 +1,7 @@
 import type { JSX } from "preact/jsx-runtime";
 
 import "./__layout.css";
+import Link from "@wren-js/core/link";
 
 export default function RootLayout({ children }: { children: JSX.Element }) {
 	return (
@@ -10,7 +11,13 @@ export default function RootLayout({ children }: { children: JSX.Element }) {
 				<meta content="width=device-width, initial-scale=1" name="viewport" />
 				<title>wren</title>
 			</head>
-			<body>{children}</body>
+			<body>
+				<nav>
+					<Link href="/">Home</Link>
+					<Link href="/another">Another</Link>
+				</nav>
+				{children}
+			</body>
 		</html>
 	);
 }
