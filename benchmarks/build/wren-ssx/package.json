@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "@lumeland/ssx": "catalog:integration-ssx",
+    "@wrenjs/adapter-node": "workspace:*",
+    "@wrenjs/core": "workspace:*",
+    "@wrenjs/ssx": "workspace:*",
+    "typescript": "catalog:"
+  },
+  "name": "#benchmarks/build--wren-ssx",
+  "private": true,
+  "scripts": {
+    "build": "wren build"
+  },
+  "type": "module"
+}

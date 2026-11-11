@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "@wrenjs/adapter-node": "workspace:*",
+    "@wrenjs/core": "workspace:*",
+    "@wrenjs/preact": "workspace:*",
+    "preact": "catalog:integration-preact",
+    "typescript": "catalog:"
+  },
+  "name": "#benchmarks/build--wren-preact",
+  "private": true,
+  "scripts": {
+    "build": "wren build"
+  },
+  "type": "module"
+}

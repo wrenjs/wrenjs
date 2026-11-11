@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@wrenjs/core": "0.26.0",
+    "eslint": "10.14.0",
+    "typescript": "7.0.2",
+    "typescript-eslint": "8.72.1"
+  },
+  "scripts": {
+    "build": "wren build",
+    "dev": "wren dev",
+    "lint": "eslint ."
+  },
+  "type": "module"
+}

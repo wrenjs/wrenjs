@@ -1,0 +1,32 @@
+{
+	"name": "#monorepo/wrenjs",
+	"type": "module",
+	"scripts": {
+		"build": "vpr pkg",
+		"check": "vp check --fix",
+		"czg": "czg",
+		"pkg": "vpr --filter '...@wrenjs/core' --filter '!#*/*' build",
+		"prepare": "vp config",
+		"publish": "vpr --filter '...@wrenjs/core' --filter '!#*/*' publish"
+	},
+	"devDependencies": {
+		"@slowpoketail/oxc": "catalog:",
+		"@wrenjs/core": "workspace:*",
+		"czg": "catalog:",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vite-plus": "catalog:"
+	},
+	"devEngines": {
+		"packageManager": {
+			"name": "pnpm",
+			"version": "12.18.0",
+			"onFail": "download"
+		},
+		"runtime": {
+			"name": "node",
+			"version": "^26.13.0",
+			"onFail": "download"
+		}
+	}
+}

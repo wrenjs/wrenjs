@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "@wrenjs/core": "0.26.0",
+    "oxlint": "1.91.0",
+    "typescript": "7.0.2"
+  },
+  "scripts": {
+    "build": "wren build",
+    "dev": "wren dev",
+    "lint": "oxlint ."
+  },
+  "type": "module"
+}

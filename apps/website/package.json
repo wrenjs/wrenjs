@@ -1,0 +1,26 @@
+{
+	"name": "#apps/website",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "wren build",
+		"deploy": "wrangler deploy",
+		"dev": "wren dev",
+		"preview": "wrangler preview",
+		"wrangler": "wrangler"
+	},
+	"devDependencies": {
+		"@iconify-json/lucide": "1.2.151",
+		"@iconify-json/simple-icons": "1.2.101",
+		"@iconify/utils": "3.1.7",
+		"@mdx-js/rollup": "3.1.1",
+		"@preact/signals": "2.11.4",
+		"@unocss/transformer-compile-class": "66.12.0",
+		"@wrenjs/core": "workspace:*",
+		"@wrenjs/preact": "workspace:*",
+		"preact": "catalog:integration-preact",
+		"typescript": "catalog:",
+		"unocss": "66.12.0",
+		"wrangler": "4.157.0"
+	}
+}
