@@ -1,10 +1,10 @@
 {
   "devDependencies": {
-    "@tailwindcss/vite": "4.3.4",
+    "@tailwindcss/vite": "4.3.5",
     "@wrenjs/core": "0.26.0",
-    "tailwindcss": "4.3.4",
+    "tailwindcss": "4.3.5",
     "typescript": "7.0.2",
-    "vite": "8.3.5"
+    "vite": "8.3.7"
   },
   "scripts": {
     "build": "wren build",

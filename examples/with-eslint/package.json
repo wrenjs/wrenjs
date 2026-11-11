@@ -4,7 +4,7 @@
     "@wrenjs/core": "0.26.0",
     "eslint": "10.14.0",
     "typescript": "7.0.2",
-    "typescript-eslint": "8.72.1"
+    "typescript-eslint": "8.72.2"
   },
   "scripts": {
     "build": "wren build",

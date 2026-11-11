@@ -1,6 +1,6 @@
 {
 	"name": "@wrenjs/adapter-cloudflare",
-	"version": "0.33.0",
+	"version": "0.34.0",
 	"description": "Cloudflare Workers adapter for wrenjs",
 	"keywords": [
 		"@wrenjs/core",

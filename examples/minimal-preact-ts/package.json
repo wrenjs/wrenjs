@@ -2,7 +2,7 @@
   "devDependencies": {
     "@wrenjs/core": "0.26.0",
     "@wrenjs/preact": "0.26.0",
-    "preact": "11.1.1",
+    "preact": "11.2.0",
     "typescript": "7.0.2"
   },
   "scripts": {

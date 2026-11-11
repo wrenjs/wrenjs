@@ -1,6 +1,6 @@
 {
 	"name": "@wrenjs/ssx",
-	"version": "0.33.0",
+	"version": "0.34.0",
 	"description": "SSX rendering integration for wrenjs",
 	"keywords": [
 		"@wrenjs/core",
