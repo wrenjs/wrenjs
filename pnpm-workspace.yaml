@@ -7,8 +7,8 @@ catalog:
   "@types/node": "26.6.6"
   "czg": "^1.14.0"
   "typescript": "7.0.2"
-  "vite-plus": 1.5.1
-  "vite": npm:@voidzero-dev/vite-plus-core@1.5.1
+  "vite-plus": 1.6.0
+  "vite": npm:@voidzero-dev/vite-plus-core@1.6.0
 
 catalogs:
   adapter-cloudflare:
@@ -74,13 +74,13 @@ peerDependencyRules:
 publishBranch: trunk
 
 minimumReleaseAgeExclude:
-  - "@voidzero-dev/vite-plus-core@1.5.0"
-  - "@voidzero-dev/vite-plus-darwin-arm64@1.5.0"
-  - "@voidzero-dev/vite-plus-darwin-x64@1.5.0"
-  - "@voidzero-dev/vite-plus-linux-arm64-gnu@1.5.0"
-  - "@voidzero-dev/vite-plus-linux-arm64-musl@1.5.0"
-  - "@voidzero-dev/vite-plus-linux-x64-gnu@1.5.0"
-  - "@voidzero-dev/vite-plus-linux-x64-musl@1.5.0"
-  - "@voidzero-dev/vite-plus-win32-arm64-msvc@1.5.0"
-  - "@voidzero-dev/vite-plus-win32-x64-msvc@1.5.0"
-  - vite-plus@1.5.0
+  - "@voidzero-dev/vite-plus-core@1.5.0 || 1.6.0"
+  - "@voidzero-dev/vite-plus-darwin-arm64@1.5.0 || 1.6.0"
+  - "@voidzero-dev/vite-plus-darwin-x64@1.5.0 || 1.6.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-gnu@1.5.0 || 1.6.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-musl@1.5.0 || 1.6.0"
+  - "@voidzero-dev/vite-plus-linux-x64-gnu@1.5.0 || 1.6.0"
+  - "@voidzero-dev/vite-plus-linux-x64-musl@1.5.0 || 1.6.0"
+  - "@voidzero-dev/vite-plus-win32-arm64-msvc@1.5.0 || 1.6.0"
+  - "@voidzero-dev/vite-plus-win32-x64-msvc@1.5.0 || 1.6.0"
+  - vite-plus@1.5.0 || 1.6.0

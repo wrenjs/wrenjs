@@ -10,8 +10,8 @@
 		"wrangler": "wrangler"
 	},
 	"devDependencies": {
-		"@iconify-json/lucide": "1.2.152",
-		"@iconify-json/simple-icons": "1.2.101",
+		"@iconify-json/lucide": "1.2.153",
+		"@iconify-json/simple-icons": "1.2.102",
 		"@iconify/utils": "3.1.7",
 		"@mdx-js/rollup": "3.1.1",
 		"@preact/signals": "2.11.4",
@@ -21,6 +21,6 @@
 		"preact": "catalog:integration-preact",
 		"typescript": "catalog:",
 		"unocss": "66.12.0",
-		"wrangler": "4.159.0"
+		"wrangler": "4.160.0"
 	}
 }
