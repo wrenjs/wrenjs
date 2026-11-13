@@ -1,6 +1,6 @@
 {
 	"name": "@wrenjs/preact",
-	"version": "0.36.0",
+	"version": "0.37.0",
 	"description": "Preact rendering integration for wrenjs",
 	"keywords": [
 		"@wrenjs/core",

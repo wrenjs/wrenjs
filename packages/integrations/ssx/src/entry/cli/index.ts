@@ -7,6 +7,7 @@ import { pluginWrenCss } from "#shared/cli/plugins-vite/css/vite.ts";
 import { pluginWrenDevServer } from "#shared/cli/plugins-vite/dev-server/vite.ts";
 import { pluginWrenLink } from "#shared/cli/plugins-vite/link/vite.ts";
 import { pluginWrenServerOnly } from "#shared/cli/plugins-vite/server-only/vite.ts";
+import { dropEntryChunk } from "#shared/cli/utils.ts";
 
 import { PACKAGE_NAME } from "../../constants.ts";
 
@@ -31,6 +32,12 @@ const wrenIntegrationSSX = (): WrenIntegration => {
 				pluginWrenDevServer(ssrEntry),
 				pluginWrenServerOnly(),
 				...pluginWrenCss(config.router!),
+				{
+					applyToEnvironment: (environment) => environment.config.consumer === "client",
+					// The client entry is empty: it only gives the asset-only client environment an input.
+					generateBundle: (_, bundle) => dropEntryChunk(bundle, clientEntry),
+					name: "wrenjs-ssx-client-entry",
+				},
 			],
 		}),
 	};

@@ -62,6 +62,24 @@ export const preloadModule = async (context: Rolldown.PluginContext, id: string)
 	if (resolved) await context.load({ id: resolved.id });
 };
 
+// Removes the chunk built for an entry nothing loads, unless another chunk still imports it.
+export const dropEntryChunk = (bundle: Rolldown.OutputBundle, id: string): void => {
+	const chunks = Object.values(bundle).filter((output) => output.type === "chunk");
+	for (const { facadeModuleId, fileName, sourcemapFileName } of chunks) {
+		const isImported = chunks.some(
+			({ dynamicImports, imports }) =>
+				imports.includes(fileName) || dynamicImports.includes(fileName),
+		);
+		if (facadeModuleId !== id || isImported) {
+			continue;
+		}
+		delete bundle[fileName];
+		if (sourcemapFileName) {
+			delete bundle[sourcemapFileName];
+		}
+	}
+};
+
 export const hasNamespaceExport = (staticExports: StaticExports): boolean =>
 	staticExports.some(({ entries }) =>
 		entries.some(({ importName: { kind } }) => kind === "All" || kind === "AllButDefault"),

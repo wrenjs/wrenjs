@@ -10,7 +10,12 @@ import {
 	PAGE_SCRIPT_URL_PREFIX,
 	SOURCE_RE,
 } from "../../../constants.ts";
-import { hasNamespaceExport, preloadModule, staticExportNames } from "../../utils.ts";
+import {
+	dropEntryChunk,
+	hasNamespaceExport,
+	preloadModule,
+	staticExportNames,
+} from "../../utils.ts";
 
 type ParseResult = ReturnType<typeof parseSync>;
 
@@ -40,6 +45,12 @@ export const pluginWrenIslands = (options: {
 		},
 		configEnvironment: () => ({ optimizeDeps: { exclude: [options.wrapperImport] } }),
 		enforce: "pre",
+		generateBundle(_, bundle) {
+			// Only islands load the runtime, so a build without any has no use for its chunk.
+			if (this.environment.config.consumer === "client" && implIds.size === 0) {
+				dropEntryChunk(bundle, options.runtimeEntry);
+			}
+		},
 		load: {
 			filter: { id: IMPL_RE },
 			handler(id) {
