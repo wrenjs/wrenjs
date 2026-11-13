@@ -6,7 +6,7 @@ import { parseSync } from "vite";
 
 import {
 	ISLAND_SCRIPT_MODULE,
-	PAGE_SCRIPT_HOIST_PREFIX,
+	PAGE_SCRIPT_QUERY,
 	PAGE_SCRIPT_URL_PREFIX,
 	SOURCE_RE,
 } from "../../../constants.ts";
@@ -86,7 +86,7 @@ export const pluginWrenIslands = (options: {
 				});
 				return {
 					code: [
-						`import ${JSON.stringify(PAGE_SCRIPT_HOIST_PREFIX + ISLAND_SCRIPT_MODULE)};`,
+						`import ${JSON.stringify(ISLAND_SCRIPT_MODULE + PAGE_SCRIPT_QUERY)};`,
 						`import * as impl from ${JSON.stringify(impl)};`,
 						`import url from ${JSON.stringify(PAGE_SCRIPT_URL_PREFIX + id)};`,
 						`import { island } from ${JSON.stringify(options.wrapperImport)};`,

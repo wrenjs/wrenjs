@@ -40,13 +40,13 @@ export const RUNNERS = [
 //     serve: "pnpm run serve",
 //   },
 //
-//   {
-//     cwd: "./tanstack-start",
-//     name: "Tanstack Start (React)",
-//     install: THIRD_PARTY.INSTALL,
-//     build: THIRD_PARTY.BUILD,
-//     serve: "pnpm run serve",
-//   },
+  {
+    cwd: "./tanstack-start",
+    name: "Tanstack Start (React)",
+    install: THIRD_PARTY.INSTALL,
+    build: THIRD_PARTY.BUILD,
+    serve: "pnpm run serve",
+  },
 
   {
     build: "pnpm run build",

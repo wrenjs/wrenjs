@@ -10,6 +10,9 @@ const VIRTUAL_ID = `virtual:${WREN_NAME}-server-env`;
 const RESOLVED_ID = `\0${VIRTUAL_ID}`;
 const ENV_PREFIX = "import.meta.env.";
 
+/**
+ * Plugin allows `import.meta.env` to contain variables `.env` files in the server environment.
+ */
 export const pluginServerEnv = (): Plugin => {
 	const getDefine = perEnvironmentState(({ config }) => {
 		const define = Object.fromEntries(
@@ -47,15 +50,21 @@ export const pluginServerEnv = (): Plugin => {
 				id: /\.[cm]?[jt]sx?(?:$|\?)/,
 			},
 			handler(code, id) {
-				if (id === RESOLVED_ID) return null;
+				if (id === RESOLVED_ID) {
+					return null;
+				}
 				let name = "__wrenServerEnv";
 				// Escaped identifiers can collide without containing the literal name.
-				if (code.includes(name) || code.includes("\\u")) {
+				if (code.includes(name) || code.includes(String.raw`\u`)) {
 					const { errors, program } = parseSync(id.split("?")[0], code);
-					if (errors.length > 0) return this.error(errors[0].message);
+					if (errors.length > 0) {
+						return this.error(errors.map((error) => error.message).join("\n"));
+					}
 					const names = new Set<string>();
 					new Visitor({ Identifier: (node) => void names.add(node.name) }).visit(program);
-					while (names.has(name)) name += "_";
+					while (names.has(name)) {
+						name += "_";
+					}
 				}
 				return transformWithOxc(code, id, {
 					define: { ...getDefine(this), "import.meta.env": name },

@@ -1,4 +1,3 @@
-// Self-contained: this function's source is emitted into the virtual runtime module.
 export const createServerEnv = (target: Record<string, unknown>, prefixes: string[]) => {
 	const isPrivate = (key: string | symbol): key is string =>
 		typeof key === "string"

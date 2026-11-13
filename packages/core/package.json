@@ -1,6 +1,6 @@
 {
 	"name": "@wrenjs/core",
-	"version": "0.35.0",
+	"version": "0.36.0",
 	"description": "Framework agnostic utilities for the wrenjs meta-framework",
 	"keywords": [
 		"@wrenjs/core",

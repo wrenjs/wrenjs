@@ -7,4 +7,4 @@ declare module "virtual:wrenjs-page-scripts" {
 	export default manifest;
 }
 
-declare module "virtual:wrenjs-hoist:*" {}
+declare module "*?script" {}

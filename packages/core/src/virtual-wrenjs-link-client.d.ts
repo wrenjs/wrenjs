@@ -4,6 +4,7 @@ declare module "virtual:wrenjs-link-client" {
 }
 
 declare module "virtual:wrenjs-link-script" {
-	const url: string;
+	// Undefined in builds that never bundle the script.
+	const url: string | undefined;
 	export default url;
 }

@@ -1,31 +1,26 @@
 import type { DevEnvironment, Plugin, Rolldown } from "vite";
 
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { isCSSRequest, normalizePath } from "vite";
 
 import { WREN_NAME } from "#/constants.ts";
-import { applyEdits, countLines, replaceLines } from "#shared/cli/edits.ts";
 import { NODE_MODULES_RE, routerFileFilter, sortedRecord, stem } from "#shared/cli/utils.ts";
 import {
 	EXPORT_SCRIPTS,
-	PAGE_SCRIPT_HOIST_PREFIX,
+	PAGE_SCRIPT_QUERY,
 	PAGE_SCRIPT_URL_PREFIX,
 	ROUTE_MODULE_RE,
 	SOURCE_RE,
 } from "#shared/constants.ts";
-
-import type { PageScript } from "./extract.ts";
-
-import { extractPageScripts } from "./extract.ts";
 
 const VIRTUAL_ID = `virtual:${WREN_NAME}-page-scripts`;
 const RESOLVED_ID = `\0${VIRTUAL_ID}`;
 const IMPORT_NAME = "__wrenPageScripts";
 const ROUTE_PREFIX = `${VIRTUAL_ID}:route:`;
 const RESOLVED_ROUTE_PREFIX = `\0${ROUTE_PREFIX}`;
-const HOISTED_ID = `\0${PAGE_SCRIPT_HOIST_PREFIX}`;
-const INLINE_RE = /\?wren-script=(\d+)\.ts$/;
+// Marks a page script in the server module graph: routes collect the ones they reach.
+const HOISTED_ID = `\0${VIRTUAL_ID}:script:`;
 const MANIFEST_FILE = "__wren-page-scripts.mjs";
 const SCRIPT_URL_ID = `\0${PAGE_SCRIPT_URL_PREFIX}`;
 
@@ -49,26 +44,6 @@ const toKey = (root: string, id: string) => {
 		: path;
 };
 
-const resolveTarget = async (
-	context: Rolldown.TransformPluginContext,
-	script: PageScript,
-	id: string,
-) => {
-	const dropped = script.attributes.filter((attribute) => !/^type\b/.test(attribute));
-	if (dropped.length > 0) {
-		context.warn(`Page script attributes are dropped when hoisted: ${dropped.join(" ")}`);
-	}
-	if (script.kind === "inline") {
-		return { id: `${id}?wren-script=${script.index}.ts`, name: `${stem(id)}-${script.index}` };
-	}
-	const resolved = await context.resolve(script.src, id);
-	if (!resolved || resolved.external || resolved.id.includes("/node_modules/")) {
-		context.warn(`Page script "${script.src}" must resolve to a project file; left as is.`);
-		return undefined;
-	}
-	return { id: resolved.id, name: stem(resolved.id) };
-};
-
 const staticImports = (bundle: Rolldown.OutputBundle, fileName: string) => {
 	const files = new Set([fileName]);
 	for (const file of files) {
@@ -83,28 +58,14 @@ const staticImports = (bundle: Rolldown.OutputBundle, fileName: string) => {
 	return [...files].filter((file) => file in bundle);
 };
 
-const loadInline = async (context: Rolldown.PluginContext, file: string, index: number) => {
-	const code = await readFile(file, "utf8");
-	const script = extractPageScripts(code, file).scripts.find(
-		(candidate) => candidate.kind === "inline" && candidate.index === index,
-	);
-	if (script?.kind !== "inline") {
-		return context.error(`Inline page script #${index} not found in ${file}.`);
-	}
-
-	return {
-		code: "\n".repeat(countLines(code.slice(0, script.codeStart))) + script.code,
-		map: null,
-	};
-};
-
+/**
+ * Bundles modules imported as `import "./file.ts?script"` for the client and loads them on every
+ * route whose server modules reach the import. Allows for one off scripts, theme scripts, Web
+ * Components, etc. without needing to bundle heavier framework javascript.
+ */
 export const pluginPageScripts = (router: string): Plugin[] => {
 	const registry = new Map<string, ScriptTarget>();
 	const consumers = new Set<string>();
-
-	const declared = new Map<string, ScriptTarget[]>();
-
-	const hoisted = new Map<string, Map<string, Set<ScriptTarget>>>();
 
 	const routes = new Map<string, string>();
 
@@ -113,11 +74,10 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 
 	let environments: DevEnvironment[] = [];
 
-	const register = (root: string, target: Pick<ScriptTarget, "id" | "name">) => {
-		const key = toKey(root, target.id);
-		const entry = registry.get(key) ?? { ...target, key };
-		registry.set(key, entry);
-		return entry;
+	const register = (root: string, id: string) => {
+		if (!registry.has(id)) {
+			registry.set(id, { id, key: toKey(root, id), name: stem(id) });
+		}
 	};
 
 	const collect = (root: string, edges: (id: string) => Iterable<string>) => {
@@ -128,13 +88,9 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 				return;
 			}
 			visited.add(id);
-			for (const target of declared.get(id) ?? []) {
+			const target = id.startsWith(HOISTED_ID) && registry.get(id.slice(HOISTED_ID.length));
+			if (target) {
 				targets.add(target);
-			}
-			for (const set of hoisted.get(id)?.values() ?? []) {
-				for (const target of set) {
-					targets.add(target);
-				}
 			}
 			for (const next of edges(id)) {
 				walk(next);
@@ -142,32 +98,6 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 		};
 		walk(root);
 		return [...targets];
-	};
-
-	const hoistScripts = async (
-		context: Rolldown.TransformPluginContext,
-		code: string,
-		id: string,
-		isServer: boolean,
-	) => {
-		const { scripts, warnings } = extractPageScripts(code, id);
-		const edits = scripts.map(({ end, replacement, start }) =>
-			replaceLines(code, start, end, replacement),
-		);
-
-		if (!isServer) {
-			return edits;
-		}
-		for (const warning of warnings) {
-			context.warn(warning);
-		}
-		const resolved = await Promise.all(scripts.map((script) => resolveTarget(context, script, id)));
-		const { root } = context.environment.config;
-		declared.set(
-			id,
-			resolved.flatMap((target) => (target ? [register(root, target)] : [])),
-		);
-		return edits.filter((_, i) => resolved[i]);
 	};
 
 	const stamp = (id: string, root: string, isBuild: boolean) => {
@@ -286,46 +216,30 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 			}
 		},
 
-		hotUpdate({ modules }) {
-			for (const { id } of modules) {
-				if (!id) {
-					continue;
-				}
-				declared.delete(id);
-				hoisted.get(id)?.delete(this.environment.name);
-			}
-		},
-
 		load: {
 			filter: {
 				id: [
-					INLINE_RE,
 					new RegExp(`^${SCRIPT_URL_ID}`),
 					new RegExp(`^${RESOLVED_ROUTE_PREFIX}`),
-					new RegExp(`^${HOISTED_ID}$`),
+					new RegExp(`^${HOISTED_ID}`),
 					new RegExp(`^${RESOLVED_ID}$`),
 				],
 			},
-			async handler(id) {
+			handler(id) {
 				const { config, mode } = this.environment;
-				if (id === HOISTED_ID) {
+				if (id.startsWith(HOISTED_ID)) {
 					return "export {};";
 				}
 				if (id === RESOLVED_ID) {
 					return "export default { routes: {}, scripts: {} };";
 				}
 				if (id.startsWith(SCRIPT_URL_ID)) {
-					const file = id.slice(SCRIPT_URL_ID.length);
-					const { key } = register(config.root, { id: file, name: stem(file) });
+					const key = toKey(config.root, id.slice(SCRIPT_URL_ID.length));
 					return mode === "build"
 						? `import ${IMPORT_NAME} from ${JSON.stringify(VIRTUAL_ID)};export default ${IMPORT_NAME}.scripts[${JSON.stringify(key)}];`
 						: `export default ${JSON.stringify(config.base + key)};`;
 				}
-				if (id.startsWith(RESOLVED_ROUTE_PREFIX)) {
-					return loadRouteScripts(this, decodeURIComponent(id.slice(RESOLVED_ROUTE_PREFIX.length)));
-				}
-				const match = INLINE_RE.exec(id);
-				return match ? loadInline(this, id.slice(0, match.index), Number(match[1])) : null;
+				return loadRouteScripts(this, decodeURIComponent(id.slice(RESOLVED_ROUTE_PREFIX.length)));
 			},
 		},
 
@@ -346,27 +260,38 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 
 		resolveId: {
 			filter: {
-				id: new RegExp(`^(?:${PAGE_SCRIPT_HOIST_PREFIX}|${PAGE_SCRIPT_URL_PREFIX}|${VIRTUAL_ID})`),
+				id: [
+					new RegExp(`\\${PAGE_SCRIPT_QUERY}$`),
+					new RegExp(`^(?:${PAGE_SCRIPT_URL_PREFIX}|${VIRTUAL_ID})`),
+				],
 			},
 			async handler(source, importer) {
-				if (source.startsWith(PAGE_SCRIPT_HOIST_PREFIX)) {
-					if (importer && this.environment.config.consumer === "server") {
-						const resolved = await this.resolve(
-							source.slice(PAGE_SCRIPT_HOIST_PREFIX.length),
-							importer,
-						);
-						if (!resolved?.id.startsWith(SCRIPT_URL_ID)) {
-							return this.error(`"${source}" must resolve to a Wren page script (${importer}).`);
-						}
-						const file = resolved.id.slice(SCRIPT_URL_ID.length);
-						const target = register(this.environment.config.root, { id: file, name: stem(file) });
-						const byEnvironment = hoisted.get(importer) ?? new Map<string, Set<ScriptTarget>>();
-						const targets = byEnvironment.get(this.environment.name) ?? new Set<ScriptTarget>();
-						hoisted.set(importer, byEnvironment.set(this.environment.name, targets.add(target)));
+				if (source.endsWith(PAGE_SCRIPT_QUERY)) {
+					const { config } = this.environment;
+					// Browsers get page scripts from the route's tags, never through the importer.
+					if (config.consumer !== "server") {
+						return HOISTED_ID;
 					}
-					return HOISTED_ID;
+					const resolved = await this.resolve(source.slice(0, -PAGE_SCRIPT_QUERY.length), importer);
+					const isScriptUrl = resolved?.id.startsWith(SCRIPT_URL_ID);
+					if (
+						!resolved
+						|| resolved.external
+						|| (!isScriptUrl && NODE_MODULES_RE.test(resolved.id))
+					) {
+						return this.error(`"${source}" must resolve to a project file (${importer}).`);
+					}
+					const file = isScriptUrl ? resolved.id.slice(SCRIPT_URL_ID.length) : resolved.id;
+					register(config.root, file);
+					return HOISTED_ID + file;
 				}
-				if (source.startsWith(PAGE_SCRIPT_URL_PREFIX) || source.startsWith(ROUTE_PREFIX)) {
+				if (source.startsWith(PAGE_SCRIPT_URL_PREFIX)) {
+					// Asking for a file's URL bundles it. Ids other plugins resolve to this module only
+					// look the URL up, which stays undefined in builds until something bundles the file.
+					register(this.environment.config.root, source.slice(PAGE_SCRIPT_URL_PREFIX.length));
+					return `\0${source}`;
+				}
+				if (source.startsWith(ROUTE_PREFIX)) {
 					return `\0${source}`;
 				}
 
@@ -378,19 +303,6 @@ export const pluginPageScripts = (router: string): Plugin[] => {
 		},
 
 		sharedDuringBuild: true,
-
-		transform: {
-			filter: { code: "<script", id: { exclude: NODE_MODULES_RE, include: SOURCE_RE } },
-			async handler(code, id) {
-				const isServer = this.environment.config.consumer === "server";
-				const edits = await hoistScripts(this, code, id, isServer);
-				if (edits.length > 0) {
-					return { code: applyEdits(code, edits), map: null };
-				}
-				declared.delete(id);
-				return null;
-			},
-		},
 	} satisfies Plugin;
 
 	const routeExports: Plugin = {

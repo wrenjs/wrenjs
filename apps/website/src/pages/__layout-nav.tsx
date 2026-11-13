@@ -9,6 +9,7 @@ import { DOCS_NAV_LINKS, MAIN_NAV_LINKS } from "#/constants";
 import { cn } from "#/utils/cn";
 
 import styles from "./__layout-nav.module.css";
+import "./__layout-nav.script.ts?script";
 
 declare module "preact" {
 	namespace JSX {
@@ -27,10 +28,7 @@ export interface NavMenuProps {
 
 export function NavMenu({ children, class: className }: NavMenuProps) {
 	return (
-		<>
-			<wren-nav-menu class={cn(styles.root, ":uno: relative", className)}>{children}</wren-nav-menu>
-			<script src="./__layout-nav.script.ts" type="module" />
-		</>
+		<wren-nav-menu class={cn(styles.root, ":uno: relative", className)}>{children}</wren-nav-menu>
 	);
 }
 

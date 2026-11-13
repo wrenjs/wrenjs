@@ -1,4 +1,6 @@
-import { type ConfigEnv, defineConfig, mergeConfig, type UserConfig } from "vite";
+import type { ConfigEnv, UserConfig } from "vite";
+
+import { defineConfig, mergeConfig } from "vite";
 
 import type { WrenConfig } from "#/entry/config/types.js";
 
@@ -35,7 +37,9 @@ export const getViteConfig = async (env: ConfigEnv, config: WrenConfig) => {
 					(a, b) => Number(a.config.consumer === "client") - Number(b.config.consumer === "client"),
 				);
 				for (const environment of environments) {
-					if (environment.isBuilt) continue;
+					if (environment.isBuilt) {
+						continue;
+					}
 					const { build, input: environmentInput, isBundled } = environment.config;
 					const input =
 						build.rolldownOptions.input

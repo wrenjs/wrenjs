@@ -3,6 +3,7 @@ import type { ComponentChildren, ComponentType, VNode } from "preact";
 import { Fragment } from "preact";
 import { renderToStringAsync } from "preact-render-to-string";
 import { jsx } from "preact/jsx-runtime";
+import islandScript from "virtual:wrenjs-island-script";
 
 import type { PreactRouteStack } from "#/types.ts";
 
@@ -26,6 +27,7 @@ const h = (type: ComponentType<object>, props: object): VNode => {
 export const renderPage = createPageRenderer<PreactRouteStack, VNode>(
 	(request, page) => renderToStringAsync(composeTree(request, page, h)),
 	renderToStringAsync,
+	islandScript,
 );
 
 export const HANDLERS = createPageHandlers(renderPage);

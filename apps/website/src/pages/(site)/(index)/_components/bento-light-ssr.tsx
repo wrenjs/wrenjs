@@ -2,12 +2,13 @@ import { Glass } from "#/components/glass";
 import { Icon } from "#/components/icon";
 
 const latencyData = [
-	{ app: "Wren (Preact)", icon: "i-simple-icons:preact", latency: 3 },
-	{ app: "Wren (SSX)", icon: "i-lucide:server", latency: 3 },
-	{ app: "Wren (React)", icon: "i-simple-icons:react", latency: 11 },
-	{ app: "SvelteKit", icon: "i-simple-icons:svelte", latency: 17 },
-	{ app: "Astro", icon: "i-simple-icons:astro", latency: 25 },
-	{ app: "NextJS", icon: "i-simple-icons:nextdotjs", latency: 148 },
+	{ app: "Wren (Preact)", icon: "i-simple-icons:preact", latency: 2 },
+	{ app: "Wren (SSX)", icon: "i-lucide:server", latency: 2 },
+	{ app: "Wren (React)", icon: "i-simple-icons:react", latency: 6 },
+	{ app: "SvelteKit", icon: "i-simple-icons:svelte", latency: 12 },
+	{ app: "Astro", icon: "i-simple-icons:astro", latency: 17 },
+	{ app: "Tanstack Start (React)", icon: "i-simple-icons:tanstack", latency: 18 },
+	{ app: "NextJS", icon: "i-simple-icons:nextdotjs", latency: 114 },
 ];
 
 const maxLatency = Math.max(...latencyData.map(({ latency }) => latency));
@@ -21,7 +22,7 @@ export function BentoLightSSR() {
 					<h4 class=":uno: text-base leading-none font-medium text-gray-800">
 						Routing to Catch-all <span class=":uno: font-mono">/a/b/c</span>
 					</h4>
-					<p class=":uno: mt-1 text-sm text-gray-700">p50 response latency</p>
+					<p class=":uno: mt-1 text-sm text-gray-700">p50 response latency (ms)</p>
 				</div>
 				{latencyData.map(({ app, icon, latency }) => (
 					<div class=":uno: flex flex-col gap-1" key={app}>
@@ -44,7 +45,7 @@ export function BentoLightSSR() {
 				))}
 				<p class=":uno: text-3 text-gray-600 max-w-[50ch]">
 					<span class="block">
-						node v26.10.0, autocannon v8.0.0, 50 connections, 10 pipelining, 15s duration, M4 Pro.
+						node v26.10.0, autocannon v8.0.0, 50 connections, 10 pipelining, 15s duration, M6.
 						Minimal routes. Attempted to not include any client assets per app.
 					</span>
 					<span class="inline-flex items-center gap-1 text-3 text-gray-500 mt-1">

@@ -141,6 +141,8 @@ export const createPageRenderer =
 	<TStack extends IntegrationRouteStack<unknown, unknown, TElement>, TElement>(
 		renderTree: (request: RequestInput, page: PreparedPage<TStack>) => Promise<string> | string,
 		renderHead: (element: TElement) => Promise<string> | string,
+		// URL of the islands runtime, for integrations that render islands.
+		islandScript?: string,
 	): PageRenderer<TStack> =>
 	async (request, routeStack) => {
 		const page = preparePage(request, routeStack);
@@ -154,7 +156,10 @@ export const createPageRenderer =
 			head === "" && !(assets instanceof Promise)
 				? [await tree, head, assets]
 				: await Promise.all([tree, head, assets]);
-		return injectIntoHead(html, headHtml + tags + renderIslandPreloads(html, requested));
+		return injectIntoHead(
+			html,
+			headHtml + tags + renderIslandPreloads(html, requested, islandScript),
+		);
 	};
 
 export const createPageHandlers = <TStack extends IntegrationRouteStack>(

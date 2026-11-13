@@ -78,7 +78,7 @@ export const loadRouteData = (
 			)
 		: noData(modules.length);
 
-type UrlExport<K extends string> = { [P in K]?: () => Promise<string[]> | string[] };
+type UrlExport<K extends string> = Partial<Record<K, () => Promise<string[]> | string[]>>;
 
 const dedupe = (lists: string[][]): string[] => [...new Set(lists.flat())];
 
@@ -94,7 +94,9 @@ const collectUrls = <K extends string>(
 
 const joinTags = (urls: Iterable<string>, tag: (url: string) => string): string => {
 	let markup = "";
-	for (const url of urls) markup += tag(url);
+	for (const url of urls) {
+		markup += tag(url);
+	}
 	return markup;
 };
 
@@ -104,21 +106,36 @@ const pageScriptTag = (src: string) => `<script type="module" src="${src}"></scr
 
 export const collectModulePreloads = (scripts: readonly string[]): string[] => {
 	const { imports } = scriptManifest;
-	if (!imports) return [];
+	if (!imports) {
+		return [];
+	}
 	const preloads = new Set(scripts.flatMap((script) => imports[script] ?? []));
-	for (const script of scripts) preloads.delete(script);
+	for (const script of scripts) {
+		preloads.delete(script);
+	}
 	return [...preloads];
 };
-
-export const renderIslandPreloads = (html: string, requested: ReadonlySet<string>): string => {
+export const renderIslandPreloads = (
+	html: string,
+	requested: ReadonlySet<string>,
+	islandScript: string | undefined,
+): string => {
 	const { imports } = scriptManifest;
-	// Islands hoist their runtime into the route's scripts, so a route without scripts has none.
-	if (!imports || requested.size === 0) return "";
+	// Islands hoist their runtime into the route's scripts, so a route without it renders none.
+	if (!imports || islandScript === undefined || !requested.has(islandScript)) {
+		return "";
+	}
 	const preloads = new Set<string>();
 	for (const src of eagerIslandSources(html)) {
 		const deps = imports[src];
-		if (!deps) continue;
-		for (const url of [src, ...deps]) if (!requested.has(url)) preloads.add(url);
+		if (!deps) {
+			continue;
+		}
+		for (const url of [src, ...deps]) {
+			if (!requested.has(url)) {
+				preloads.add(url);
+			}
+		}
 	}
 	return joinTags(preloads, modulePreloadTag);
 };
@@ -171,7 +188,9 @@ export const injectIntoHead = (html: string, markup: string): string => {
 	// Rendered documents open with a tag, which rules a doctype out without running the regex.
 	const doctype = html.startsWith("<") && html[1] !== "!" ? undefined : DOCTYPE_RE.exec(html)?.[0];
 	const documentHtml = doctype ? html : `${DOCTYPE}${html}`;
-	if (!markup) return documentHtml;
+	if (!markup) {
+		return documentHtml;
+	}
 	const headIndex = documentHtml.indexOf("</head>");
 	const index = headIndex === -1 ? (doctype?.length ?? DOCTYPE.length) : headIndex;
 	return documentHtml.slice(0, index) + markup + documentHtml.slice(index);
@@ -179,7 +198,9 @@ export const injectIntoHead = (html: string, markup: string): string => {
 
 export const isTrustedOrigin = (request: RequestInput): boolean => {
 	const origin = request.headers.get("origin");
-	if (!origin) return true;
+	if (!origin) {
+		return true;
+	}
 	const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
 	return URL.parse(origin)?.host === host;
 };
@@ -199,7 +220,9 @@ export const handlerApi = async (
 	const { module } = routeStack;
 	const method = request.method.toUpperCase();
 	const handler = isApiMethod(method) ? module[method] : undefined;
-	if (!handler) return methodNotAllowed(ENTRY_API_EXPORTS.filter((name) => module[name]));
+	if (!handler) {
+		return methodNotAllowed(ENTRY_API_EXPORTS.filter((name) => module[name]));
+	}
 	try {
 		return await handler(getRequest(request), routeStack);
 	} catch (error) {

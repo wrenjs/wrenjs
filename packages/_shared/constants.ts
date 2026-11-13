@@ -20,7 +20,7 @@ export const ISLAND_SCRIPT_MODULE = "virtual:wrenjs-island-script";
 export const ROUTES_MODULE = "virtual:wrenjs-routes";
 export const PAGE_SCRIPT_URL_PREFIX = "virtual:wrenjs-script-url:";
 
-export const PAGE_SCRIPT_HOIST_PREFIX = "virtual:wrenjs-hoist:";
+export const PAGE_SCRIPT_QUERY = "?script";
 
 export const EXPORT_REQUIRES_CLIENT = "__wrenRequiresClient";
 

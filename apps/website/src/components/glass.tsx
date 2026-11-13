@@ -1,6 +1,7 @@
 import { cn } from "#/utils/cn";
 
 import styles from "./glass.module.css";
+import "./glass.script.ts?script";
 
 declare global {
 	namespace JSX {
@@ -36,20 +37,17 @@ export function Glass({
 }: GlassProps & Omit<JSX.IntrinsicElements["div"], keyof GlassProps>) {
 	const tintValue = TINT_MAP.get(tint ?? "") ?? tint;
 	return (
-		<>
-			<wren-glass
-				class={cn(
-					styles.glass,
-					variant === "primary"
-						&& ":uno: bg-white bg-gradient-to-br from-white/30 via-white/10 to-black/3 border border-t-white/60 border-l-white/40 border-b-gray/20 border-r-gray/25 ring-1 ring-white/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-1px_2px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.08)]",
-					className,
-				)}
-				style={{ "--glass-tint": tintValue, ...style }}
-				{...props}
-			>
-				{children}
-			</wren-glass>
-			<script src="./glass.script.ts" type="module" />
-		</>
+		<wren-glass
+			class={cn(
+				styles.glass,
+				variant === "primary"
+					&& ":uno: bg-white bg-gradient-to-br from-white/30 via-white/10 to-black/3 border border-t-white/60 border-l-white/40 border-b-gray/20 border-r-gray/25 ring-1 ring-white/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-1px_2px_rgba(0,0,0,0.04),0_4px_16px_rgba(0,0,0,0.08)]",
+				className,
+			)}
+			style={{ "--glass-tint": tintValue, ...style }}
+			{...props}
+		>
+			{children}
+		</wren-glass>
 	);
 }

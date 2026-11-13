@@ -41,10 +41,14 @@ const classifyModule = (fileName: string, exportNames: string[]): EntryKind | un
 	const hasApi = ENTRY_API_EXPORTS.some((name) => exportNames.includes(name));
 	const special = SPECIAL_KINDS.get(stem(fileName));
 	if (hasDefault) {
-		if (!special) return ENTRY_KIND_PAGE;
+		if (!special) {
+			return ENTRY_KIND_PAGE;
+		}
 		return hasApi ? undefined : special;
 	}
-	if (!hasApi) return undefined;
+	if (!hasApi) {
+		return undefined;
+	}
 	return !special || special === ENTRY_KIND_LAYOUT || special === ENTRY_KIND_ROOT
 		? ENTRY_KIND_API
 		: undefined;
@@ -66,12 +70,16 @@ const classifyFile = async (fullPath: string, fileName: string): Promise<Entry |
 const classifyCachedFile = (file: Dirent, cache: RouteClassificationCache) => {
 	const fullPath = normalizePath(`${file.parentPath}/${file.name}`);
 	const cached = cache.get(fullPath);
-	if (cached) return cached;
+	if (cached) {
+		return cached;
+	}
 	// Cached while pending, so evicting a file mid-read discards the possibly stale result.
 	const entry = classifyFile(fullPath, file.name);
 	cache.set(fullPath, entry);
 	entry.catch(() => {
-		if (cache.get(fullPath) === entry) cache.delete(fullPath);
+		if (cache.get(fullPath) === entry) {
+			cache.delete(fullPath);
+		}
 	});
 	return entry;
 };
@@ -111,9 +119,13 @@ export const getRoutes = async (
 		const directory = dirname(entry.file);
 		const own = wrappers.get(directory) ?? { layouts: [], proxies: [], roots: [] };
 		wrappers.set(directory, own);
-		if (kind === ENTRY_KIND_LAYOUT) own.layouts.push(entry);
-		else if (kind === ENTRY_KIND_PROXY) own.proxies.push(entry);
-		else own.roots.push(entry);
+		if (kind === ENTRY_KIND_LAYOUT) {
+			own.layouts.push(entry);
+		} else if (kind === ENTRY_KIND_PROXY) {
+			own.proxies.push(entry);
+		} else {
+			own.roots.push(entry);
+		}
 	}
 
 	const chains = new Map<string, Wrappers>();
