@@ -1,5 +1,5 @@
 import { FileSystemIconLoader } from "@iconify/utils/lib/loader/node-loaders";
-import { defineConfig, presetIcons, presetWind4, transformerCompileClass } from "unocss";
+import { defineConfig, presetIcons, presetWind4 } from "unocss";
 
 import { DOCS_NAV_LINKS, LS_PKG_KEY, MAIN_NAV_LINKS, PACKAGE_MANAGERS } from "./src/constants";
 
@@ -52,9 +52,4 @@ export default defineConfig({
 			accent: "var(--font-accent)",
 		},
 	},
-	transformers: [
-		transformerCompileClass({
-			classPrefix: "",
-		}),
-	],
 });

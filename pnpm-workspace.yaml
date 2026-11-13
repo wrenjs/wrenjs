@@ -12,14 +12,14 @@ catalog:
 
 catalogs:
   adapter-cloudflare:
-    "@cloudflare/vite-plugin": "1.68.0"
+    "@cloudflare/vite-plugin": "1.69.1"
 
   benchmarks:
     "@types/autocannon": "7.12.7"
     "autocannon": "9.0.0"
 
   integration-preact:
-    "@pracht/preact-ssr-precompile": "0.1.5"
+    "@pracht/preact-ssr-precompile": "0.2.0"
     "@prefresh/vite": "4.0.1"
     preact-render-to-string: "6.8.2"
     preact: "11.2.0"
@@ -45,7 +45,7 @@ catalogs:
     "react-dom": "^19.3.1"
 
   runtime:
-    "vite": "8.3.7"
+    "vite": "8.3.8"
 
 catalogMode: prefer
 
